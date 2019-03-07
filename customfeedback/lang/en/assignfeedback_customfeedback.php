@@ -21,6 +21,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Awesome feedback';
+$string['pluginname'] = 'Competitive Assignment';
 $string['enabled'] = 'Awesome feedback';
 $string['enabled_help'] = 'If enabled, the teacher will be able to provide awesome feedback ';
