@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="865d4192-05e8-46da-bc3e-34c354a66e10" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lang/en/assignfeedback_customfeedback.php" beforeDir="false" afterPath="$PROJECT_DIR$/lang/en/assignfeedback_customfeedback.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/locallib.php" beforeDir="false" afterPath="$PROJECT_DIR$/locallib.php" afterDir="false" />
-    </list>
+    <list default="true" id="865d4192-05e8-46da-bc3e-34c354a66e10" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -105,11 +101,11 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="-48" />
-    <option name="y" value="632" />
-    <option name="width" value="1371" />
-    <option name="height" value="821" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="67" />
+    <option name="y" value="25" />
+    <option name="width" value="1533" />
+    <option name="height" value="875" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -173,18 +169,17 @@
       <updated>1551979190554</updated>
       <workItem from="1551979191709" duration="2733000" />
       <workItem from="1551982046862" duration="972000" />
-      <workItem from="1551987351454" duration="5073000" />
+      <workItem from="1551987351454" duration="5672000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="8778000" />
+    <option name="totallyTimeSpent" value="9377000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-48" y="632" width="1371" height="821" extended-state="0" />
-    <editor active="true" />
+    <frame x="67" y="25" width="1533" height="875" extended-state="6" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.23773585" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2118359" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
