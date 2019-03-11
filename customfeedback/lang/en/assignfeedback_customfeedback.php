@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- *
+ * Defines the list of strings to be used in our platform.
+ * It should at least define strings for "pluginname", "enabled" and "enabled_help".
  * @package   assignfeedback_customfeedback
  * @copyright 2019, Moses Modupi <1614669@student.wits.ac.za>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
