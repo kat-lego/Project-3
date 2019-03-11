@@ -6,26 +6,32 @@
  * Time: 9:01 PM
  */
 class assign_feedback_customfeedback extends assign_feedback_plugin{
-
-
+        
+    
+    //Get name is abstract in the stock feedback_plugin,returns the plugin name
     public function get_name() {
         return get_string('pluginname', 'assignfeedback_customfeedback');
     }
 
-
+    /**
+    *adds a list of settings to the form, when building the settings page for assignment
+    **/
     public function get_settings(MoodleQuickForm $mform) {
         $mform->addElement('assignfeedback_file_fileextensions', get_string('allowedfileextensions', 'assignfeedback_customfeedback'));
         $mform->setType('assignfeedback_customfeedback_fileextensions', PARAM_FILE);
     }
 
 
+    /**
+    *saves the submission page settings
+    **/
     public function save_settings(stdClass $data) {
         $this->set_config('allowedfileextensions', $data->allowedfileextensions);
         return true;
     }
-
+    
+    //except it has the grade object to associate the settings with a single grade attempt
     public function get_form_elements_for_user($grade, MoodleQuickForm $mform, stdClass $data, $userid) {
-
         $fileoptions = $this->get_file_options();
         $gradeid = $grade ? $grade->id : 0;
         $elementname = 'files_' . $userid;
@@ -42,6 +48,11 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
         return true;
     }
+    
+    /**
+    *The is_feedback_modified function is called before feedback is saved.
+    *if feedback has not been modified then the save() method is not called
+    */
     public function is_feedback_modified(stdClass $grade, stdClass $data) {
         $commenttext = '';
         if ($grade) {
@@ -57,7 +68,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
             return true;
         }
     }
-
+    
+    //Saves the student's grade into a file,not important for sprint1
     public function save(stdClass $grade, stdClass $data) {
         global $DB;
 
@@ -87,20 +99,22 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         }
     }
 
+    //Display a summary of the feedback to both markers and students. 
     public function view_summary(stdClass $grade, & $showviewlink) {
         $count = $this->count_files($grade->id, ASSIGNFEEDBACK_FILE_FILEAREA);
         // show a view all link if the number of files is over this limit
         $showviewlink = $count > ASSIGNFEEDBACK_FILE_MAXSUMMARYFILES;
 
         if ($count <= ASSIGNFEEDBACK_FILE_MAXSUMMARYFILES) {
-            return $this->assignment->render_area_files('assignfeedback_file', ASSIGNFEEDBACK_FILE_FILEAREA, $grade->id);
+            return $this->assignment->render_area_files('assignfeedback_file', ASSIGNFEEDBACK_FILE_FILEAREA, $grade->id);//filename to be changed
         } else {
-            return get_string('countfiles', 'assignfeedback_file', $count);
+            return get_string('countfiles', 'assignfeedback_file', $count);//file name to changed
         }
     }
-
+    
+    //Displays the entire feedback to both markers and students
     public function view(stdClass $grade) {
-        return $this->assignment->render_area_files('assignfeedback_file', ASSIGNFEEDBACK_FILE_FILEAREA, $grade->id);
+        return $this->assignment->render_area_files('assignfeedback_file', ASSIGNFEEDBACK_FILE_FILEAREA, $grade->id);//file name 
     }
 
 
@@ -113,12 +127,15 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
 
-
+    //assignment 2.2 upgrade settings
     public function upgrade_settings(context $oldcontext, stdClass $oldassignment, & $log) {
         // first upgrade settings (nothing to do)
         return true;
     }
 
+    /*This function is called once per assignment instance to upgrade the settings from the old assignment to the new mod_assign
+    *Returns true as there are currently no settings to upgrade. 
+    */
     public function upgrade(context $oldcontext, stdClass $oldassignment, stdClass $oldsubmission, stdClass $grade, & $log) {
         global $DB;
 
@@ -145,19 +162,23 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         return true;
     }
 
-
-
+ /**If a plugin has no data to show - it can return true from the is_empty function.
+    *This prevents a table row being added to the feedback summary for this plugin. 
+    *It is also used to check if a grader has tried to save feedback with no data. 
+    */
     public function is_empty(stdClass $submission) {
         return $this->count_files($submission->id, ASSIGNSUBMISSION_FILE_FILEAREA) == 0;
     }
 
-
+    /*
+    *this allows the file areas to be browsed by the moodle file manager.
+    */
     public function get_file_areas() {
         return array(ASSIGNFEEDBACK_FILE_FILEAREA=>$this->get_name());
     }
 
 
-
+    //The delete_instance function is called when the plugin is deleted.
     public function delete_instance() {
         global $DB;
         // will throw exception on failure
@@ -167,13 +188,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
 
-
+    // feedback_comments 
     public function format_for_gradebook(stdClass $grade) {
         return FORMAT_MOODLE;
     }
-
-
-
     public function text_for_gradebook(stdClass $grade) {
         return '';
     }
