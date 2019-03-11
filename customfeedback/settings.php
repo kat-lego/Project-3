@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file adds the settings pages to the navigation menu
+ * This file adds the settings pages to the navigation menu.
+ * This file also allows us to add custom settings to the system wide configuration page for our plugin.
  * @package   assignfeedback_customfeedback
  * @copyright 2019, Moses Modupi <1614669@student.wits.ac.za>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
