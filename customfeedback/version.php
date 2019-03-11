@@ -18,6 +18,8 @@
  * @package   assignfeedback_customfeedback
  * @copyright 2019, Moses Modupi <1614669@student.wits.ac.za>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Initialises version information, such as the plug in version, the minimum version of the moodle core
+ * and other dependencies
  */
 
 defined('MOODLE_INTERNAL') || die();
