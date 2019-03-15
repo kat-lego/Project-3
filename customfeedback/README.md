@@ -1,5 +1,3 @@
-# Custom Assignment feedback plug-in
-### v1.0
+### We are Pied
 
-This is a simple plug in to moodle with minimal funtionality.
-The goal is to create a skeleton on which we can built upon as we add more functionality to the platform
+[![Build Status](https://travis-ci.org/kat-lego/Project-3.svg?branch=master)](https://travis-ci.org/kat-lego/Project-3)
