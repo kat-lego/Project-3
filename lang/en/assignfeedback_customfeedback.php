@@ -24,3 +24,5 @@
 $string['pluginname'] = 'Competitive Assignment';
 $string['enabled'] = 'Awesome feedback';
 $string['enabled_help'] = 'If enabled, the teacher will be able to provide awesome feedback ';
+$string['assign_mode'] = 'Assignment Mode';
+$string['assign_mode_help'] = 'The competition mode recognised by the backend marker';

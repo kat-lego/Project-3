@@ -12,10 +12,24 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         return get_string('pluginname', 'assignfeedback_customfeedback');
     }
 
+    //get all assignment modes
+    public function get_modes(){
+        return array("Classic Mode", "Fastest Mode", "Tournament Mode", "IA Mode");
+    }
 
     public function get_settings(MoodleQuickForm $mform) {
+        $modes = $this->get_modes();
+
+
         $mform->addElement('assignfeedback_file_fileextensions', get_string('allowedfileextensions', 'assignfeedback_customfeedback'));
         $mform->setType('assignfeedback_customfeedback_fileextensions', PARAM_FILE);
+
+        //choose assignment type
+        $mform->addElement('select', 'assignfeedback_customfeedback_mode', get_string('assign_mode', 'assignfeedback_customfeedback'),$modes, null);
+        $mform->addHelpButton('assignfeedback_customfeedback_mode','assign_mode','assignfeedback_customfeedback');
+        $mform->setDefault('assignfeedback_customfeedback_mode', $this->get_modes()[0]);
+
+        $mform->disabledIf('assignfeedback_customfeedback_mode', 'assignfeedback_customfeedback_enabled', 'notchecked');
     }
 
 
@@ -39,7 +53,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
                                                   $gradeid);
         $mform->addElement('filemanager', $elementname . '_filemanager', html_writer::tag('span', $this->get_name(),
             array('class' => 'accesshide')), null, $fileoptions);
-
         return true;
     }
     public function is_feedback_modified(stdClass $grade, stdClass $data) {
