@@ -14,7 +14,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
     //get all assignment modes
     public function get_modes(){
-        return array("Classic Mode", "Fastest Mode", "Tournament Mode", "IA Mode");
+        return array("Classic Mode", "Fastest Mode", "Tournament Mode", "AI Mode");
     }
 
     public function get_settings(MoodleQuickForm $mform) {
