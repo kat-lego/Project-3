@@ -27,3 +27,33 @@ defined('MOODLE_INTERNAL') || die;
 $settings->add(new admin_setting_configcheckbox('assignfeedback_customfeedback/default',
     new lang_string('default', 'assignfeedback_customfeedback'),
     new lang_string('default_help', 'assignfeedback_customfeedback'), 0));
+
+$settings->add(new admin_setting_configtext('assignfeedback_customfeedback/basepath',
+                   new lang_string('basepath', 'assignfeedback_customfeedback'),
+                   new lang_string('basepath_help', 'assignfeedback_customfeedback'), '/var/www/'));
+
+$settings->add(new admin_setting_configtext('assignfeedback_customfeedback/markers',
+                   new lang_string('markers', 'assignfeedback_customfeedback'),
+                   new lang_string('markers_help', 'assignfeedback_customfeedback'), ''));
+
+$settings->add(new admin_setting_configtext('assignfeedback_customfeedback/secret',
+                   new lang_string('secret', 'assignfeedback_customfeedback'),
+                   new lang_string('secret_help', 'assignfeedback_customfeedback'), md5("Secret")));
+
+$settings->add(new admin_setting_configtext('assignfeedback_customfeedback/languages',
+                   new lang_string('languages', 'assignfeedback_customfeedback'),
+                   new lang_string('languages_help', 'assignfeedback_customfeedback'), ''));
+
+if (isset($CFG->maxbytes)) {
+
+    $name = new lang_string('maximumtestcasesize', 'assignfeedback_customfeedback');
+    $description = new lang_string('configmaxbytes', 'assignfeedback_customfeedback');
+
+    $maxbytes = get_config('assignfeedback_customfeedback', 'maxbytes');
+    $element = new admin_setting_configselect('assignfeedback_customfeedback/maxbytes',
+                                              $name,
+                                              $description,
+                                              $CFG->maxbytes,
+                                              get_max_upload_sizes($CFG->maxbytes, 0, 0, $maxbytes));
+    $settings->add($element);
+}

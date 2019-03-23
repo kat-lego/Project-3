@@ -22,7 +22,22 @@
  */
 
 $string['pluginname'] = 'Competitive Assignment';
-$string['enabled'] = 'Awesome feedback';
+$string['enabled'] = 'Competitive Assignment Judge';
 $string['enabled_help'] = 'If enabled, the teacher will be able to provide awesome feedback ';
 $string['assign_mode'] = 'Assignment Mode';
 $string['assign_mode_help'] = 'The competition mode recognised by the backend marker';
+
+$string['default'] = 'Enabled by default';
+$string['default_help'] = 'If set, this feedback method will be enabled by default for all new assignments.';
+$string['basepath'] = 'Test Case Path';
+$string['basepath_help'] = 'Path to test case folder.';
+$string['markers'] = 'Competitive Assignment Marker IP Addresses';
+$string['markers_help'] = 'A comma separated list of markers.';
+$string['secret'] = 'Secret';
+$string['secret_help'] = 'Secret authentication token that markers should use.';
+$string['languages'] = 'Available Languages';
+$string['languages_help'] = 'Comma separated list of supported languages';
+$string['maximumtestcasesize'] = 'Maximum test case size';
+$string['maximumtestcasesize_help'] = 'Files uploaded by teachers as test cases may be up to this size.';
+$string['configmaxbytes'] = 'Maximum file size';
+
