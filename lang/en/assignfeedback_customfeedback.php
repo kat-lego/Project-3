@@ -24,8 +24,6 @@
 $string['pluginname'] = 'Competitive Assignment';
 $string['enabled'] = 'Competitive Assignment Judge';
 $string['enabled_help'] = 'If enabled, the teacher will be able to provide awesome feedback ';
-$string['assign_mode'] = 'Assignment Mode';
-$string['assign_mode_help'] = 'The competition mode recognised by the backend marker';
 
 $string['default'] = 'Enabled by default';
 $string['default_help'] = 'If set, this feedback method will be enabled by default for all new assignments.';
@@ -40,4 +38,18 @@ $string['languages_help'] = 'Comma separated list of supported languages';
 $string['maximumtestcasesize'] = 'Maximum test case size';
 $string['maximumtestcasesize_help'] = 'Files uploaded by teachers as test cases may be up to this size.';
 $string['configmaxbytes'] = 'Maximum file size';
+
+$string['assign_mode'] = 'Assignment Mode';
+$string['assign_mode_help'] = 'The competition mode recognised by the backend marker';
+$string['language'] = 'Programming Language';
+$string['language_help'] = 'Programming Language recognised by the marking backend.';
+$string['numQuestions'] = 'Number of Questions';
+$string['numQuestions_help'] = 'The number of questions this assignment has.';
+$string['question'] = 'Question';
+$string['timelimit'] = 'Time Limit';
+$string['timelimit_help'] = 'Maximum time (in seconds) the student submissions are allowed to run.';
+$string['memorylimit'] = 'Memory Limit';
+$string['memorylimit_help'] = 'Maximum memory the student submissions are allowed to use.';
+$string['test_cases'] = 'Test Cases';
+$string['test_cases_help'] = 'Upload the test case zip file here.';
 
