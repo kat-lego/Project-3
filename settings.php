@@ -44,6 +44,10 @@ $settings->add(new admin_setting_configtext('assignfeedback_customfeedback/langu
                    new lang_string('languages', 'assignfeedback_customfeedback'),
                    new lang_string('languages_help', 'assignfeedback_customfeedback'), ''));
 
+$settings->add(new admin_setting_configtext('assignfeedback_customfeedback/maxquestions',
+                   new lang_string('maxquestions', 'assignfeedback_customfeedback'),
+                   new lang_string('maxquestions_help', 'assignfeedback_customfeedback'), '10'));
+
 if (isset($CFG->maxbytes)) {
 
     $name = new lang_string('maximumtestcasesize', 'assignfeedback_customfeedback');
