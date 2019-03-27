@@ -23,7 +23,20 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     public function get_question_numbers(){
-      return array('1', '2','3' ,'4' ,'5' ,'6' ,'7' ,'8' ,'9' ,'10' );
+        $n = get_config('assignfeedback_customfeedback','maxquestions');
+        $arr = array();
+        for($i=1;$i<=$n;$i++){
+            array_push($arr, $i);
+        }
+        return $arr;
+    }
+
+    function get_time_limits(){
+        return array(1,3,5,10,20,45);
+    }
+
+    function get_memory_limits(){
+        return  array('1MB','2MB','4MB','16MB');
     }
 
     public function get_settings(MoodleQuickForm $mform) {
@@ -54,40 +67,59 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         $mform->setDefault('assignfeedback_customfeedback_numQ', $default_numQValue);
 
         //Question Sub-form
-        $n = $default_numQValue+1;
-        for($i=1;$i<=$n;$i++){
-            //Question numbering
-            $mform->addElement('html', '<h4>'.get_string('question','assignfeedback_customfeedback').' '.$i.'</h4>');
-
-            //Time limit for question i
-            $time_limits = array(1,3,5,10,20,45);
-            $default_time_limit = $time_limits[0];
-            $mform->addElement('select', 'assignfeedback_customfeedback_timelimitQ'.$i, get_string('timelimit', 'assignfeedback_customfeedback'), $time_limits, null);
-            $mform->addHelpButton('assignfeedback_customfeedback_timelimitQ'.$i, 'timelimit', 'assignfeedback_customfeedback');
-            $mform->setDefault('assignfeedback_customfeedback_timelimitQ'.$i, $default_time_limit);
-
-            //memory limit for question i
-            $memory_limits = array('1MB','2MB','4MB','16MB');
-            $default_memory_limit = $memory_limits[0];
-            $mform->addElement('select', 'assignfeedback_customfeedback_memorylimitQ'.$i, get_string('memorylimit', 'assignfeedback_customfeedback'), $memory_limits, null);
-            $mform->addHelpButton('assignfeedback_customfeedback_memorylimitQ'.$i, 'memorylimit', 'assignfeedback_customfeedback');
-            $mform->setDefault('assignfeedback_customfeedback_memorylimitQ'.$i, $default_memory_limit);
-
-            //file manager for question i
-            $max_bytes = get_config('assignfeedback_customfeedback', 'maxbytes');
-            $mform->addElement('filemanager', 'assignfeedback_customfeedback_testcasesQ'.$i, get_string('test_cases', 'assignfeedback_customfeedback'), null,
-                    array('subdirs' => 0, 'maxbytes' => $max_bytes, 'areamaxbytes' => $max_bytes*10000, 'maxfiles' => 50,
-                          'accepted_types' => array('.zip'), 'return_types'=> FILE_INTERNAL | FILE_EXTERNAL));
-            $mform->addHelpButton('assignfeedback_customfeedback_testcasesQ'.$i, 'test_cases', 'assignfeedback_customfeedback');
-
-            $draftitemid = file_get_submitted_draft_itemid('assignfeedback_customfeedback_testcasesQ'.$i);
-            file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, 'assignfeedeback_customfeedback', 'attachment', null,
-                        array('subdirs' => 0, 'maxbytes' => $max_bytes, 'maxfiles' => 1));
+        $n = get_config('assignfeedback_customfeedback','maxquestions');
+        for($i=0;$i<$n;$i++){
+            $this->addQuestion($i,$mform);
 
 
         }
 
         //$mform->hideIf('assignfeedback_customfeedback_mode', 'assignfeedback_customfeedback_enabled', 'notchecked');
+    }
+
+    public function addQuestion($i,MoodleQuickForm $mform){
+        //Question numbering
+        $id = $i+1;
+        $Qtittle = array( );
+        $mform->addGroup($Qtittle,  'assignfeedback_customfeedback_questionID'.$i, get_string('question','assignfeedback_customfeedback').' '.$id, array(' '), false);
+
+        //Time limit for question i
+        $time_limits = $this->get_time_limits();
+        $default_time_limit = array_search($this->get_config('timelimit'.$i), $time_limits);
+        $mform->addElement('select', 'assignfeedback_customfeedback_timelimitQ'.$i, get_string('timelimit', 'assignfeedback_customfeedback'), $time_limits, null);
+        $mform->addHelpButton('assignfeedback_customfeedback_timelimitQ'.$i, 'timelimit', 'assignfeedback_customfeedback');
+        $mform->setDefault('assignfeedback_customfeedback_timelimitQ'.$i, $default_time_limit);
+
+        //memory limit for question i
+        $memory_limits = $this->get_memory_limits();
+        $default_memory_limit = array_search($this->get_config('memorylimit'.$i), $memory_limits);
+        $mform->addElement('select', 'assignfeedback_customfeedback_memorylimitQ'.$i, get_string('memorylimit', 'assignfeedback_customfeedback'), $memory_limits, null);
+        $mform->addHelpButton('assignfeedback_customfeedback_memorylimitQ'.$i, 'memorylimit', 'assignfeedback_customfeedback');
+        $mform->setDefault('assignfeedback_customfeedback_memorylimitQ'.$i, $default_memory_limit);
+
+        //file manager for question i
+        $max_bytes = get_config('assignfeedback_customfeedback', 'maxbytes');
+        $mform->addElement('filemanager', 'assignfeedback_customfeedback_testcasesQ'.$i, get_string('test_cases', 
+                'assignfeedback_customfeedback'), null,
+                array('subdirs' => 0, 'maxbytes' => $max_bytes, 'areamaxbytes' => $max_bytes*10000, 'maxfiles' => 50,
+                    'accepted_types' => array('.zip'), 'return_types'=> FILE_INTERNAL | FILE_EXTERNAL));
+        $mform->addHelpButton('assignfeedback_customfeedback_testcasesQ'.$i, 'test_cases', 'assignfeedback_customfeedback');
+
+        $draftitemid = file_get_submitted_draft_itemid('assignfeedback_customfeedback_testcasesQ'.$i);
+        file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, 'assignfeedeback_customfeedback', 'attachment', null, array('subdirs' => 0, 'maxbytes' => $max_bytes, 'maxfiles' => 1));
+
+        //hiding question elements
+        $arr = array();
+        for($x =0;$x<$i;$x++){
+            array_push($arr,$x);
+        }
+        
+        $mform->hideIf('assignfeedback_customfeedback_questionID'.$i, 'assignfeedback_customfeedback_numQ', 'in',$arr);
+        $mform->hideIf('assignfeedback_customfeedback_timelimitQ'.$i, 'assignfeedback_customfeedback_numQ', 'in',$arr);
+        $mform->hideIf('assignfeedback_customfeedback_memorylimitQ'.$i, 'assignfeedback_customfeedback_numQ', 'in',$arr);
+        $mform->hideIf('assignfeedback_customfeedback_testcasesQ'.$i, 'assignfeedback_customfeedback_numQ', 'in',$arr);
+            
+        return true;
     }
 
 
@@ -96,6 +128,19 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         $this->set_config('mode', $this->get_modes()[$data->assignfeedback_customfeedback_mode]);
         $this->set_config('language', $this->get_languages()[$data->assignfeedback_customfeedback_language]);
         $this->set_config('numQ', $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ]);
+
+        $n = get_config('assignfeedback_customfeedback','maxquestions');
+        for($i=0;$i<$n;$i++){
+            $s = '$data->assignfeedback_customfeedback_timelimitQ'.$i;
+            eval("\$v=\"$s\";");
+            $this->set_config('timelimit'.$i, $this->get_time_limits()[$v]);
+
+            $s = '$data->assignfeedback_customfeedback_memorylimitQ'.$i;
+            eval("\$v=\"$s\";");
+            $this->set_config('memorylimit'.$i, $this->get_memory_limits()[$v]);
+
+
+        }
         return true;
     }
 
@@ -344,7 +389,13 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         return '';
     }
 
+    /*
+
+    
+
+            
 
 
+    */
 
 }
