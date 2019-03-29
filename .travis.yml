@@ -60,7 +60,7 @@ before_install:
 # Install this project into a directory called "ci".
   - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
 # Update the $PATH so scripts from this project can be called easily.
-  - export PATH="$(cd ci/Pied_feedback/bin; pwd):$(cd ci/Pied_feedback/vendor/bin; pwd):$PATH"
+  - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
 
 # This lists steps that are run for installation and setup.
 install:
