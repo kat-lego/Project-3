@@ -40,10 +40,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     public function get_settings(MoodleQuickForm $mform) {
-        $mform->addElement('assignfeedback_file_fileextensions', get_string('allowedfileextensions', 'assignfeedback_customfeedback'));
-        $mform->setType('assignfeedback_customfeedback_fileextensions', PARAM_FILE);
+        
         //Tittle: Competitive Assignment Form
-        $mform->addElement('html', '<h2>'.get_string('pluginname','assignfeedback_customfeedback').' Form</h2>');
+        $htmlstring = '<h2 id = "assignfeedback_customfeedback_tittle">'.get_string('pluginname','assignfeedback_customfeedback').' Form</h2> <hr>';
+        $mform->addElement('html', $htmlstring);
+
+
         
         //choose assignment type
         $modes = $this->get_modes();
@@ -74,7 +76,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
         }
 
-        //$mform->hideIf('assignfeedback_customfeedback_mode', 'assignfeedback_customfeedback_enabled', 'notchecked');
+        $this->disable_form($mform,'assignfeedback_customfeedback_enabled','notchecked');
+        $this->disable_form($mform,'assignfeedback_witsoj_enabled','checked');
     }
 
     public function addQuestion($i,MoodleQuickForm $mform){
@@ -122,9 +125,23 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         return true;
     }
 
+    function disable_form(MoodleQuickForm $mform, $dependent,$condition){
+        
+        $mform->disabledIf('assignfeedback_customfeedback_mode', $dependent,$condition );
+        $mform->disabledIf('assignfeedback_customfeedback_language', $dependent, $condition);
+        $mform->disabledIf('assignfeedback_customfeedback_numQ', $dependent, $condition);
+
+        $n = get_config('assignfeedback_customfeedback','maxquestions');
+        for($i=0;$i<$n;$i++){
+            $mform->disabledIf('assignfeedback_customfeedback_timelimitQ'.$i, $dependent, $condition);
+            $mform->disabledIf('assignfeedback_customfeedback_memorylimitQ'.$i, $dependent, $condition);
+            $mform->disabledIf('assignfeedback_customfeedback_testcasesQ'.$i, $dependent, $condition);
+        }
+    }
+
 
     public function save_settings(stdClass $data) {
-        $this->set_config('allowedfileextensions', $data->allowedfileextensions);
+        //$this->set_config('allowedfileextensions', $data->allowedfileextensions);
         $this->set_config('mode', $this->get_modes()[$data->assignfeedback_customfeedback_mode]);
         $this->set_config('language', $this->get_languages()[$data->assignfeedback_customfeedback_language]);
         $this->set_config('numQ', $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ]);
