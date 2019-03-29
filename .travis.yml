@@ -77,7 +77,7 @@ install:
   - moodle-plugin-ci install
 
 before_install:
-  - composer dump_autoload -o
+  - composer dump-autoload -o
 
 # This lists steps that are run for the purposes of testing.  Any of
 # these steps can be re-ordered or removed to your liking.  And of
