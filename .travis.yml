@@ -27,7 +27,6 @@ cache:
 php:
  - 7.0
  - 7.1
- - 7.2
 
 # This section sets up the environment variables for the build.
 env:
@@ -77,9 +76,6 @@ install:
   - moodle-plugin-ci install
 
 
-before_install:
-  composer install
-
 # This lists steps that are run for the purposes of testing.  Any of
 # these steps can be re-ordered or removed to your liking.  And of
 # course, you can add any of your own custom steps.
@@ -124,4 +120,4 @@ script:
 #   - The suite option allows you to set the theme to use for behat test. If
 #     not specified, the default theme is used, EG usage: --suite boost
   - moodle-plugin-ci behat
-  - phpunit --configuration phpunit.xml --coverage-text
+ 
