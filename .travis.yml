@@ -76,8 +76,6 @@ install:
 #    - If your plugin has unit tests, then PHPUnit will be setup.
   - moodle-plugin-ci install
 
-before_install:
-  - composer dump-autoload -o
 
 # This lists steps that are run for the purposes of testing.  Any of
 # these steps can be re-ordered or removed to your liking.  And of
@@ -123,4 +121,3 @@ script:
 #   - The suite option allows you to set the theme to use for behat test. If
 #     not specified, the default theme is used, EG usage: --suite boost
   - moodle-plugin-ci behat
-  - phpunit --configuration phpunit.xml --coverage-text
