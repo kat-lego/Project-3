@@ -10,7 +10,7 @@ $mode=$input['mode'];
 
 
 if(!isset($input["mode"])){
-	die("No mode selected");
+	die('{No mode selected}');
 }
 
 /**
