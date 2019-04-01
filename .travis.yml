@@ -3,7 +3,7 @@ language: php
 
 # If using Behat, then this should be true due to an issue with Travis CI.
 # If not using Behat, recommended to use `sudo: false` as it is faster.
-sudo: true
+sudo: false
 
 # Installs the required version of Firefox for Behat, an updated version
 # of PostgreSQL and extra APT packages. Java 8 is only required
@@ -80,7 +80,7 @@ install:
 # these steps can be re-ordered or removed to your liking.  And of
 # course, you can add any of your own custom steps.
 script:
-  -pwd
+  - pwd
 # This step lints your PHP files to check for syntax errors.
   - moodle-plugin-ci phplint
 # This step runs the PHP Copy/Paste Detector on your plugin.
