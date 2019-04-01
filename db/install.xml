@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/assign/feedback/file/db" VERSION="20120423" COMMENT="XMLDB file for Moodle mod/assign/feedback/file"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../../../../lib/xmldb/xmldb.xsd"
+>
+       <TABLES>
+              <TABLE NAME="assignfeedback_assignment" COMMENT="store assignments created by lectures">
+                     <FIELDS>
+                            <FIELD NAME="assign_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                            <FIELD NAME="course_code" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                            <FIELD NAME="assign_type" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+                            <FIELD NAME="time_start" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                            <FIELD NAME="due_date" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                     </FIELDS>
+                     <KEYS>
+                            <KEY NAME="primary" TYPE="primary" FIELD="assign_id" COMMENT="the unique id for an assignment"/>
+                     </KEYS>
+              </TABLE>
+              <TABLE NAME="assignfeedback_question" COMMENT="store questions belonging in an assignment">
+                     <FIELDS>
+                            <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                            <FIELD NAME="assign_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                     </FIELDS>
+                     <KEYS>
+                            <KEY NAME="primary" TYPE="primary" FIELD="question_id,assign_id" COMMENT="composite primary key"/>
+                            <KEY NAME="assign_id" TYPE="foreign" FIELD="assign_id" REFTABLE="assignfeedback_assignment" REFFIELDS="assign_id" COMMENT="foreign key from assignfeedback_assignment table"/>
+                     </KEYS>
+              </TABLE>
+              <TABLE NAME="assignfeedback_submittion" COMMENT="files submitted">
+                     <FIELDS>
+                            <FIELD NAME="file_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                            <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                            <FEILD NAME="assign_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                            <FIELD NAME="file_contenthash" TYPE="char" LENGTH="40" NOTNULL="true" SEQUENCE="false" COMMENT="The sha1 hash of content"/>
+                            <FIELD NAME="student_id" TYPE="char" LENGTH="15" NOTNULL="true" SEQUENCE="false"/>
+                            <FIELD NAME="mark" TYPE="int" LENGTH="5" NOTNULL="false" SEQUENCE="false"/>
+                            <FIELD NAME="memory" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+                            <FIELD NAME="runtime" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+                            <FIELD NAME="no_of_submittion" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false"/>
+                     </FIELDS>
+                     <KEYS>
+                            <KEY NAME="primary" TYPE="primary" FIELD="file_id" COMMENT="unique file id"/>
+                            <KEY NAME="question_id" TYPE="foreign" FIELD="question_id" REFTABLE="assignfeedback_question" REFFIELDS="question_id" COMMENT="question id"/>
+                            <KEY NAME="assign_id" TYPE="foreign" FIELD="assign_id" REFTABLE="assignfeedback_assignment" REFFIELDS="assign_id" COMMENT="assignment id"/>
+                     </KEYS>
+              </TABLE>
+              <TABLE NAME="sub_history" COMMENT="save old files submitted by a student if he/she has multiple submittions">
+                     <FIELDS>
+                            <FIELD NAME="file_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                            <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                            <FIELD NAME="date_assign" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                     </FIELDS>
+                     <KEYS>
+                            <KEY NAME="primary" TYPE="primary" FIELD="file_id,question_id,date_assign" COMMENT="composite primary key"/>
+                            <KEY NAME="file_id" TYPE="foreign" FIELD="file_id" REFTABLE="assignfeedback_submittion" REFFIELDS="file_id"/>
+                            <KEY NAME="question_id" TYPE="foreign" FIELD="question_id" REFTABLE="assignfeedback_question" REFFIELDS="question_id" COMMENT="question id"/>
+                     </KEYS>
+              </TABLE>
+       </TABLES>
+                     
+
+</XMLDB>
