@@ -47,7 +47,6 @@ env:
 
 # This lists steps that are run before the installation step. 
 before_install:
-  - composer dump-autoload -o
 # This disables XDebug which should speed up the build.
   - phpenv config-rm xdebug.ini
 # This installs NodeJS which is used by Grunt, etc.
@@ -121,4 +120,3 @@ script:
 #   - The suite option allows you to set the theme to use for behat test. If
 #     not specified, the default theme is used, EG usage: --suite boost
   - moodle-plugin-ci behat
-  - phpunit --configuration phpunit.xml --coverage-text
