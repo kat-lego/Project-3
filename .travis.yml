@@ -81,6 +81,7 @@ install:
 # course, you can add any of your own custom steps.
 script:
   - pwd
+  - ls
 # This step lints your PHP files to check for syntax errors.
   - moodle-plugin-ci phplint
 # This step runs the PHP Copy/Paste Detector on your plugin.
