@@ -25,8 +25,6 @@ cache:
 # listed here will create a separate build and run the tests against that
 # version of PHP.
 php:
- #- 7.0
- #- 7.1
  - 7.2
 
 # This section sets up the environment variables for the build.
@@ -61,7 +59,7 @@ before_install:
   - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
 # Update the $PATH so scripts from this project can be called easily.
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
-  - composer dump autoload -o
+ # - composer dump autoload -o
 
 # This lists steps that are run for installation and setup.
 install:
@@ -122,4 +120,4 @@ script:
 #   - The suite option allows you to set the theme to use for behat test. If
 #     not specified, the default theme is used, EG usage: --suite boost
   - moodle-plugin-ci behat
-  -phpunit --configuration phpunit.xml --coverage-text
+ # -phpunit --configuration phpunit.xml --coverage-text
