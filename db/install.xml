@@ -6,10 +6,10 @@
 <TABLES>
     <TABLE NAME="customfeedback_assignment" COMMENT="store assignments created by lectures">
       <FIELDS>
-       <FIELD NAME="assign_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+       <FIELD NAME="assign_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
        <FIELD NAME="course_id" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
        <FIELD NAME="mode" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
-       <FIELD NAME="language" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+       <FIELD NAME="language" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
        <FIELD NAME="number_of_questions" TYPE="int" LENGTH="4" NOTNULL="true"/>
       </FIELDS>
       <KEYS>
@@ -17,13 +17,15 @@
       </KEYS>
     </TABLE>
 
+    <!--
+
     <TABLE NAME="customfeedback_question" COMMENT="store questions belonging in an assignment">
       <FIELDS>
-       <FIELD NAME="question_number" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+       <FIELD NAME="question_number" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
        <FIELD NAME="assign_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
        <FIELD NAME="memory_limit" TYPE='char' LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
        <FIELD NAME="time_limit" TYPE='int' LENGTH="4" NOTNULL="true" SEQUENCE="false"/>
-       <!-- TODO: We need an attribute to keep track of the file location of the test cases-->
+        TODO: We need an attribute to keep track of the file location of the test cases
       </FIELDS>
       <KEYS>
        <KEY NAME="primary" TYPE="primary" FIELDS="question_number,assign_id" COMMENT="composite primary key"/>
@@ -63,7 +65,7 @@
       </KEYS>
     </TABLE>
 
-
+  -->
 
   </TABLES> 
 

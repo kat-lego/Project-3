@@ -141,10 +141,19 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
 
     public function save_settings(stdClass $data) {
+        global $DB;
         //$this->set_config('allowedfileextensions', $data->allowedfileextensions);
         $this->set_config('mode', $this->get_modes()[$data->assignfeedback_customfeedback_mode]);
         $this->set_config('language', $this->get_languages()[$data->assignfeedback_customfeedback_language]);
         $this->set_config('numQ', $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ]);
+
+        $id = $DB->insert_record("customfeedback_assignment",
+            ['course_id' => '1',
+             'mode' => $this->get_modes()[$data->assignfeedback_customfeedback_mode],
+             'language' => $this->get_languages()[$data->assignfeedback_customfeedback_language],
+             'number_of_questions' => $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ]
+            ]
+        );
 
         $n = get_config('assignfeedback_customfeedback','maxquestions');
         for($i=0;$i<$n;$i++){
