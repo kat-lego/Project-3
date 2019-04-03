@@ -1,27 +1,51 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: 1614669
- * Date: 2019/03/07
- * Time: 9:01 PM
- */
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 class assign_feedback_customfeedback extends assign_feedback_plugin{
 
-
+    /**
+    * Gets the name of pluin
+    * @return string with name of the plugin
+    */
     public function get_name() {
         return get_string('pluginname', 'assignfeedback_customfeedback');
     }
 
-    
+    /**
+    * Gets the list of modes supported by the plugin
+    * @return Array of strings with names of the modes
+    */
     public function get_modes(){
-        //get all assignment modes/types
         return array("Classic Mode", "Fastest Mode", "Tournament Mode", "AI Mode");
     }
 
+    /**
+    * Gets the list of languages supported by the plugin
+    * @return array of strings with the names of the languages
+    */
     public function get_languages(){
         return explode(',', get_config('assignfeedback_customfeedback', 'languages'));
     }
 
+    /**
+    * Gets a list of integers. Each integer is the number of questions an assignment might have
+    *
+    * The integers range from 1 to the maxquestions configured in the settings of the plugin
+    * @return array of integers from 1 to maxquestions
+    */
     public function get_question_numbers(){
         $n = get_config('assignfeedback_customfeedback','maxquestions');
         $arr = array();
@@ -31,22 +55,33 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         return $arr;
     }
 
+    /**
+    * Gets list of integers. Each integer is the time limit a question might have
+    *
+    * The integers are in seconds
+    * @return array of integers
+    */
     function get_time_limits(){
-        return array(1,3,5,10,20,45);
+        return array(1,3,5,10,20,60);
     }
 
+    /**
+    * Gets the list of memory limits a question might have
+    * @return array of strings
+    */
     function get_memory_limits(){
         return  array('1MB','2MB','4MB','16MB');
     }
 
+    /**
+    * Allows this plugin to add a list of settings to the form when creating an assignment.
+    */
     public function get_settings(MoodleQuickForm $mform) {
         
         //Tittle: Competitive Assignment Form
         $htmlstring = '<h2 id = "assignfeedback_customfeedback_tittle">'.get_string('pluginname','assignfeedback_customfeedback').' Form</h2> <hr>';
         $mform->addElement('html', $htmlstring);
 
-
-        
         //choose assignment type
         $modes = $this->get_modes();
         $default_mode = array_search($this->get_config('mode'), $modes);
@@ -72,14 +107,16 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         $n = get_config('assignfeedback_customfeedback','maxquestions');
         for($i=0;$i<$n;$i++){
             $this->addQuestion($i,$mform);
-
-
         }
 
         $this->disable_form($mform,'assignfeedback_customfeedback_enabled','notchecked');
         $this->disable_form($mform,'assignfeedback_witsoj_enabled','checked');
     }
 
+    /**
+    * Adds the settings for a question to the form
+    * 
+    */
     public function addQuestion($i,MoodleQuickForm $mform){
         //Question numbering
         $id = $i+1;
@@ -142,6 +179,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
     public function save_settings(stdClass $data) {
         global $DB;
+        
         //$this->set_config('allowedfileextensions', $data->allowedfileextensions);
         $this->set_config('mode', $this->get_modes()[$data->assignfeedback_customfeedback_mode]);
         $this->set_config('language', $this->get_languages()[$data->assignfeedback_customfeedback_language]);
@@ -415,13 +453,5 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         return '';
     }
 
-    /*
-
-    
-
-            
-
-
-    */
 
 }
