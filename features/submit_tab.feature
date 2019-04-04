@@ -9,7 +9,7 @@ Feature: Submit Tab Lecturer Post
 		Given I am going to "http://1710409.ms.wits.ac.za/moodleDev/course/modedit.php?add=assign&type=&course=2&section=1&return=0&sr=0"
 		Then I should see:
 		"""
-		BattleGrounds
+		SAMSUNG
 		"""
 
 
