@@ -6,10 +6,10 @@ Feature: Submit Tab Lecturer Post
 	application has been integrated into Moodle.
 
 	Scenario: Posting a competitive assignment as a lecturer
-		Given I am on "moodleDev/course/view.php?id=3&notifyeditingon=1"
-		When I press "Add an activity or resource"
-		And I press "Assignment"
-		And I press "Add"
-		Then I should see "Adding a new Assignment"
+		Given I am going to "http://1710409.ms.wits.ac.za/moodleDev/course/modedit.php?add=assign&type=&course=2&section=1&return=0&sr=0"
+		Then I should see:
+		"""
+		BattleGrounds
+		"""
 
 
