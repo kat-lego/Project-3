@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+define('ASSIGNFEEDBACK_COMPETITIVE_TESTCASE_FILEAREA', 'competitive_feedback');
+
 class assign_feedback_customfeedback extends assign_feedback_plugin{
 
     /**
@@ -210,22 +212,16 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
     public function get_form_elements_for_user($grade, MoodleQuickForm $mform, stdClass $data, $userid) {
 
-        $fileoptions = $this->get_file_options();
+        //$fileoptions = $this->get_file_options();
         $gradeid = $grade ? $grade->id : 0;
-        $elementname = 'files_' . $userid;
 
-        $data = file_prepare_standard_filemanager($data,
-                                                  $elementname,
-                                                  $fileoptions,
-                                                  $this->assignment->get_context(),
-                                                  'assignfeedback_customfeedback',
-                                                  ASSIGNFEEDBACK_FILE_FILEAREA,
-                                                  $gradeid);
-        $mform->addElement('filemanager', $elementname . '_filemanager', html_writer::tag('span', $this->get_name(),
-            array('class' => 'accesshide')), null, $fileoptions);
+        $mform->addElement('editor', 'assignfeedbackcomments_editor', $this->get_name(), null, null);
+        $mform->addElement('static', 'assignfeedbackwitsoj_rejudge', $this->get_name(), '#', null);;
         return true;
     }
+
     public function is_feedback_modified(stdClass $grade, stdClass $data) {
+        return false;
         $commenttext = '';
         if ($grade) {
             $feedbackcomments = $this->get_feedback_comments($grade->id);
@@ -254,12 +250,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
             $fileoptions,
             $this->assignment->get_context(),
             'assignfeedback_file',
-            ASSIGNFEEDBACK_FILE_FILEAREA,
+            ASSIGNFEEDBACK_COMPETITIVE_TESTCASES_FILEAREA,
             $grade->id);
 
         $filefeedback = $this->get_file_feedback($grade->id);
         if ($filefeedback) {
-            $filefeedback->numfiles = $this->count_files($grade->id, ASSIGNFEEDBACK_FILE_FILEAREA);
+            //$filefeedback->numfiles = $this->count_files($grade->id, ASSIGNFEEDBACK_FILE_FILEAREA);
             return $DB->update_record('assignfeedback_file', $filefeedback);
         } else {
             $filefeedback = new stdClass();
@@ -271,19 +267,26 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     public function view_summary(stdClass $grade, & $showviewlink) {
-        $count = $this->count_files($grade->id, ASSIGNFEEDBACK_FILE_FILEAREA);
-        // show a view all link if the number of files is over this limit
-        $showviewlink = $count > ASSIGNFEEDBACK_FILE_MAXSUMMARYFILES;
+         $buttons="";
+         //buttons .=  "<a class='btn btn-secondary' href='http://1710409.ms.wits.ac.za/leaderboard/leader.html' target='_blank' style='margin-bottom:5px;'>Leaderboard</a><br/>";
 
-        if ($count <= ASSIGNFEEDBACK_FILE_MAXSUMMARYFILES) {
-            return $this->assignment->render_area_files('assignfeedback_file', ASSIGNFEEDBACK_FILE_FILEAREA, $grade->id);
-        } else {
-            return get_string('countfiles', 'assignfeedback_file', $count);
-        }
+
+        $buttons="
+        <table style='width:100%'  >
+            <tr>
+                <th>User</th>
+                <th>Score</th>
+            </tr>
+        </table>
+        ";
+    
+        return $buttons;
     }
 
     public function view(stdClass $grade) {
-        return $this->assignment->render_area_files('assignfeedback_file', ASSIGNFEEDBACK_FILE_FILEAREA, $grade->id);
+    
+       return "lets see";
+        //return $this->assignment->render_area_files('assignfeedback_file', ASSIGNFEEDBACK_FILE_FILEAREA, $grade->id);
     }
 
 
@@ -331,7 +334,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
 
     public function is_empty(stdClass $submission) {
-        return $this->count_files($submission->id, ASSIGNSUBMISSION_FILE_FILEAREA) == 0;
+        return $this->view($submission) == '';
     }
 
 
