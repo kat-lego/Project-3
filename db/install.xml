@@ -17,7 +17,7 @@
       </KEYS>
     </TABLE>
 
-    <!--
+   
 
     <TABLE NAME="customfeedback_question" COMMENT="store questions belonging in an assignment">
       <FIELDS>
@@ -25,7 +25,6 @@
        <FIELD NAME="assign_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
        <FIELD NAME="memory_limit" TYPE='char' LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
        <FIELD NAME="time_limit" TYPE='int' LENGTH="4" NOTNULL="true" SEQUENCE="false"/>
-        TODO: We need an attribute to keep track of the file location of the test cases
       </FIELDS>
       <KEYS>
        <KEY NAME="primary" TYPE="primary" FIELDS="question_number,assign_id" COMMENT="composite primary key"/>
@@ -37,7 +36,7 @@
       <FIELDS>
        <FIELD NAME="file_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
        <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-       <FEILD NAME="assign_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+       <FIELD NAME="assign_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
        <FIELD NAME="file_contenthash" TYPE="char" LENGTH="40" NOTNULL="true" SEQUENCE="false" COMMENT="The sha1 hash of content"/>
        <FIELD NAME="student_id" TYPE="char" LENGTH="15" NOTNULL="true" SEQUENCE="false"/>
        <FIELD NAME="mark" TYPE="int" LENGTH="5" NOTNULL="false" SEQUENCE="false"/>
@@ -65,7 +64,6 @@
       </KEYS>
     </TABLE>
 
-  -->
 
   </TABLES> 
 
