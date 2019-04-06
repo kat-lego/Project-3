@@ -15,9 +15,9 @@ dist: trusty
 sudo: required
 before_install:
   - composer self-update --rollback
-  - mysql -e 'CREATE DATABASE moodle;'
-  - mysql -u root --password='' moodle < dbDump/dump.sql
-  - mysql -e 'USE moodle; SELECT * FROM mdl_assignfeedback_customfeedback WHERE id=2;'
+  #- mysql -e 'CREATE DATABASE moodle;'
+  #- mysql -u root --password='' moodle < dbDump/dump.sql
+  #- mysql -e 'USE moodle; SELECT * FROM mdl_assignfeedback_customfeedback WHERE id=2;'
 install:
   - composer require satooshi/php-coveralls:~0.6@stable
   - composer require --dev phpunit/dbunit
