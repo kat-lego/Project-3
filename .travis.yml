@@ -2,3 +2,9 @@ language: php
 php:
   - 7.1
   - 7.2
+before_install:
+  - composer self-update --rollback
+  
+install:
+  - composer require --dev php-coveralls/php-coveralls
+  - composer require --dev phpunit/phpunit
