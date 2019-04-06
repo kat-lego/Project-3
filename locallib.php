@@ -16,7 +16,7 @@
 
 define('ASSIGNFEEDBACK_COMPETITIVE_TESTCASE_FILEAREA', 'competitive_feedback');
 
-class assign_feedback_customfeedback extends assign_feedback_plugin{
+class assign_feedback_customfeedback {
 
     /**
     * Gets the name of pluin
