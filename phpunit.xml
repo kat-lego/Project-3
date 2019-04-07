@@ -7,13 +7,13 @@
 
          <testsuites>
            <testsuite name="Unit tests">
-             <directory suffix=".php">unitTests</directory>
+             <directory suffix=".php">Customfeedback/unitTests</directory>
            </testsuite>
          </testsuites>
 
          <filter>
            <whitelist>
-            <directory suffix=".php">locallib.php</directory>
+            <directory suffix=".php">Customfeedback/locallib.php</directory>
            </whitelist>
          </filter>
 
