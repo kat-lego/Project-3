@@ -18,4 +18,10 @@ This is a moodle plug in to be used for conducting Competitive Programming Assin
 * [MySql](https://tutorials.ubuntu.com/tutorial/install-and-configure-apache#0)
 
 ## Installation
+The platform is still in the development phase and installing it may result in some security related disasters, thus we'll save the instructions for a more stable product
 
+## User Instructions
+If your somehow figured how to install the whole thing with out the instruction. Im sure you'll are smart enough to figure out how to use this
+
+## Developers
+We have left some Artifacts about the project in the wiki. It should be a usefull read for understanding the project.
