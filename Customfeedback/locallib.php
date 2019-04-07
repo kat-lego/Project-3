@@ -65,7 +65,8 @@ class assign_feedback_customfeedback {
     * @return array of integers
     */
     function get_time_limits(){
-        return array(1,3,5,10,20,60);
+	$limits=array(1,3,5,10,20,60);
+        return $limits;
     }
 
     /**
