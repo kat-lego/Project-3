@@ -168,7 +168,7 @@ class assign_feedback_customfeedback {
 
     function disable_form(MoodleQuickForm $mform, $dependent,$condition){
         
-        $mform->disabledIfallib1.ph('assignfeedback_customfeedback_mode', $dependent,$condition );
+        $mform->disabledIf('assignfeedback_customfeedback_mode', $dependent,$condition );
         $mform->disabledIf('assignfeedback_customfeedback_language', $dependent, $condition);
         $mform->disabledIf('assignfeedback_customfeedback_numQ', $dependent, $condition);
 
@@ -278,7 +278,7 @@ class assign_feedback_customfeedback {
             return $DB->insert_record('assignfeedback_file', $filefeedback) > 0;
         }
     }
-
+//@codeCoverageIgnoreStart
    /*
 	*@codeCoverageIgnore
 	*/
@@ -298,7 +298,7 @@ class assign_feedback_customfeedback {
     
         return $buttons;
     }
-
+//@codeCoverageIgnoreEnd
    /*
     *@codeCoverageIgnore
     */
@@ -320,7 +320,7 @@ class assign_feedback_customfeedback {
         return false;
     }
 
-
+  // @codeCoverageIgnoreStart
 	/*
 	*@codeCoverageIgnore
 	*/
@@ -400,7 +400,7 @@ class assign_feedback_customfeedback {
     public function text_for_gradebook(stdClass $grade) {
         return '';
     }
-
+  // @codeCoverageIgnoreEnd
     /**
      * Override to indicate a plugin supports quickgrading
      *
@@ -434,7 +434,7 @@ class assign_feedback_customfeedback {
 
     /**
      * Save quickgrading changes
-     *@codeCoverageIgnore
+     *
      * @param int $userid The user id in the table this quickgrading element relates to
      * @param stdClass $grade The grade
      * @return boolean - true if the grade changes were saved correctly
@@ -453,7 +453,7 @@ class assign_feedback_customfeedback {
 
     /**
      * Return a list of the grading actions supported by this plugin.
-     *@codeCoverageIgnore
+     *
      * A grading action is a page that is not specific to a user but to the whole assignment.
      * @return array - An array of action and description strings.
      *                 The action will be passed to grading_action.
@@ -461,16 +461,18 @@ class assign_feedback_customfeedback {
     public function get_grading_actions() {
         return array();
     }
-
+    // @codeCoverageIgnoreStart
     /**
      * Show a grading action form
-     *@codeCoverageIgnore
+     *
      * @param string $gradingaction The action chosen from the grading actions menu
      * @return string The page containing the form
      */
     public function grading_action($gradingaction) {
         return '';
     }
+    // @codeCoverageIgnoreEnd
+
 
     /**
      * Return a list of the batch grading operations supported by this plugin.
