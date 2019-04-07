@@ -45,6 +45,7 @@ class assign_feedback_customfeedback {
     }
 
     /**
+    *@codeCoverageIgnore
     * Gets a list of integers. Each integer is the number of questions an assignment might have
     * The integers range from 1 to the maxquestions configured in the settings of the plugin
     * @return array of integers from 1 to maxquestions
@@ -301,8 +302,8 @@ class assign_feedback_customfeedback {
     
         return $table;
     }
-   /*
-    *
+   /**
+    *@codeCoverageIgnore
     */
     public function view(stdClass $grade) {
     
@@ -360,15 +361,15 @@ class assign_feedback_customfeedback {
     }
 
 
-	/*
-	*
+	/**
+	*@codeCoverageIgnore
 	*/
     public function is_empty(stdClass $submission) {
         return $this->view($submission) == '';
     }
 
-	/*
-	*
+	/**
+	*@codeCoverageIgnore
 	*/
     public function get_file_areas() {
         return array(ASSIGNFEEDBACK_FILE_FILEAREA=>$this->get_name());
@@ -446,6 +447,7 @@ class assign_feedback_customfeedback {
 
     /**
      * Run cron for this plugin
+     *@codeCoverageIgnore
      */
     public static function cron() {
 
