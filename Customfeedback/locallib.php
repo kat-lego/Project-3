@@ -20,7 +20,7 @@ class assign_feedback_customfeedback {
 
     /**
     * Gets the name of pluin
-    * @codeCoverageIgnore
+    * 
     * @return string with name of the plugin
     */
     public function get_name() {
@@ -37,7 +37,7 @@ class assign_feedback_customfeedback {
 
     /**
     * Gets the list of languages supported by the plugin
-    *  @codeCoverageIgnore
+    * 
     * @return array of strings with the names of the languages
     */
     public function get_languages(){
@@ -78,7 +78,7 @@ class assign_feedback_customfeedback {
     }
 	
     /**
-    * @codeCoverageIgnore
+    * 
     * Allows this plugin to add a list of settings to the form when creating an assignment.
     */
     public function get_settings(MoodleQuickForm $mform) {
@@ -120,7 +120,7 @@ class assign_feedback_customfeedback {
 
     /**
     * Adds the settings for a question to the form
-    *@codeCoverageIgnore
+    *
     */
     public function addQuestion($i,MoodleQuickForm $mform){
         //Question numbering
@@ -183,7 +183,7 @@ class assign_feedback_customfeedback {
 
 
 	/*
-	*@codeCoverageIgnore
+	*
 	*/
     public function save_settings(stdClass $data) {
         global $DB;
@@ -217,20 +217,19 @@ class assign_feedback_customfeedback {
     }
 
 	/*
-	*@codeCoverageIgnore
+	*
 	*/
     public function get_form_elements_for_user($grade, MoodleQuickForm $mform, stdClass $data, $userid) {
 
         //$fileoptions = $this->get_file_options();
         $gradeid = $grade ? $grade->id : 0;
-
         $mform->addElement('editor', 'assignfeedbackcomments_editor', $this->get_name(), null, null);
         $mform->addElement('static', 'assignfeedbackwitsoj_rejudge', $this->get_name(), '#', null);;
         return true;
     }
 
     /*
-     *@codeCoverageIgnore
+     *
      */
     public function is_feedback_modified(stdClass $grade, stdClass $data) {
         return false;
@@ -249,7 +248,7 @@ class assign_feedback_customfeedback {
         }
     }
 	/*
-	*@codeCoverageIgnore
+	*
 	*/
     public function save(stdClass $grade, stdClass $data) {
         global $DB;
@@ -279,9 +278,9 @@ class assign_feedback_customfeedback {
             return $DB->insert_record('assignfeedback_file', $filefeedback) > 0;
         }
     }
-//@codeCoverageIgnoreStart
+
    /*
-	*@codeCoverageIgnore
+	*
 	*/
     public function view_summary(stdClass $grade, & $showviewlink) {
          $buttons="";
@@ -299,9 +298,8 @@ class assign_feedback_customfeedback {
     
         return $buttons;
     }
-//@codeCoverageIgnoreEnd
    /*
-    *@codeCoverageIgnore
+    *
     */
     public function view(stdClass $grade) {
     
@@ -311,7 +309,7 @@ class assign_feedback_customfeedback {
 
 
 	/*
-	*@codeCoverageIgnore
+	*
 	*/	
     public function can_upgrade($type, $version) {
 
@@ -321,9 +319,8 @@ class assign_feedback_customfeedback {
         return false;
     }
 
-  // @codeCoverageIgnoreStart
 	/*
-	*@codeCoverageIgnore
+	*
 	*/
     public function upgrade_settings(context $oldcontext, stdClass $oldassignment, & $log) {
         // first upgrade settings (nothing to do)
@@ -376,7 +373,7 @@ class assign_feedback_customfeedback {
 
 
 	/*
-	*@codeCoverageIgnore
+	*
 	*/
     public function delete_instance() {
         global $DB;
@@ -388,7 +385,7 @@ class assign_feedback_customfeedback {
 
 
 	/*
-	*@codeCoverageIgnore
+	*
 	*/
     public function format_for_gradebook(stdClass $grade) {
         return FORMAT_MOODLE;
@@ -396,12 +393,11 @@ class assign_feedback_customfeedback {
 
 
 	/*
-	*@codeCoverageIgnore
+	*
 	*/
     public function text_for_gradebook(stdClass $grade) {
         return '';
     }
-  // @codeCoverageIgnoreEnd
     /**
      * Override to indicate a plugin supports quickgrading
      *
@@ -462,7 +458,7 @@ class assign_feedback_customfeedback {
     public function get_grading_actions() {
         return array();
     }
-    // @codeCoverageIgnoreStart
+
     /**
      * Show a grading action form
      *
@@ -472,9 +468,6 @@ class assign_feedback_customfeedback {
     public function grading_action($gradingaction) {
         return '';
     }
-    // @codeCoverageIgnoreEnd
-
-
     /**
      * Return a list of the batch grading operations supported by this plugin.
      *
@@ -487,7 +480,7 @@ class assign_feedback_customfeedback {
 
     /**
      * Show a batch operations form
-     *@codeCoverageIgnore
+     *
      * @param string $action The action chosen from the batch operations menu
      * @param array $users The list of selected userids
      * @return string The page containing the form
