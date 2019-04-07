@@ -20,6 +20,7 @@ class assign_feedback_customfeedback {
 
     /**
     * Gets the name of pluin
+    * @codeCoverageIgnore
     * @return string with name of the plugin
     */
     public function get_name() {
@@ -36,6 +37,7 @@ class assign_feedback_customfeedback {
 
     /**
     * Gets the list of languages supported by the plugin
+    *  @codeCoverageIgnore
     * @return array of strings with the names of the languages
     */
     public function get_languages(){
