@@ -24,4 +24,4 @@ The platform is still in the development phase and installing it may result in s
 If your somehow figured how to install the whole thing with out the instruction. Im sure you'll are smart enough to figure out how to use this
 
 ## Developers
-We have left some Artifacts about the project in the wiki. It should be a usefull read for understanding the project.
+We have left some Artifacts about the project in the [wiki](https://github.com/kat-lego/Project-3/wiki). It should be a usefull read for understanding the project.
