@@ -46,7 +46,6 @@ class assign_feedback_customfeedback {
 
     /**
     * Gets a list of integers. Each integer is the number of questions an assignment might have
-    *
     * The integers range from 1 to the maxquestions configured in the settings of the plugin
     * @return array of integers from 1 to maxquestions
     */
@@ -76,8 +75,9 @@ class assign_feedback_customfeedback {
     function get_memory_limits(){
         return  array('1MB','2MB','4MB','16MB');
     }
-
+	
     /**
+    * @codeCoverageIgnore
     * Allows this plugin to add a list of settings to the form when creating an assignment.
     */
     public function get_settings(MoodleQuickForm $mform) {
@@ -119,7 +119,7 @@ class assign_feedback_customfeedback {
 
     /**
     * Adds the settings for a question to the form
-    * 
+    *@codeCoverageIgnore
     */
     public function addQuestion($i,MoodleQuickForm $mform){
         //Question numbering
@@ -181,6 +181,9 @@ class assign_feedback_customfeedback {
     }
 
 
+	/*
+	*@codeCoverageIgnore
+	*/
     public function save_settings(stdClass $data) {
         global $DB;
         
@@ -212,6 +215,9 @@ class assign_feedback_customfeedback {
         return true;
     }
 
+	/*
+	*@codeCoverageIgnore
+	*/
     public function get_form_elements_for_user($grade, MoodleQuickForm $mform, stdClass $data, $userid) {
 
         //$fileoptions = $this->get_file_options();
@@ -222,6 +228,9 @@ class assign_feedback_customfeedback {
         return true;
     }
 
+   /*
+	*
+	*/
     public function is_feedback_modified(stdClass $grade, stdClass $data) {
         return false;
         $commenttext = '';
@@ -238,7 +247,9 @@ class assign_feedback_customfeedback {
             return true;
         }
     }
-
+	/*
+	*
+	*/
     public function save(stdClass $grade, stdClass $data) {
         global $DB;
 
@@ -268,6 +279,9 @@ class assign_feedback_customfeedback {
         }
     }
 
+   /*
+	*@codeCoverageIgnore
+	*/
     public function view_summary(stdClass $grade, & $showviewlink) {
          $buttons="";
          //buttons .=  "<a class='btn btn-secondary' href='http://1710409.ms.wits.ac.za/leaderboard/leader.html' target='_blank' style='margin-bottom:5px;'>Leaderboard</a><br/>";
@@ -285,6 +299,10 @@ class assign_feedback_customfeedback {
         return $buttons;
     }
 
+   /*
+	*
+	*/
+
     public function view(stdClass $grade) {
     
        return "lets see";
@@ -292,6 +310,9 @@ class assign_feedback_customfeedback {
     }
 
 
+	/*
+	*@codeCoverageIgnore
+	*/	
     public function can_upgrade($type, $version) {
 
         if (($type == 'upload' || $type == 'uploadsingle') && $version >= 2011112900) {
@@ -301,12 +322,17 @@ class assign_feedback_customfeedback {
     }
 
 
-
+	/*
+	*
+	*/
     public function upgrade_settings(context $oldcontext, stdClass $oldassignment, & $log) {
         // first upgrade settings (nothing to do)
         return true;
     }
 
+	/*
+	*
+	*/	
     public function upgrade(context $oldcontext, stdClass $oldassignment, stdClass $oldsubmission, stdClass $grade, & $log) {
         global $DB;
 
@@ -334,18 +360,24 @@ class assign_feedback_customfeedback {
     }
 
 
-
+	/*
+	*
+	*/
     public function is_empty(stdClass $submission) {
         return $this->view($submission) == '';
     }
 
-
+	/*
+	*
+	*/
     public function get_file_areas() {
         return array(ASSIGNFEEDBACK_FILE_FILEAREA=>$this->get_name());
     }
 
 
-
+	/*
+	*@codeCoverageIgnore
+	*/
     public function delete_instance() {
         global $DB;
         // will throw exception on failure
@@ -355,13 +387,17 @@ class assign_feedback_customfeedback {
     }
 
 
-
+	/*
+	*@codeCoverageIgnore
+	*/
     public function format_for_gradebook(stdClass $grade) {
         return FORMAT_MOODLE;
     }
 
 
-
+	/*
+	*@codeCoverageIgnore
+	*/
     public function text_for_gradebook(stdClass $grade) {
         return '';
     }
