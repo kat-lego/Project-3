@@ -228,9 +228,9 @@ class assign_feedback_customfeedback {
         return true;
     }
 
-   /*
-	*
-	*/
+    /*
+     *@codeCoverageIgnore
+     */
     public function is_feedback_modified(stdClass $grade, stdClass $data) {
         return false;
         $commenttext = '';
@@ -248,7 +248,7 @@ class assign_feedback_customfeedback {
         }
     }
 	/*
-	*
+	*@codeCoverageIgnore
 	*/
     public function save(stdClass $grade, stdClass $data) {
         global $DB;
@@ -300,9 +300,8 @@ class assign_feedback_customfeedback {
     }
 
    /*
-	*
-	*/
-
+    *@codeCoverageIgnore
+    */
     public function view(stdClass $grade) {
     
        return "lets see";
@@ -323,7 +322,7 @@ class assign_feedback_customfeedback {
 
 
 	/*
-	*
+	*@codeCoverageIgnore
 	*/
     public function upgrade_settings(context $oldcontext, stdClass $oldassignment, & $log) {
         // first upgrade settings (nothing to do)
@@ -413,7 +412,7 @@ class assign_feedback_customfeedback {
 
     /**
      * Get quickgrading form elements as html
-     *
+     *@codeCoverageIgnore
      * @param int $userid The user id in the table this quickgrading element relates to
      * @param mixed $grade grade or null - The grade data. May be null if there are no grades for this user (yet)
      * @return mixed - A html string containing the html form elements required for quickgrading or false to indicate this plugin does not support quickgrading
@@ -424,7 +423,7 @@ class assign_feedback_customfeedback {
 
     /**
      * Has the plugin quickgrading form element been modified in the current form submission?
-     *
+     *@codeCoverageIgnore
      * @param int $userid The user id in the table this quickgrading element relates to
      * @param stdClass $grade The grade
      * @return boolean - true if the quickgrading form element has been modified
@@ -435,7 +434,7 @@ class assign_feedback_customfeedback {
 
     /**
      * Save quickgrading changes
-     *
+     *@codeCoverageIgnore
      * @param int $userid The user id in the table this quickgrading element relates to
      * @param stdClass $grade The grade
      * @return boolean - true if the grade changes were saved correctly
@@ -465,7 +464,7 @@ class assign_feedback_customfeedback {
 
     /**
      * Show a grading action form
-     *
+     *@codeCoverageIgnore
      * @param string $gradingaction The action chosen from the grading actions menu
      * @return string The page containing the form
      */

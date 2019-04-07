@@ -34,6 +34,20 @@ class locallibTest extends TestCase{
             $expected = false;
             $this->assertEquals($expected,$result,"correct!"); 
     }
+	
+	public function test_get_grading_actions(){
+		$tester=new assign_feedback_customfeedback;
+		$result = $tester->get_grading_actions();
+        $expected = array();
+        $this->assertEquals($expected,$result,"correct!"); 
+	}
+ 
+	public function test_ get_grading_batch_operations(){
+		$tester=new assign_feedback_customfeedback;
+		$result = $tester-> get_grading_batch_operations();
+        $expected = array();
+        $this->assertEquals($expected,$result,"correct!"); 
+	}
  
  
 }
