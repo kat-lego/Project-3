@@ -42,7 +42,7 @@ class locallibTest extends TestCase{
         $this->assertEquals($expected,$result,"correct!"); 
 	}
  
-	public function test_ get_grading_batch_operations(){
+	public function test_get_grading_batch_operations(){
 		$tester=new assign_feedback_customfeedback;
 		$result = $tester-> get_grading_batch_operations();
         $expected = array();
