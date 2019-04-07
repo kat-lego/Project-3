@@ -120,7 +120,7 @@ class assign_feedback_customfeedback {
 
     /**
     * Adds the settings for a question to the form
-    *
+    *@codeCoverageIgnore
     */
     public function addQuestion($i,MoodleQuickForm $mform){
         //Question numbering
@@ -283,11 +283,11 @@ class assign_feedback_customfeedback {
 	*
 	*/
     public function view_summary(stdClass $grade, & $showviewlink) {
-         $buttons="";
+         $table="";
          //buttons .=  "<a class='btn btn-secondary' href='http://1710409.ms.wits.ac.za/leaderboard/leader.html' target='_blank' style='margin-bottom:5px;'>Leaderboard</a><br/>";
 
 
-        $buttons="
+        $table="
         <table style='width:100%'  >
             <tr>
                 <th>User</th>
@@ -296,15 +296,15 @@ class assign_feedback_customfeedback {
         </table>
         ";
     
-        return $buttons;
+        return $table;
     }
    /*
     *
     */
     public function view(stdClass $grade) {
     
-       return "lets see";
-        //return $this->assignment->render_area_files('assignfeedback_file', ASSIGNFEEDBACK_FILE_FILEAREA, $grade->id);
+       
+        return $this->assignment->render_area_files('assignfeedback_file', ASSIGNFEEDBACK_FILE_FILEAREA, $grade->id);
     }
 
 
