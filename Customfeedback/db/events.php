@@ -35,6 +35,6 @@ $observers = array(
     #),
     array( # assignsubmission_file\event
         'eventname'   => '\assignsubmission_file\event\assessable_uploaded',
-        'callback'    => '\assignfeedback_witsoj\event\observer::assessable_submitted',
+        'callback'    => '\assignfeedback_customfeedback\event\observer::assessable_submitted',
     ),
 );
