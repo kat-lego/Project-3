@@ -168,7 +168,7 @@ class assign_feedback_customfeedback {
 
     function disable_form(MoodleQuickForm $mform, $dependent,$condition){
         
-        $mform->disabledIf('assignfeedback_customfeedback_mode', $dependent,$condition );
+        $mform->disabledIfallib1.ph('assignfeedback_customfeedback_mode', $dependent,$condition );
         $mform->disabledIf('assignfeedback_customfeedback_language', $dependent, $condition);
         $mform->disabledIf('assignfeedback_customfeedback_numQ', $dependent, $condition);
 
@@ -453,7 +453,7 @@ class assign_feedback_customfeedback {
 
     /**
      * Return a list of the grading actions supported by this plugin.
-     *
+     *@codeCoverageIgnore
      * A grading action is a page that is not specific to a user but to the whole assignment.
      * @return array - An array of action and description strings.
      *                 The action will be passed to grading_action.
@@ -484,7 +484,7 @@ class assign_feedback_customfeedback {
 
     /**
      * Show a batch operations form
-     *
+     *@codeCoverageIgnore
      * @param string $action The action chosen from the batch operations menu
      * @param array $users The list of selected userids
      * @return string The page containing the form
