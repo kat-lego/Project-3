@@ -2,9 +2,7 @@
 **We are the Pipers**
 
 [![Build Status](https://travis-ci.org/maniac22/Project-3.svg?branch=master)](https://travis-ci.org/maniac22/Project-3)
-
-.. image:: https://coveralls.io/repos/github/kat-lego/Project-3/badge.svg?branch=sprint2_dev&service=github
-:target: https://coveralls.io/github/kat-lego/Project-3?branch=sprint2_dev
+[![Coverage Status](https://coveralls.io/repos/github/kat-lego/Project-3/badge.svg?branch=sprint2_dev)](https://coveralls.io/github/kat-lego/Project-3?branch=sprint2_dev)
 
 ##  Abstract
 This is a moodle plug in to be used for conducting Competitive Programming Assingments. The platform will be equiped with a number of different types of Assignments. The Platform consists of two parts.An automating marker(or handler) running off some remote server and the plugin on moodle.
