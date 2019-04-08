@@ -3,7 +3,7 @@
 
 [![Build Status](https://travis-ci.org/maniac22/Project-3.svg?branch=master)](https://travis-ci.org/maniac22/Project-3)
 
-.. image:: https://coveralls.io/repos/github/kat-lego/Project-3/badge.svg?branch=sprint2_dev
+.. image:: https://coveralls.io/repos/github/kat-lego/Project-3/badge.svg?branch=sprint2_dev&service=github
 :target: https://coveralls.io/github/kat-lego/Project-3?branch=sprint2_dev
 
 ##  Abstract
