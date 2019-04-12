@@ -11,12 +11,10 @@ table {
   width: 50%;
   border: 1px solid #ddd;
 }
-
 th, td {
   text-align: left;
   padding: 16px;
 }
-
 tr:nth-child(even) {
   background-color: #f2f2f2
 }
@@ -41,36 +39,26 @@ $database = "moodleDev";
  		else{
  			die("failed to fetch data");
  		}
-
 	}
 	else{
 		die("failed to connect to the database");
 	}
 	mysqli_close($link);
-	$output=strval(json_encode($output));
-	$out=(array)json_decode($output,true);
 	$format="<h1>Competitive Assignment</h1>";
 	$format.="<table><th>username</th><th>Score</th>";
-	for($i=0;$i<sizeof($out);$i++){
-		$username=$out[$i]["student_id"];
-		$score=$out[$i]["mark"];
+	for($i=0;$i<sizeof($output);$i++){
 		$format.="<tr>
 			<td>
-			$username			
+			$output[$i]['student_id']			
 			</td>
 			<td>
-			 $score
+			 $output[$i]['mark']
 			</td>
 		</tr>
-		";
+	";
 	}
 	
 	echo $format."</table>";
 ?>
 	</body>
 </html>
-	
-	 
-
-
-
