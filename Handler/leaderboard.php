@@ -10,6 +10,7 @@ table {
   border-spacing: 0;
   width: 50%;
   border: 1px solid #ddd;
+  margin-right: 100px;
 }
 
 th, td {
@@ -24,6 +25,7 @@ tr:nth-child(even) {
 </head>
 <body>
 <?php
+//not yet done still needs more detail
 $username = "username";
 $password = "password";
 $database = "moodleDev";
@@ -49,7 +51,7 @@ $database = "moodleDev";
 	mysqli_close($link);
 	$output=strval(json_encode($output));
 	$out=(array)json_decode($output,true);
-	$format="<h1>Competitive Assignment</h1>";
+	$format="<strong>Competitive Assignment</strong> 2019";
 	$format.="<table><th>username</th><th>Score</th>";
 	for($i=0;$i<sizeof($out);$i++){
 		$username=$out[$i]["student_id"];
