@@ -13,7 +13,7 @@
 
          <filter>
            <whitelist>
-            <directory suffix=".php">./Customfeedback/locallib.php</directory>
+            <directory suffix=".php">./locallib.php</directory>
            </whitelist>
          </filter>
 
