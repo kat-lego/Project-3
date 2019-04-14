@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-define('ASSIGNFEEDBACK_COMPETITIVE_TESTCASE_FILEAREA', 'competitive_feedback');
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA', 'competition_testcases');
 
 class assign_feedback_customfeedback extends assign_feedback_plugin {
 
@@ -216,8 +216,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         for($i=0;$i<$n;$i++){
             $s1 = '$data->assignfeedback_customfeedback_timelimitQ'.$i;
             $s2 = '$data->assignfeedback_customfeedback_memorylimitQ'.$i;
+            $s3 = 'data->assignfeedback_customfeedback_testcasesQ'.$i;
             eval("\$v1=\"$s1\";");
             eval("\$v2=\"$s2\";");
+            eval("\$v3=\"$s3\";");
 
             $questionData = array();
             $questionData['question_number'] = $i;
@@ -227,6 +229,11 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
             $this->set_config('timelimit'.$i, $questionData['time_limit']);
             $this->set_config('memorylimit'.$i, $questionData['memory_limit']);
+
+            if (isset($v3)) {
+            file_save_draft_area_files($v3, $this->assignment->get_context()->id,
+                                       'assignfeedback_customfeedback', ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA, 0);
+            }
 
             if($id){
                 $questionData['assign_id'] = $id;

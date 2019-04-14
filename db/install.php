@@ -15,16 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package   assignfeedback_customfeedback
- * @copyright 2019, Moses Modupi <1614669@student.wits.ac.za>
+ * Post-install code for the feedback_witsoj module.
+ *
+ * @package   assignfeedback_witsoj
+ * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2019041400;
-$plugin->requires = 2018120300; // Moodle 3.6
-$plugin->cron = 0;
-$plugin->component = 'assignfeedback_customfeedback';
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->release = 'v1.0';
+/**
+ * Set the initial order for the feedback comments plugin (top)
+ * @return bool
+ */
+function xmldb_assignfeedback_customfeedback_install() {
+    global $CFG;
+
+    require_once($CFG->dirroot . '/mod/assign/adminlib.php');
+
+    // Set the correct initial order for the plugins.
+    $pluginmanager = new assign_plugin_manager('assignfeedback');
+    $pluginmanager->move_plugin('comments', 'up');
+
+    return true;
+}
