@@ -16,7 +16,7 @@
 
 define('ASSIGNFEEDBACK_COMPETITIVE_TESTCASE_FILEAREA', 'competitive_feedback');
 
-class assign_feedback_customfeedback {
+class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     /**
     * Gets the name of pluin
@@ -75,7 +75,7 @@ class assign_feedback_customfeedback {
     * @return array of strings
     */
     function get_memory_limits(){
-        return  array('1MB','2MB','4MB','16MB');
+        return  array(1,2,4,16,32,64,512,1024);
     }
 	
     /**
@@ -193,29 +193,55 @@ class assign_feedback_customfeedback {
     public function save_settings(stdClass $data) {
         global $DB;
         
-        //$this->set_config('allowedfileextensions', $data->allowedfileextensions);
-        $this->set_config('mode', $this->get_modes()[$data->assignfeedback_customfeedback_mode]);
-        $this->set_config('language', $this->get_languages()[$data->assignfeedback_customfeedback_language]);
-        $this->set_config('numQ', $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ]);
+        $assignData = new stdClass();
+        $assignData->mode = $this->get_modes()[$data->assignfeedback_customfeedback_mode];
+        $assignData->course_id = 0; //TODO: figure out how to get this course id.
+        $assignData->language = $this->get_languages()[$data->assignfeedback_customfeedback_language];
+        $assignData->number_of_questions = $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ];
 
-        $id = $DB->insert_record("customfeedback_assignment",
-            ['course_id' => '1',
-             'mode' => $this->get_modes()[$data->assignfeedback_customfeedback_mode],
-             'language' => $this->get_languages()[$data->assignfeedback_customfeedback_language],
-             'number_of_questions' => $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ]
-            ]
-        );
+        $this->set_config('mode', $assignData->mode);
+        $this->set_config('language', $assignData->language);
+        $this->set_config('numQ', $assignData->number_of_questions);
 
-        $n = get_config('assignfeedback_customfeedback','maxquestions');
+        $id = $this->get_config('id');
+        if($id){
+            $assignData->id = $id;
+            $DB->update_record("customfeedback_assignment", $assignData);
+        }else{
+            $newid  = $DB->insert_record("customfeedback_assignment", $assignData);
+            $this->set_config('id', $newid);
+        }
+
+        $n = $assignData->number_of_questions;
         for($i=0;$i<$n;$i++){
-            $s = '$data->assignfeedback_customfeedback_timelimitQ'.$i;
-            eval("\$v=\"$s\";");
-            $this->set_config('timelimit'.$i, $this->get_time_limits()[$v]);
+            $s1 = '$data->assignfeedback_customfeedback_timelimitQ'.$i;
+            $s2 = '$data->assignfeedback_customfeedback_memorylimitQ'.$i;
+            eval("\$v1=\"$s1\";");
+            eval("\$v2=\"$s2\";");
 
-            $s = '$data->assignfeedback_customfeedback_memorylimitQ'.$i;
-            eval("\$v=\"$s\";");
-            $this->set_config('memorylimit'.$i, $this->get_memory_limits()[$v]);
+            $questionData = array();
+            $questionData['question_number'] = $i;
+            $questionData['time_limit'] = $this->get_time_limits()[$v1];
+            $questionData['memory_limit'] = $this->get_memory_limits()[$v2];
+            
 
+            $this->set_config('timelimit'.$i, $questionData['time_limit']);
+            $this->set_config('memorylimit'.$i, $questionData['memory_limit']);
+
+            if($id){
+                $questionData['assign_id'] = $id;
+                $sql = "UPDATE {customfeedback_question} 
+                        SET memory_limit = :memory_limit,
+                            time_limit = :time_limit
+                        WHERE assign_id = :assign_id AND question_number = :question_number
+                        ";
+                $DB->execute($sql, $questionData);
+
+            }else{
+                $questionData['assign_id'] = $newid;
+                $sql = "INSERT INTO {customfeedback_question} VALUES(:assign_id, :question_number,:memory_limit ,:time_limit)";
+                $DB->execute($sql, $questionData);
+            }
 
         }
         return true;
