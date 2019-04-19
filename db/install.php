@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Post-install code for the feedback_witsoj module.
+ * Post-install code for the feedback_customfeedback module.
  *
- * @package   assignfeedback_witsoj
+ * @package   assignfeedback_customfeedback
  * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

@@ -16,6 +16,17 @@
 
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA', 'competition_testcases');
 
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PENDING', 0);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ABORTED', 1);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_JUDGING', 2);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_COMPILEERROR', 3);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR', 4);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_TIMELIMITEXCEEDED', 5);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_MEMORYLIMITEXCEEDED', 6);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_INCORRECT', 7);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED', 8);
+
+
 class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     /**
@@ -204,6 +215,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $this->set_config('numQ', $assignData->number_of_questions);
 
         $id = $this->get_config('id');
+        $newid = null;
         if($id){
             $assignData->id = $id;
             $DB->update_record("customfeedback_assignment", $assignData);
@@ -216,7 +228,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         for($i=0;$i<$n;$i++){
             $s1 = '$data->assignfeedback_customfeedback_timelimitQ'.$i;
             $s2 = '$data->assignfeedback_customfeedback_memorylimitQ'.$i;
-            $s3 = 'data->assignfeedback_customfeedback_testcasesQ'.$i;
+            $s3 = '$data->assignfeedback_customfeedback_testcasesQ'.$i;
             eval("\$v1=\"$s1\";");
             eval("\$v2=\"$s2\";");
             eval("\$v3=\"$s3\";");
@@ -231,8 +243,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             $this->set_config('memorylimit'.$i, $questionData['memory_limit']);
 
             if (isset($v3)) {
-            file_save_draft_area_files($v3, $this->assignment->get_context()->id,
-                                       'assignfeedback_customfeedback', ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA, 0);
+                file_save_draft_area_files($v3, $this->assignment->get_context()->id,'assignfeedback_customfeedback', ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA, 0);
             }
 
             if($id){
@@ -252,6 +263,19 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         }
         return true;
+    }
+
+    public function data_preprocessing(&$defaultvalues) {
+        $n = $this->get_config("numQ");
+        if(isset($n)){
+            for($i=0;$i<$n;$i++){
+                $draftitemid = file_get_submitted_draft_itemid('assignfeedback_customfeedback_testcasesQ'.$i);
+                file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, 
+                    'assignfeedback_customfeedback', ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA,0, array('subdirs' => 0));
+                $defaultvalues['assignfeedback_customfeedback_testcasesQ'.$i] = $draftitemid;
+            }
+        return;
+        }
     }
 
 	/**
@@ -316,31 +340,76 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
     }
 
+
+    public function set_initial_grade($userid){
+        $grade = $this->assignment->get_user_grade($userid, true);
+        $grade->grade = 0;
+        $this->assignment->update_grade($grade, false);
+    }
+
+
    /**
 	*@codeCoverageIgnore
 	*/
     public function view_summary(stdClass $grade, & $showviewlink) {
-         $table="";
-         //buttons .=  "<a class='btn btn-secondary' href='http://1710409.ms.wits.ac.za/leaderboard/leader.html' target='_blank' style='margin-bottom:5px;'>Leaderboard</a><br/>";
+         /*
+        for each question i;
+            if there is a submission for question i by a particular student then:
+                if the judgment request to the handler failed then:
+                    return a message of the request failure and a button for trying again.
+                otherwise:
+                    if the judgment request has been recieved and the submission is now waiting to be judged then:
+                        return a message saying waiting for Judgement.
+                    otherwise if the submission has been judged and a Time Limit Exceeded was found then:
+                        return a message that a time limit was exceeded.
+                    otherwise if the submission has been judged and a Memory limit Exceeded was found then:
+                        return a message that the memory limit was exceeded.
+                    otherwise if the submission has been judged and a wrong answer was was found then:
+                        return a message that the solution was wrong
+                    otherwise if the submission has been judged then:
+                        return a message with the time it took for that submission to run and a mini leaderboard.
+
+            otherwise:
+                return a message for question i saying no submissions have been made.
 
 
-        $table="
+        if the student qualifies to be on the leaderboard then return a subsection of the leaderboard with the student's position.
+        otherwise return minimum requirements to be on the leaderboard
+        */
+        $n = $this->get_config('numQ');
+
+        //TODO: a better implementation of the table headers. this table if for the feedback given to every question.
+        $form = "
         <table style='width:100%'  >
             <tr>
-                <th>User</th>
-                <th>Score</th>
+                <th>Question</th>
+                <th>Verdict</th>
             </tr>
-        </table>
         ";
-    
-        return $table;
+        for($i = 0;$i<$n;$i++){
+            //TODO: implement the ifs I eluded to in the top part.
+            //TODO: better implementation of the table rows to the table of questions and verdicts.
+            //TODO: implementation of the forms that should be returned for every case in the if and else we will have. 
+
+            $verdict = "verdict for Question $i";
+            $form.= "<tr>
+                        <td>question $i</td>
+                        <td>$verdict</td>
+                    </tr>";
+
+            //TODO: leader board snippet.
+            //TODO: minimum requirements.
+
+        }
+
+        return $form."</table>";
     }
+
+
    /**
     *@codeCoverageIgnore
     */
     public function view(stdClass $grade) {
-    
-       
         return $this->assignment->render_area_files('assignfeedback_file', ASSIGNFEEDBACK_FILE_FILEAREA, $grade->id);
     }
 

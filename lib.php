@@ -29,11 +29,11 @@ function assignfeedback_customfeedback_pluginfile($course,
     //if (!has_capability('mod/assign:view', $context)) {
     //    return false;
     //}
-    /*
+    
     $auth = get_config('assignment_customfeedback', 'secret');
     if(!isset($_POST["witsoj_token"]) || $_POST["witsoj_token"] !== $auth){
         die("No Auth");
-    }*/
+    }
 
     require_once($CFG->dirroot . '/mod/assign/locallib.php');
     $assign = new assign($context, $cm, $course);
