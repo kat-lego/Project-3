@@ -46,6 +46,7 @@ class observer {
 	if(!$plugin->is_enabled()){
 		return;
 	}
+	$plugin->set_initial_grade($event->get_data()['userid']);
 	
     }
 }

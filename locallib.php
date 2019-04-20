@@ -17,14 +17,18 @@
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA', 'competition_testcases');
 
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PENDING', 0);
-define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ABORTED', 1);
-define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_JUDGING', 2);
-define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_COMPILEERROR', 3);
-define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR', 4);
-define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_TIMELIMITEXCEEDED', 5);
-define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_MEMORYLIMITEXCEEDED', 6);
-define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_INCORRECT', 7);
-define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED', 8);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_JUDGING', 1);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_COMPILEERROR', 2);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR', 3);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED', 4);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_MIXED', 5);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_INCORRECT', 6);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_MARKERERROR', 7);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_TIMELIMIT', 8);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ABORTED', 9);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_TIMEOUT', 10);
+
+require_once('html_element.php');
 
 
 class assign_feedback_customfeedback extends assign_feedback_plugin {
@@ -204,27 +208,35 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     public function save_settings(stdClass $data) {
         global $DB;
         
-        $assignData = new stdClass();
-        $assignData->mode = $this->get_modes()[$data->assignfeedback_customfeedback_mode];
-        $assignData->course_id = 0; //TODO: figure out how to get this course id.
-        $assignData->language = $this->get_languages()[$data->assignfeedback_customfeedback_language];
-        $assignData->number_of_questions = $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ];
+        $assignData = array();
+        $assignData['id'] = $this->assignment->get_instance()->id;
+        $assignData['course_id'] = 0; //TODO: figure out how to get this course id.
+        $assignData['mode'] = $this->get_modes()[$data->assignfeedback_customfeedback_mode];
+        $assignData['language'] = $this->get_languages()[$data->assignfeedback_customfeedback_language];
+        $assignData['number_of_questions'] = $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ];
 
-        $this->set_config('mode', $assignData->mode);
-        $this->set_config('language', $assignData->language);
-        $this->set_config('numQ', $assignData->number_of_questions);
+        $this->set_config('mode', $assignData['mode']);
+        $this->set_config('language', $assignData['language']);
+        $this->set_config('numQ', $assignData['number_of_questions']);
 
-        $id = $this->get_config('id');
-        $newid = null;
-        if($id){
-            $assignData->id = $id;
-            $DB->update_record("customfeedback_assignment", $assignData);
+        $isupdate = $DB->record_exists('customfeedback_assignment', ['id'=>$assignData['id']]);
+        if($isupdate){
+            $sql = "UPDATE {customfeedback_assignment} 
+                        SET mode = :mode,
+                            language = :language,
+                            number_of_questions = :number_of_questions
+                        WHERE id = :id
+                        ";
+            $DB->execute($sql, $assignData);
+
         }else{
-            $newid  = $DB->insert_record("customfeedback_assignment", $assignData);
-            $this->set_config('id', $newid);
+
+            $sql = "INSERT INTO {customfeedback_assignment} VALUES(:id, :course_id, :mode,:language ,:number_of_questions)";
+            $DB->execute($sql, $assignData);
+
         }
 
-        $n = $assignData->number_of_questions;
+        $n = $assignData['number_of_questions'];
         for($i=0;$i<$n;$i++){
             $s1 = '$data->assignfeedback_customfeedback_timelimitQ'.$i;
             $s2 = '$data->assignfeedback_customfeedback_memorylimitQ'.$i;
@@ -234,6 +246,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             eval("\$v3=\"$s3\";");
 
             $questionData = array();
+            $questionData['assign_id'] = $assignData['id'];
             $questionData['question_number'] = $i;
             $questionData['time_limit'] = $this->get_time_limits()[$v1];
             $questionData['memory_limit'] = $this->get_memory_limits()[$v2];
@@ -245,9 +258,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             if (isset($v3)) {
                 file_save_draft_area_files($v3, $this->assignment->get_context()->id,'assignfeedback_customfeedback', ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA, 0);
             }
-
-            if($id){
-                $questionData['assign_id'] = $id;
+            
+            if($isupdate){
                 $sql = "UPDATE {customfeedback_question} 
                         SET memory_limit = :memory_limit,
                             time_limit = :time_limit
@@ -256,7 +268,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                 $DB->execute($sql, $questionData);
 
             }else{
-                $questionData['assign_id'] = $newid;
                 $sql = "INSERT INTO {customfeedback_question} VALUES(:assign_id, :question_number,:memory_limit ,:time_limit)";
                 $DB->execute($sql, $questionData);
             }
@@ -352,59 +363,107 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 	*@codeCoverageIgnore
 	*/
     public function view_summary(stdClass $grade, & $showviewlink) {
-         /*
-        for each question i;
-            if there is a submission for question i by a particular student then:
-                if the judgment request to the handler failed then:
-                    return a message of the request failure and a button for trying again.
-                otherwise:
-                    if the judgment request has been recieved and the submission is now waiting to be judged then:
-                        return a message saying waiting for Judgement.
-                    otherwise if the submission has been judged and a Time Limit Exceeded was found then:
-                        return a message that a time limit was exceeded.
-                    otherwise if the submission has been judged and a Memory limit Exceeded was found then:
-                        return a message that the memory limit was exceeded.
-                    otherwise if the submission has been judged and a wrong answer was was found then:
-                        return a message that the solution was wrong
-                    otherwise if the submission has been judged then:
-                        return a message with the time it took for that submission to run and a mini leaderboard.
-
-            otherwise:
-                return a message for question i saying no submissions have been made.
-
-
-        if the student qualifies to be on the leaderboard then return a subsection of the leaderboard with the student's position.
-        otherwise return minimum requirements to be on the leaderboard
-        */
+         
         $n = $this->get_config('numQ');
 
-        //TODO: a better implementation of the table headers. this table if for the feedback given to every question.
-        $form = "
-        <table style='width:100%'  >
-            <tr>
-                <th>Question</th>
-                <th>Verdict</th>
-            </tr>
-        ";
-        for($i = 0;$i<$n;$i++){
-            //TODO: implement the ifs I eluded to in the top part.
-            //TODO: better implementation of the table rows to the table of questions and verdicts.
-            //TODO: implementation of the forms that should be returned for every case in the if and else we will have. 
-
-            $verdict = "verdict for Question $i";
-            $form.= "<tr>
-                        <td>question $i</td>
-                        <td>$verdict</td>
+        //TODO: add these stuff the language strings
+        $table = "<table width=100%>
+                    <tr>
+                        <th> Question </th>
+                        <th> Verdict </th>
                     </tr>";
 
-            //TODO: leader board snippet.
-            //TODO: minimum requirements.
+        $qualifies = False;
+        for($i = 0;$i<$n;$i++){
+            $verdict = $this->get_question_verdict($grade,$i,$qualifies);
+            $table.="
+                <tr>
+                    <td>Question $i</td>
+                    <td>$verdict</td>
+                </tr>
+            ";
 
         }
 
-        return $form."</table>";
+        $table.="</table>";
+        
+        if(True){
+             //TODO: leader board snippet.
+
+        }else{
+            //TODO: minimum requirements.
+        }
+
+        return $table;
     }
 
+    /**
+    * 
+    */
+    function get_question_verdict(stdClass $grade,$question){
+        global $DB;
+
+        $sql = "SELECT * FROM {customfeedback_submission} 
+                WHERE 
+                question_number=:question_number AND
+                assign_id = :assign_id AND
+                user_id = :user_id
+                ";
+        $params = array();
+        $params['question_number'] = $question;
+        $params['assign_id'] = $this->assignment->get_instance()->id;
+        $params['user_id'] = $grade->userid;
+
+        $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
+
+        if(empty($records)){
+            //add to language strings
+            return "No Submission Made";
+        }else{
+            $record = $records[$question];
+            switch ($record->status) {
+                case 0:
+                    return "Judging Request Pending";
+                    break;
+                case 1:
+                    return "Judging In Progress";
+                    break;
+                case 2:
+                    return "Compilation Error";
+                    break;
+                case 3:
+                    return "Presentation Error";
+                    break;
+                case 4:
+                    return "Accepted";
+                    break;
+                case 5:
+                    return "Partially Correct";
+                    break;
+                case 6:
+                    return "Incorrect";
+                    break;
+                case 7:
+                    return "Marker Error";
+                    break;
+                case 8:
+                    return "Timelimit Exceeded";
+                    break;
+                case 9:
+                    return "Aborted";
+                    break; 
+                case 10:
+                    return "Timeout";
+                    break;
+                case 11:
+                    return "Memory Limit Exceeded";
+                default:
+                    return "Ops A bug must have crawled through the cracks";
+                    
+            } 
+        }
+
+    }
 
    /**
     *@codeCoverageIgnore
