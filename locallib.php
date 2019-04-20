@@ -255,8 +255,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             $this->set_config('timelimit'.$i, $questionData['time_limit']);
             $this->set_config('memorylimit'.$i, $questionData['memory_limit']);
 
-            if (isset($v3)) {
-                file_save_draft_area_files($v3, $this->assignment->get_context()->id,'assignfeedback_customfeedback', ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA, 0);
+            if (isset($data->assignfeedback_customfeedback_testcasesQ0)) {
+                file_save_draft_area_files($data->assignfeedback_customfeedback_testcasesQ0, $this->assignment->get_context()->id,'assignfeedback_customfeedback', ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA, 0);
             }
             
             if($isupdate){
@@ -277,6 +277,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
     public function data_preprocessing(&$defaultvalues) {
+        $draftitemid = file_get_submitted_draft_itemid('assignfeedback_customfeedback_testcasesQ0');
+        file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, 
+                'assignfeedback_customfeedback', ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA,0, array('subdirs' => 0));
+        $defaultvalues['assignfeedback_customfeedback_testcasesQ'] = $draftitemid;
+
+        /*
         $n = $this->get_config("numQ");
         if(isset($n)){
             for($i=0;$i<$n;$i++){
@@ -285,8 +291,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                     'assignfeedback_customfeedback', ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA,0, array('subdirs' => 0));
                 $defaultvalues['assignfeedback_customfeedback_testcasesQ'.$i] = $draftitemid;
             }
-        return;
-        }
+        }*/
     }
 
 	/**
@@ -545,6 +550,72 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             return false;
         }
         return true;
+    }
+
+    public function get_marker_data($userid, $pathnamehash = null, $i){
+        global $DB;
+
+        $data = array();
+        $data["userid"]    = $userid;
+        $userObj = $DB->get_record("user", array("id" => $userid));
+        $data["firstname"] = $userObj->firstname;
+        $data["lastname"]  = $userObj->lastname;
+        $data["language"]  = $this->get_config("language");
+        $data["cpu_limit"] = $this->get_config("timelimit".$i);
+        $data["mem_limit"] = $this->get_config("memorylimit".$i);
+        $data["pe_ratio"] = 0.0;
+
+        $fs = get_file_storage();
+        if ($files = $fs->get_area_files($this->assignment->get_context()->id, 'assignfeedback_witsoj', ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA, '0', 'sortorder', false)) {
+            $file = reset($files);
+            $testcase = array();
+            $fileurl = \moodle_url::make_pluginfile_url(
+                    $file->get_contextid(), 
+                    $file->get_component(), 
+                    $file->get_filearea(), 
+                    $file->get_itemid(), 
+                    $file->get_filepath(), 
+                    $file->get_filename());
+            $download_url = $fileurl->get_port() ? 
+                                $fileurl->get_scheme() . '://' . $fileurl->get_host() . $fileurl->get_path() . ':' . $fileurl->get_port()
+                                : $fileurl->get_scheme() . '://' . $fileurl->get_host() . $fileurl->get_path();
+            $testcase["url"] = $download_url;
+            $testcase["contenthash"] = $file->get_contenthash();
+            $testcase["pathnamehash"] = $file->get_pathnamehash();
+            $data["testcase"] = $testcase;
+        }else{
+            error_log("E1"); //TODO get rid of this
+            return null;
+        }
+
+        $fs = get_file_storage();
+    $file = null;
+    if($pathnamehash == null){
+        // Get submission from database
+        $arr = array('contextid'=>$this->assignment->get_context()->id,
+                        'component'=>'assignsubmission_file',
+                        'filearea'=>ASSIGNSUBMISSION_FILE_FILEAREA,
+                        'userid'=>$userid);
+        //var_dump($arr);
+        //$rec = $DB->get_records_sql('SELECT pathnamehash FROM {files}'.
+        //              ' WHERE contextid = :contextid AND component = :component'.
+        //              ' AND filearea = :filearea AND userid = :userid AND NOT filename = "."',
+        //              $arr);
+        $rec = $DB->get_records_sql('SELECT pathnamehash FROM {assign_submission} s JOIN {files} f ON s.id = f.itemid '.
+                        ' WHERE f.contextid = :contextid AND f.component = :component'.
+                        ' AND f.filearea = :filearea AND s.userid = :userid AND NOT f.filename = "."',
+                        $arr);
+        if(count($rec) == 1){
+            $pathnamehash = reset($rec)->pathnamehash;
+        }else{
+            error_log("COUNT: " . count($rec));
+            error_log("E4"); // TODO Deal with not getting a file.
+            var_dump($rec);
+            $pathnamehash = null;
+            return null;
+        }
+    }
+
     }
 
 
