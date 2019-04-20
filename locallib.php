@@ -375,7 +375,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         $qualifies = False;
         for($i = 0;$i<$n;$i++){
-            $verdict = $this->get_question_verdict($grade,$i,$qualifies);
+            $verdict = $this->get_question_verdict($grade,$i);
             $table.="
                 <tr>
                     <td>Question $i</td>
@@ -386,15 +386,41 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
 
         $table.="</table>";
-        
-        if(True){
+        $qualifies = $this->minimum_requirements($grade);
+        if($qualifies){
              //TODO: leader board snippet.
+            $table.= "<h1>Leaderboard Goes Here</h1>";
 
         }else{
+            $table.= "<h1>DID</h1>";
             //TODO: minimum requirements.
         }
 
         return $table;
+    }
+
+    function minimum_requirements(stdClass $grade){
+        global $DB;
+        $sql = "SELECT * FROM {customfeedback_submission} 
+                WHERE 
+                assign_id = :assign_id AND
+                user_id = :user_id
+                ";
+
+        $params = array();
+        $params['assign_id'] = $this->assignment->get_instance()->id;
+        $params['user_id'] = $grade->userid;
+
+        $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
+
+        foreach ($records as $r) {
+            if($r->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED){
+                return True;
+            }
+        }
+
+        return False;
+
     }
 
     /**
