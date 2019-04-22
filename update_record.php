@@ -33,7 +33,7 @@ $assign = new assign($context, $cm, $course);
 
 $plugin = $assign->get_feedback_plugin_by_type("customfeedback");
 if(!$plugin->is_enabled()){
-	die('{"status" : "Assignment does not use customfeedback"}');//PLUGIN NOT ENA
+	die('{"status" : "Assignment does not use customfeedback"}');//PLUGIN NOT ENABLED
 }
 
 if($plugin->update_record($question_id,$assign_id,$userid,$memory,$time,$status,$newgrade)){
