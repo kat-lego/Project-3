@@ -503,6 +503,54 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return $this->assignment->render_area_files('assignfeedback_file', ASSIGNFEEDBACK_FILE_FILEAREA, $grade->id);
     }
 
+    //called once marker finishes marking
+    public function update_record($question_number,$assign_id,$user_id,$memory,$runtime,$status,$grade){
+        global $DB;
+
+        if($this->SubmissionExists($question_number,$assign_id,$user_id)){//submission update
+            $sql = "SELECT * FROM {customfeedback_submission} 
+                    WHERE 
+                    question_number=$question_number AND
+                    assign_id = $assign_id AND
+                    user_id = $user_id
+                    ";
+
+            $params = array();
+            $params['question_number'] = $question;
+            $params['assign_id'] = $this->assignment->get_instance()->id;
+            $params['user_id'] = $grade->userid;
+
+            if($records = $DB->get_records_sql($sql,$params)){
+                  $attempts=$records[0]->no_of_submittions+1;
+                    $sql="UPDATE {customfeedback_submission} 
+                        SET no_of_submittions=$attempts,memory=$memory,status=$status,runtime=$runtime,question_score =$grade
+                        WHERE 
+                        question_number=$question_number AND
+                        assign_id =$assign_id AND
+                        user_id = $user_id
+                        ";
+                    $params['attempts']=$attempts;    
+                    return $DB->execute($sql, $params);//success     
+            }
+
+        }
+        else{//new submission
+           $sql="INSERT INTO {customfeedback_submission} (question_number,assign_id,user_id,question_score,memory,runtime, no_of_submittions,status)VALUES ($question_number,$assign_id,$user_id,$grade,$memory,$runtime,1,4)";
+           if($DB->execute($sql,$params=null)){
+                //success
+                return TRUE;
+            }
+            //failed
+            return FALSE;
+        }
+
+    }
+    public function SubmissionExists($question_number,$assign_id,$user_id){
+        global $DB;
+        $param= array('assign_id' =>intval($assign_id),'question_number'=>intval($question_number),'user_id'=>intval($user_id));
+        return $DB->record_exists('customfeedback_submission', $param);
+    }
+
 
 	/**
 	*@codeCoverageIgnore

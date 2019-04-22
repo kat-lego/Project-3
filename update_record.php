@@ -3,15 +3,20 @@
 require_once('../../../../config.php');
 require_once($CFG->dirroot . '/mod/assign/locallib.php');
 require_once($CFG->libdir . '/gradelib.php');
+require_once("locallib.php");
 
 $inputJSON = file_get_contents('php://input');  // Get input from the client
 $params = json_decode($inputJSON, TRUE);
 
-$id = $_REQUEST["id"];
+$assign_id = $_REQUEST["assign_id"];
+$question_id=$_REQUEST["question_id"];
 
 $auth = $params['customfeedback_token'];
 if($auth != get_config('assignfeedback_customfeedback', 'secret')){
 	die('{"status" : "Bad Auth"}');
+}
+if(!isset($_REQUEST["assign_id"])or !isset($_REQUEST["question_id"])){
+	die('{"status":"missing parameters"}');
 }
 
 $markerid = intval($params['markerid']);
@@ -20,12 +25,9 @@ $newgrade = floatval($params['grade']);
 $status = intval($params['status']);
 $time=floatval($params['time']);
 $memory=floatval($params['memory']);
-echo $memory;
-//$oj_testcases = $params['oj_testcases'];
-//$oj_feedback = $params['oj_feedback'];
 
 
-/*list ($course, $cm) = get_course_and_cm_from_cmid($id, 'assign');
+list ($course, $cm) = get_course_and_cm_from_cmid($assign_id, 'assign');
 
 
 $context = context_module::instance($cm->id);
@@ -35,5 +37,10 @@ $plugin = $assign->get_feedback_plugin_by_type("customfeedback");
 if(!$plugin->is_enabled()){
 	die('{"status" : "Assignment does not use customfeedback"}');
 }
-*/
-die('{"status" : "0"}');
+
+if($plugin->update_record($question_id,$assign_id,$userid,$memory,$time,$status,$newgrade)){
+
+	die('{"status" : "0"}');
+}
+
+die('{"status":"-1"}');
