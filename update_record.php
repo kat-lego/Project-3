@@ -26,21 +26,19 @@ $status = intval($params['status']);
 $time=floatval($params['time']);
 $memory=floatval($params['memory']);
 
-
 list ($course, $cm) = get_course_and_cm_from_cmid($assign_id, 'assign');
-
 
 $context = context_module::instance($cm->id);
 $assign = new assign($context, $cm, $course);
 
 $plugin = $assign->get_feedback_plugin_by_type("customfeedback");
 if(!$plugin->is_enabled()){
-	die('{"status" : "Assignment does not use customfeedback"}');
+	die('{"status" : "Assignment does not use customfeedback"}');//PLUGIN NOT ENA
 }
 
 if($plugin->update_record($question_id,$assign_id,$userid,$memory,$time,$status,$newgrade)){
 
-	die('{"status" : "0"}');
+	die('{"status" : "0"}');//SUCCESS
 }
 
-die('{"status":"-1"}');
+die('{"status":"-1"}');//FAILURE

@@ -81,7 +81,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     * @return array of integers
     */
     function get_time_limits(){
-	$limits=array(1,3,5,10,20,60);
+    $limits=array(1,3,5,10,20,60);
         return $limits;
     }
 
@@ -92,7 +92,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     function get_memory_limits(){
         return  array(1,2,4,16,32,64,512,1024);
     }
-	
+    
     /**
     * 
     * Allows this plugin to add a list of settings to the form when creating an assignment.
@@ -202,9 +202,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
 
-	/**
-	*@codeCoverageIgnore
-	*/
+    /**
+    *@codeCoverageIgnore
+    */
     public function save_settings(stdClass $data) {
         global $DB;
         
@@ -294,9 +294,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }*/
     }
 
-	/**
-	* @codeCoverageIgnore
-	*/
+    /**
+    * @codeCoverageIgnore
+    */
     public function get_form_elements_for_user($grade, MoodleQuickForm $mform, stdClass $data, $userid) {
         //$fileoptions = $this->get_file_options();
         $gradeid = $grade ? $grade->id : 0;
@@ -324,9 +324,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             return true;
         }
     }
-	/**
-	*@codeCoverageIgnore
-	*/
+    /**
+    *@codeCoverageIgnore
+    */
     public function save(stdClass $grade, stdClass $data) {
         global $DB;
 
@@ -365,8 +365,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
 
    /**
-	*@codeCoverageIgnore
-	*/
+    *@codeCoverageIgnore
+    */
     public function view_summary(stdClass $grade, & $showviewlink) {
          
         $n = $this->get_config('numQ');
@@ -506,37 +506,38 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     //called once marker finishes marking
     public function update_record($question_number,$assign_id,$user_id,$memory,$runtime,$status,$grade){
         global $DB;
-
+        $params = array();
+        $params['question_number'] = $question_number;
+        $params['assign_id'] = $assign_id;
+        $params['user_id'] = $user_id;
+        $params['memory']=$memory;
+        $params['status']=$status;
+        $params['runtime']=$runtime;
+        $params['grade']=$grade;
         if($this->SubmissionExists($question_number,$assign_id,$user_id)){//submission update
             $sql = "SELECT * FROM {customfeedback_submission} 
                     WHERE 
-                    question_number=$question_number AND
-                    assign_id = $assign_id AND
-                    user_id = $user_id
+                    question_number=:question_number AND
+                    assign_id = :assign_id AND
+                    user_id = :user_id
                     ";
-
-            $params = array();
-            $params['question_number'] = $question;
-            $params['assign_id'] = $this->assignment->get_instance()->id;
-            $params['user_id'] = $grade->userid;
-
             if($records = $DB->get_records_sql($sql,$params)){
-                  $attempts=$records[0]->no_of_submittions+1;
+                    $attempts=$records[0]->no_of_submittions+1;
+                    $params['attempts']=$attempts;
                     $sql="UPDATE {customfeedback_submission} 
-                        SET no_of_submittions=$attempts,memory=$memory,status=$status,runtime=$runtime,question_score =$grade
+                        SET no_of_submittions=:attempts,memory=:memory,status=:status,runtime=:runtime,question_score =:grade
                         WHERE 
-                        question_number=$question_number AND
-                        assign_id =$assign_id AND
-                        user_id = $user_id
-                        ";
-                    $params['attempts']=$attempts;    
+                        question_number=:question_number AND
+                        assign_id =:assign_id AND
+                        user_id = :user_id
+                        ";   
                     return $DB->execute($sql, $params);//success     
             }
 
         }
         else{//new submission
-           $sql="INSERT INTO {customfeedback_submission} (question_number,assign_id,user_id,question_score,memory,runtime, no_of_submittions,status)VALUES ($question_number,$assign_id,$user_id,$grade,$memory,$runtime,1,4)";
-           if($DB->execute($sql,$params=null)){
+           $sql="INSERT INTO {customfeedback_submission} (question_number,assign_id,user_id,question_score,memory,runtime, no_of_submittions,status)VALUES (:question_number,:assign_id,:user_id,:grade,:memory,:runtime,1,:status)";
+           if($DB->execute($sql,$params)){
                 //success
                 return TRUE;
             }
@@ -552,9 +553,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
 
-	/**
-	*@codeCoverageIgnore
-	*/	
+    /**
+    *@codeCoverageIgnore
+    */  
     public function can_upgrade($type, $version) {
 
         if (($type == 'upload' || $type == 'uploadsingle') && $version >= 2011112900) {
@@ -563,17 +564,17 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return false;
     }
 
-	/**
-	*@codeCoverageIgnore
-	*/
+    /**
+    *@codeCoverageIgnore
+    */
     public function upgrade_settings(context $oldcontext, stdClass $oldassignment, & $log) {
         // first upgrade settings (nothing to do)
         return true;
     }
 
-	/**
-	*@codeCoverageIgnore
-	*/	
+    /**
+    *@codeCoverageIgnore
+    */  
     public function upgrade(context $oldcontext, stdClass $oldassignment, stdClass $oldsubmission, stdClass $grade, & $log) {
         global $DB;
 
@@ -667,24 +668,24 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
 
-	/**
-	*@codeCoverageIgnore
-	*/
+    /**
+    *@codeCoverageIgnore
+    */
     public function is_empty(stdClass $submission) {
         return $this->view($submission) == '';
     }
 
-	/**
-	*@codeCoverageIgnore
-	*/
+    /**
+    *@codeCoverageIgnore
+    */
     public function get_file_areas() {
         return array(ASSIGNFEEDBACK_FILE_FILEAREA=>$this->get_name());
     }
 
 
-	/**
-	*@codeCoverageIgnore
-	*/
+    /**
+    *@codeCoverageIgnore
+    */
     public function delete_instance() {
         global $DB;
         // will throw exception on failure
@@ -694,17 +695,17 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
 
-	/**
-	*@codeCoverageIgnore
-	*/
+    /**
+    *@codeCoverageIgnore
+    */
     public function format_for_gradebook(stdClass $grade) {
         return FORMAT_MOODLE;
     }
 
 
-	/**
-	*@codeCoverageIgnore
-	*/
+    /**
+    *@codeCoverageIgnore
+    */
     public function text_for_gradebook(stdClass $grade) {
         return '';
     }
