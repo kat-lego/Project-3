@@ -535,14 +535,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             }
 
         }
-        else{//new submission
-           $sql="INSERT INTO {customfeedback_submission} (question_number,assign_id,user_id,question_score,memory,runtime, no_of_submittions,status)VALUES (:question_number,:assign_id,:user_id,:grade,:memory,:runtime,1,:status)";
-           if($DB->execute($sql,$params)){
-                //success
-                return TRUE;
-            }
-            //failed
-            return FALSE;
+        else{//submission record doest exist
+       
         }
 
     }
