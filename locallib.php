@@ -93,6 +93,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return  array(1,2,4,16,32,64,512,1024);
     }
     
+    private function get_testcase_filearea($question_number){
+        return ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA.$question_number;
+    }
+
     /**
     * 
     * Allows this plugin to add a list of settings to the form when creating an assignment.
@@ -207,6 +211,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     */
     public function save_settings(stdClass $data) {
         global $DB;
+
+        if($data->assignfeedback_witsoj_enabled){
+            return false;
+        }
         
         $assignData = array();
         $assignData['id'] = $this->assignment->get_instance()->id;
@@ -228,12 +236,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                         WHERE id = :id
                         ";
             $DB->execute($sql, $assignData);
-
         }else{
-
             $sql = "INSERT INTO {customfeedback_assignment} VALUES(:id, :course_id, :mode,:language ,:number_of_questions)";
             $DB->execute($sql, $assignData);
-
         }
 
         $n = $assignData['number_of_questions'];
@@ -255,10 +260,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             $this->set_config('timelimit'.$i, $questionData['time_limit']);
             $this->set_config('memorylimit'.$i, $questionData['memory_limit']);
 
-            if (isset($data->assignfeedback_customfeedback_testcasesQ0)) {
-                file_save_draft_area_files($data->assignfeedback_customfeedback_testcasesQ0, $this->assignment->get_context()->id,'assignfeedback_customfeedback', ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA, 0);
-            }
-            
+
             if($isupdate){
                 $sql = "UPDATE {customfeedback_question} 
                         SET memory_limit = :memory_limit,
@@ -272,26 +274,27 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                 $DB->execute($sql, $questionData);
             }
 
+            //saving test case files for question i
+            if (isset($v3)) {
+            file_save_draft_area_files($v3, $this->assignment->get_context()->id,
+                                       'assignfeedback_customfeedback',$this->get_testcase_filearea($i) , 0);
+            }
+
         }
         return true;
     }
 
-    public function data_preprocessing(&$defaultvalues) {
-        $draftitemid = file_get_submitted_draft_itemid('assignfeedback_customfeedback_testcasesQ0');
-        file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, 
-                'assignfeedback_customfeedback', ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA,0, array('subdirs' => 0));
-        $defaultvalues['assignfeedback_customfeedback_testcasesQ'] = $draftitemid;
 
-        /*
-        $n = $this->get_config("numQ");
-        if(isset($n)){
-            for($i=0;$i<$n;$i++){
-                $draftitemid = file_get_submitted_draft_itemid('assignfeedback_customfeedback_testcasesQ'.$i);
-                file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, 
-                    'assignfeedback_customfeedback', ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA,0, array('subdirs' => 0));
-                $defaultvalues['assignfeedback_customfeedback_testcasesQ'.$i] = $draftitemid;
-            }
-        }*/
+    public function data_preprocessing(&$defaultvalues) {
+        
+        $n = get_config('assignfeedback_customfeedback','maxquestions');
+        for($i=0;$i<$n;++$i){
+            $draftitemid = file_get_submitted_draft_itemid('assignfeedback_customfeedback_testcasesQ'.$i);
+            file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, 'assignfeedback_customfeedback', $this->get_testcase_filearea($i),
+                                    0, array('subdirs' => 0));
+            $defaultvalues['assignfeedback_customfeedback_testcasesQ'.$i] = $draftitemid;
+        }
+        return;
     }
 
     /**
