@@ -507,7 +507,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
     //called once marker finishes marking
-    public function update_record($question_number,$assign_id,$user_id,$memory,$runtime,$status,$grade){
+    public function update_record($question_number,$assign_id,$user_id,$memory,$runtime,$status,$grade,$inputJson){
         global $DB;
         $params = array();
         $params['question_number'] = $question_number;
@@ -515,8 +515,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $params['user_id'] = $user_id;
         $params['memory']=$memory;
         $params['status']=$status;
-        $params['runtime']=$runtime;
+        $params['runtime']= $this->averageTime($inputJson);
         $params['grade']=$grade;
+       
         if($this->SubmissionExists($question_number,$assign_id,$user_id)){//submission update
             $sql = "SELECT * FROM {customfeedback_submission} 
                     WHERE 
@@ -543,6 +544,23 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
 
     }
+    public function averageTime($inputJson){
+        echo $inputJson;
+        $jsonArray=json_decode($inputJson);
+        $num_case=count($jsonArray);
+        $avetime=0;
+        for ($i=0;$i<$num_case;$i++){
+            $avetime+= $this->getLastLines($jsonArray[$i]->stdout);
+        }
+        return round(floatval($avetime/$num_case)*1000,3);
+
+    }
+    public function getLastLines($string, $n = 1) {
+        $lines = explode("\n", $string);
+        $lines = array_slice($lines, -$n);
+        return implode("\n", $lines);
+    }
+
     public function SubmissionExists($question_number,$assign_id,$user_id){
         global $DB;
         $param= array('assign_id' =>intval($assign_id),'question_number'=>intval($question_number),'user_id'=>intval($user_id));
@@ -597,6 +615,55 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
         return true;
     }
+
+    /**
+    * Get source file for the submission for a question for a particular user
+    * @param $userid - the id of the user who's submission we are trying to get
+    * @param $question_number - the question number of the question relating to the submission file
+    * @return array - indexed with 'content' and 'ext'. if there is no new submission, return false
+    */
+    private function new_question_submission($userid,$question_number){
+    global $DB;
+
+
+        
+
+
+
+
+        
+    }
+    /**
+    * Get pathnamehash for the submission for a question for a particular user
+    * @param $userid - the id of the user who's submission we are trying to get
+    * @param $question_number - the question number of the question relating to the submission file
+    * @return string, null if there is no pathnamehash
+    */
+    private function get_submission_pathnamehash($userid, $question_number){
+       
+    }
+
+    /**
+    * Get pathnamehash for the submission for a question for a particular user
+    * @param $userid - the id of the user who's submission we are trying to get
+    * @param $question_number - the question number of the question relating to the submission file
+    * @return string
+    */
+    private function get_submission_record($userid,$question_number){
+
+
+    }
+
+
+    public function judge($userid){
+        $n = $this->get_config('numQ');
+        for($i=0;$i<$n;$i++){
+            if($source = $this->new_question_submission($userid, $i) ){
+                
+            }
+        }
+    }
+
 
     public function get_marker_data($userid, $pathnamehash = null, $i){
         global $DB;
@@ -663,6 +730,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
     }
+
+
+
 
 
     /**

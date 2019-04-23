@@ -7,7 +7,6 @@
     <TABLE NAME="customfeedback_assignment" COMMENT="store assignments created by lectures">
       <FIELDS>
        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-       <FIELD NAME="course_id" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false"/> <!--USELESS-->
        <FIELD NAME="mode" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
        <FIELD NAME="language" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
        <FIELD NAME="number_of_questions" TYPE="int" LENGTH="4" NOTNULL="true"/>
@@ -35,11 +34,11 @@
        <FIELD NAME="question_number" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
        <FIELD NAME="assign_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
        <FIELD NAME="user_id" TYPE="char" LENGTH="15" NOTNULL="true" SEQUENCE="false"/>
-       <FIELD NAME="question_score" TYPE="int" LENGTH="5" NOTNULL="false" SEQUENCE="false"/> <!-- USeLESS -->
        <FIELD NAME="memory" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
-       <FIELD NAME="runtime" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+       <FIELD NAME="runtime" TYPE="float" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
        <FIELD NAME="no_of_submittions" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false"/>
        <FIELD NAME="status" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false"/>
+       <FIELD NAME="pathnamehash" TYPE="string" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
        <KEY NAME="primary" TYPE="primary" FIELDS="question_number,assign_id,user_id" COMMENT="composite primary key for a submission"/>

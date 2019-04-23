@@ -47,6 +47,6 @@ class observer {
 		return;
 	}
 	$plugin->set_initial_grade($event->get_data()['userid']);
-	
+	//$plugin->judge();
     }
 }

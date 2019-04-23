@@ -7,7 +7,6 @@ require_once("locallib.php");
 
 $inputJSON = file_get_contents('php://input');  // Get input from the client
 $params = json_decode($inputJSON, TRUE);
-
 $assign_id = $_REQUEST["assign_id"];
 $question_id=$_REQUEST["question_id"];
 
@@ -25,7 +24,8 @@ $newgrade = floatval($params['grade']);
 $status = intval($params['status']);
 $time=floatval($params['time']);
 $memory=floatval($params['memory']);
-
+$oj_testcases=$params["oj_testcases"];
+//echo $newgrade;
 list ($course, $cm) = get_course_and_cm_from_cmid($assign_id, 'assign');
 
 $context = context_module::instance($cm->id);
@@ -35,9 +35,7 @@ $plugin = $assign->get_feedback_plugin_by_type("customfeedback");
 if(!$plugin->is_enabled()){
 	die('{"status" : "Assignment does not use customfeedback"}');//PLUGIN NOT ENABLED
 }
-
-if($plugin->update_record($question_id,$assign_id,$userid,$memory,$time,$status,$newgrade)){
-
+if($plugin->update_record($question_id,$assign_id,$userid,$memory,$time,$status,$newgrade,$oj_testcases)){
 	die('{"status" : "0"}');//SUCCESS
 }
 
