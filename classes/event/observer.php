@@ -40,6 +40,7 @@ class observer {
 	// Load assignment details
 	$id = $event->contextinstanceid;
 	list ($course, $cm) = get_course_and_cm_from_cmid($id, 'assign');
+	//die($id);
 	$context = \context_module::instance($cm->id);
 	$assign = new \assign($context, $cm, $course);
 	$plugin = $assign->get_feedback_plugin_by_type("customfeedback");
@@ -47,6 +48,7 @@ class observer {
 		return;
 	}
 	$plugin->set_initial_grade($event->get_data()['userid']);
-	//$plugin->judge();
+
+	$plugin->judge($event->get_data()['userid']);
     }
 }

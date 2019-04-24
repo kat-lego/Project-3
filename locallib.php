@@ -97,6 +97,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA.$question_number;
     }
 
+    private function get_callback_url($assign_id,$question_number){
+        global $CFG;
+        $url = $CFG->wwwroot . "/mod/assign/feedback/customfeedback/update_record.php?assign_id=$assign_id&question_id=$question_number";
+        return $url;
+    }
+
     /**
     * 
     * Allows this plugin to add a list of settings to the form when creating an assignment.
@@ -218,7 +224,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         
         $assignData = array();
         $assignData['id'] = $this->assignment->get_instance()->id;
-        $assignData['course_id'] = 0; //TODO: figure out how to get this course id.
+        //$assignData['course_id'] = 0; //TODO: figure out how to get this course id.
         $assignData['mode'] = $this->get_modes()[$data->assignfeedback_customfeedback_mode];
         $assignData['language'] = $this->get_languages()[$data->assignfeedback_customfeedback_language];
         $assignData['number_of_questions'] = $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ];
@@ -237,7 +243,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                         ";
             $DB->execute($sql, $assignData);
         }else{
-            $sql = "INSERT INTO {customfeedback_assignment} VALUES(:id, :course_id, :mode,:language ,:number_of_questions)";
+            $sql = "INSERT INTO {customfeedback_assignment} VALUES(:id, :mode,:language ,:number_of_questions)";
             $DB->execute($sql, $assignData);
         }
 
@@ -515,9 +521,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $params['user_id'] = $user_id;
         $params['memory']=$memory;
         $params['status']=$status;
-        $params['runtime']= $this->averageTime($inputJson);
+        $params['runtime']= $runtime;
         $params['grade']=$grade;
-       
+          
         if($this->SubmissionExists($question_number,$assign_id,$user_id)){//submission update
             $sql = "SELECT * FROM {customfeedback_submission} 
                     WHERE 
@@ -525,11 +531,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                     assign_id = :assign_id AND
                     user_id = :user_id
                     ";
+
             if($records = $DB->get_records_sql($sql,$params)){
                     $attempts=$records[0]->no_of_submittions+1;
                     $params['attempts']=$attempts;
                     $sql="UPDATE {customfeedback_submission} 
-                        SET no_of_submittions=:attempts,memory=:memory,status=:status,runtime=:runtime,question_score =:grade
+                        SET no_of_submittions=:attempts,memory=:memory,status=:status,runtime=:runtime
                         WHERE 
                         question_number=:question_number AND
                         assign_id =:assign_id AND
@@ -540,25 +547,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         }
         else{//submission record doest exist
-       
+    
         }
 
-    }
-    public function averageTime($inputJson){
-        echo $inputJson;
-        $jsonArray=json_decode($inputJson);
-        $num_case=count($jsonArray);
-        $avetime=0;
-        for ($i=0;$i<$num_case;$i++){
-            $avetime+= $this->getLastLines($jsonArray[$i]->stdout);
-        }
-        return round(floatval($avetime/$num_case)*1000,3);
-
-    }
-    public function getLastLines($string, $n = 1) {
-        $lines = explode("\n", $string);
-        $lines = array_slice($lines, -$n);
-        return implode("\n", $lines);
     }
 
     public function SubmissionExists($question_number,$assign_id,$user_id){
@@ -625,47 +616,172 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     private function new_question_submission($userid,$question_number){
     global $DB;
 
+        $pathnamehash = null;
+        $hashes = $this->get_submission_hashes($userid,$question_number);
+        $pathnamehash = $hashes->pathnamehash;
+        $contenthash = $hashes->contenthash;
 
-        
+        if($pathnamehash == null){
+            return false;
+        }
 
+        $submission = $this->get_submission_record($userid,$question_number);
+        if($submission == null){
+            $this->create_submission_record($userid,$question_number,$contenthash);
+        }else{
 
+            //TODO - NEEDS ATTENTION
+            
+            $lasthash = $submission->pathnamehash;
+            //die($lasthash." space ".$contenthash);
+            if($lasthash == $contenthash){
+                return false; // it is not a re submission
+            }else{
+                //update submission status and lastpathnamehash
 
+                //NEEDS ATTENTION
+                $sql = "UPDATE {customfeedback_submission} 
+                        SET status = :status,
+                            pathnamehash = :pathnamehash
+                        WHERE question_number = :question_number AND
+                              assign_id = :assign_id AND
+                              user_id = :user_id
+                    ";
+                $params = array();
+                $params['question_number'] = intval($question_number);
+                $params['assign_id'] = intval($this->assignment->get_instance()->id);
+                $params['user_id'] = intval($userid);
+                $params['status'] = ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PENDING;
+                $params['pathnamehash'] = $contenthash;
 
+                $DB->execute($sql,$params);
+            }
+        }
+        $fs = get_file_storage();
+        $file = $fs->get_file_by_hash($pathnamehash);
+        if (!$file or $file->is_directory()) {
+            print("E2");
+            return false;
+        }
+
+        $source = array();
+        $source["content"] = base64_encode($file->get_content());
+        $source["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
+
+        return $source;
         
     }
-    /**
+    /** 
+    * [Doc needs revision]
     * Get pathnamehash for the submission for a question for a particular user
     * @param $userid - the id of the user who's submission we are trying to get
     * @param $question_number - the question number of the question relating to the submission file
     * @return string, null if there is no pathnamehash
     */
-    private function get_submission_pathnamehash($userid, $question_number){
+    private function get_submission_hashes($userid, $question_number){
+       global $DB;
+        $q = intval($question_number);
+
+        $arr = array('contextid'=>$this->assignment->get_context()->id,
+                        'component'=>'assignsubmission_file',
+                        'filearea'=>ASSIGNSUBMISSION_FILE_FILEAREA,
+                        'userid'=>$userid);
+
+        $sql = "SELECT contenthash,pathnamehash FROM {assign_submission} s JOIN {files} f ON s.id = f.itemid
+                WHERE f.contextid = :contextid AND
+                      f.component = :component AND
+                      f.filearea = :filearea AND
+                      s.userid = :userid AND
+                      f.filename LIKE 'sub$q%'
+                ";
        
+        $rec = $DB->get_records_sql($sql,$arr);
+        if(count($rec) == 1){
+            $hashes = reset($rec);
+            return $hashes;
+        }else{
+            error_log("COUNT: " . count($rec));
+            error_log("E4"); // TODO Deal with not getting a file.
+            var_dump($rec);
+            $hashes = null;
+            return null;
+        }
     }
 
     /**
-    * Get pathnamehash for the submission for a question for a particular user
-    * @param $userid - the id of the user who's submission we are trying to get
-    * @param $question_number - the question number of the question relating to the submission file
-    * @return string
+    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
+    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
+    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
+    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
+    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
     */
     private function get_submission_record($userid,$question_number){
+        global $DB;
+        //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
+        if(!$this->SubmissionExists($question_number,$this->assignment->get_instance()->id,$userid)){
+            return null;
+        }
 
+        $sql = "SELECT * FROM {customfeedback_submission} 
+                WHERE
+                question_number=:question_number AND
+                assign_id = :assign_id AND
+                user_id = :user_id
+                ";
+        $params = array();
+        $params['question_number'] =intval($question_number);
+        $params['assign_id'] = intval($this->assignment->get_instance()->id);
+        $params['user_id'] = intval($userid);
 
+        $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
+        $records = reset($records);
+        
+        return $records;
+
+    }
+
+    /**
+    * 
+    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
+    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
+    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
+    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
+    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
+    */
+    private function create_submission_record($userid,$question_number,$contenthash){
+        global $DB;
+
+        $sql = "INSERT INTO {customfeedback_submission} VALUES(:question_number, :assign_id,:user_id ,NULL,NULL,1,:status, :pathnamehash)";
+        $params = array();
+        $params['question_number'] = $question_number;
+        $params['assign_id'] = $this->assignment->get_instance()->id;
+        $params['user_id'] = $userid;
+        $params['status'] = ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PENDING;
+        $params['pathnamehash'] = $contenthash;
+
+        $DB->execute($sql,$params);
     }
 
 
     public function judge($userid){
+
         $n = $this->get_config('numQ');
         for($i=0;$i<$n;$i++){
             if($source = $this->new_question_submission($userid, $i) ){
                 
+                $data = $this->get_testcase_data($userid,$i);
+                if(!$data){
+                    //some error
+                    die("Its in the judge function");
+                }
+                die(var_dump($source));
+                $data['source'] = $source;
             }
         }
     }
 
 
-    public function get_marker_data($userid, $pathnamehash = null, $i){
+    public function get_testcase_data($userid,$question_number){
         global $DB;
 
         $data = array();
@@ -674,12 +790,14 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $data["firstname"] = $userObj->firstname;
         $data["lastname"]  = $userObj->lastname;
         $data["language"]  = $this->get_config("language");
-        $data["cpu_limit"] = $this->get_config("timelimit".$i);
-        $data["mem_limit"] = $this->get_config("memorylimit".$i);
+        $data["cpu_limit"] = $this->get_config("timelimit".$question_number);
+        $data["mem_limit"] = $this->get_config("memorylimit".$question_number);
         $data["pe_ratio"] = 0.0;
+        $data["callback"]  = $this->get_callback_url($this->assignment->get_context()->id, $question_number);
 
         $fs = get_file_storage();
-        if ($files = $fs->get_area_files($this->assignment->get_context()->id, 'assignfeedback_witsoj', ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA, '0', 'sortorder', false)) {
+        $testcase_filearea = $this->get_testcase_filearea($question_number);
+        if ($files = $fs->get_area_files($this->assignment->get_context()->id, 'assignfeedback_customfeedback',$testcase_filearea , '0', 'sortorder', false)) {
             $file = reset($files);
             $testcase = array();
             $fileurl = \moodle_url::make_pluginfile_url(
@@ -696,43 +814,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             $testcase["contenthash"] = $file->get_contenthash();
             $testcase["pathnamehash"] = $file->get_pathnamehash();
             $data["testcase"] = $testcase;
+            return $data;
         }else{
             error_log("E1"); //TODO get rid of this
             return null;
         }
-
-        $fs = get_file_storage();
-    $file = null;
-    if($pathnamehash == null){
-        // Get submission from database
-        $arr = array('contextid'=>$this->assignment->get_context()->id,
-                        'component'=>'assignsubmission_file',
-                        'filearea'=>ASSIGNSUBMISSION_FILE_FILEAREA,
-                        'userid'=>$userid);
-        //var_dump($arr);
-        //$rec = $DB->get_records_sql('SELECT pathnamehash FROM {files}'.
-        //              ' WHERE contextid = :contextid AND component = :component'.
-        //              ' AND filearea = :filearea AND userid = :userid AND NOT filename = "."',
-        //              $arr);
-        $rec = $DB->get_records_sql('SELECT pathnamehash FROM {assign_submission} s JOIN {files} f ON s.id = f.itemid '.
-                        ' WHERE f.contextid = :contextid AND f.component = :component'.
-                        ' AND f.filearea = :filearea AND s.userid = :userid AND NOT f.filename = "."',
-                        $arr);
-        if(count($rec) == 1){
-            $pathnamehash = reset($rec)->pathnamehash;
-        }else{
-            error_log("COUNT: " . count($rec));
-            error_log("E4"); // TODO Deal with not getting a file.
-            var_dump($rec);
-            $pathnamehash = null;
-            return null;
-        }
     }
-
-    }
-
-
-
 
 
     /**

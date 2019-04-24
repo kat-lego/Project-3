@@ -23,7 +23,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->version = 2019041400;
-$plugin->requires = 2018120300; // Moodle 3.6
+$plugin->requires = 2018050800; // Moodle 3.6
 $plugin->cron = 0;
 $plugin->component = 'assignfeedback_customfeedback';
 $plugin->maturity = MATURITY_ALPHA;

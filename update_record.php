@@ -9,7 +9,7 @@ $inputJSON = file_get_contents('php://input');  // Get input from the client
 $params = json_decode($inputJSON, TRUE);
 $assign_id = $_REQUEST["assign_id"];
 $question_id=$_REQUEST["question_id"];
-
+echo $inputJSON;
 $auth = $params['customfeedback_token'];
 if($auth != get_config('assignfeedback_customfeedback', 'secret')){
 	die('{"status" : "Bad Auth"}');
