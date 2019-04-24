@@ -49,6 +49,8 @@ class observer {
 	}
 	$plugin->set_initial_grade($event->get_data()['userid']);
 
-	$plugin->judge($event->get_data()['userid']);
+	//$plugin->judge($event->get_data()['userid']);
+	$data = ["a" => 2];
+	$plugin->post_to_handler($data);
     }
 }

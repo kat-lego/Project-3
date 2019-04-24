@@ -821,6 +821,46 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
     }
 
+    public function post_to_handler($data){
+    // Setup cURL
+    
+    error_log("Posting:" . $data["userid"]);
+    $data['witsoj_token'] = get_config('assignfeedback_customfeedback', 'secret');
+    $data['markerid'] = 0;
+    
+    //$handler_url =  get_config('assignfeedback_customfeedback','handler_url');
+    $ch = curl_init("http://1710409.ms.wits.ac.za/mosesTest/test2.php");
+    curl_setopt_array($ch, array(
+        CURLOPT_POST => count($data),
+        CURLOPT_RETURNTRANSFER => TRUE,
+        CURLOPT_HTTPHEADER => array(
+        //'Content-Type: application/json'
+        'Content-Type: text/plain'
+        ),
+        CURLOPT_POSTFIELDS => json_encode($data)
+    ));
+
+    // Send the request
+    $response = curl_exec($ch);
+    die(var_dump($response));
+    /*
+    // Check for errors
+    if($response === FALSE){
+        error_log("Curl error");
+        die("Curl Error: " . curl_error($ch));
+    }
+
+    // Decode the response
+    $responseData = json_decode($response, TRUE);
+
+    // Print the date from the response
+    //var_dump("Response: " . $response);
+    //print("<br/>");
+    var_dump($responseData);
+    return $responseData;
+    */
+    }
+
 
     /**
     *@codeCoverageIgnore
