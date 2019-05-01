@@ -1,4 +1,4 @@
-n <?php
+<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -11,12 +11,6 @@ n <?php
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-
-/*$inputJSON =<<<JSN
-{"userid":"2","language":"4","cpu_limit":"0.1","mem_limit":"0","pe_ratio":"0","callback":"1710409.ms.wits.ac.za/moodleDev/mod/assign/feedback/customfeedback/update_record.php?assign_id=7&question_id=0","testcase":{"url":"1710409.ms.wits.ac.za/lab.zip","contenthash":"5bcf9b30d2e5bda7920c4187b7d9976f316a9294","pathnamehash":"6653cacf2de49d5ccdb1f9fa4ca5f293e3a469e5"},"source":{"content":"cHJpbnQoImhlbGxvIik=","ext":"txt"},"customfeedback_token":"1e6947ac7fb3a9529a9726eb692c8cc5","markerid":"1"}
-JSN;
-*/
-
 
 
 // You should have received a copy of the GNU General Public License
@@ -395,11 +389,13 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $n = $this->get_config('numQ');
 
         //TODO: add these stuff the language strings
+        /*
         $table = "<table width=100%>
                     <tr>
                         <th> Question </th>
                         <th> Verdict </th>
                     </tr>";
+                    */
 
         $qualifies = False;
         for($i = 0;$i<$n;$i++){
