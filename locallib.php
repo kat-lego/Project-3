@@ -1,4 +1,4 @@
-<?php
+n <?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -11,6 +11,14 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
+
+/*$inputJSON =<<<JSN
+{"userid":"2","language":"4","cpu_limit":"0.1","mem_limit":"0","pe_ratio":"0","callback":"1710409.ms.wits.ac.za/moodleDev/mod/assign/feedback/customfeedback/update_record.php?assign_id=7&question_id=0","testcase":{"url":"1710409.ms.wits.ac.za/lab.zip","contenthash":"5bcf9b30d2e5bda7920c4187b7d9976f316a9294","pathnamehash":"6653cacf2de49d5ccdb1f9fa4ca5f293e3a469e5"},"source":{"content":"cHJpbnQoImhlbGxvIik=","ext":"txt"},"customfeedback_token":"1e6947ac7fb3a9529a9726eb692c8cc5","markerid":"1"}
+JSN;
+*/
+
+
+
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -27,6 +35,7 @@ define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_MARKERERROR', 7);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_TIMELIMIT', 8);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ABORTED', 9);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_TIMEOUT', 10);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILENOTFOUND', 11);
 
 require_once('html_element.php');
 
@@ -56,7 +65,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     * @return array of strings with the names of the languages
     */
     public function get_languages(){
-        return explode(',', get_config('assignfeedback_customfeedback', 'languages'));
+        return  array('Java', 'Python', 'C++');
+    }
+
+    public function get_language_code($lang){
+        $arrayName = array('Java' => 1, 'Python' => 4, 'C++' => 11);
+        return $arrayName[$lang];
     }
 
     /**
@@ -614,26 +628,42 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     * @return array - indexed with 'content' and 'ext'. if there is no new submission, return false
     */
     private function new_question_submission($userid,$question_number){
-    global $DB;
-
+        global $DB;
+        
         $pathnamehash = null;
         $hashes = $this->get_submission_hashes($userid,$question_number);
         $pathnamehash = $hashes->pathnamehash;
         $contenthash = $hashes->contenthash;
+        $submission = $this->get_submission_record($userid,$question_number);
 
         if($pathnamehash == null){
+            if($submission){
+                $sql = "UPDATE {customfeedback_submission} 
+                        SET status = :status,
+                            contenthash = NULL
+                        WHERE question_number = :question_number AND
+                              assign_id = :assign_id AND
+                              user_id = :user_id
+                        ";
+                $params = array();
+                $params['status'] = ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILENOTFOUND;
+                $params['question_number'] = intval($question_number);
+                $params['assign_id'] = intval($this->assignment->get_instance()->id);
+                $params['user_id'] = intval($userid);
+
+                $DB->execute($sql,$params);
+                //remove the submission file because the file no longer exists.
+            }
+
             return false;
         }
+        
 
-        $submission = $this->get_submission_record($userid,$question_number);
         if($submission == null){
             $this->create_submission_record($userid,$question_number,$contenthash);
         }else{
 
-            //TODO - NEEDS ATTENTION
-            
-            $lasthash = $submission->pathnamehash;
-            //die($lasthash." space ".$contenthash);
+            $lasthash = $submission->contenthash;
             if($lasthash == $contenthash){
                 return false; // it is not a re submission
             }else{
@@ -642,7 +672,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                 //NEEDS ATTENTION
                 $sql = "UPDATE {customfeedback_submission} 
                         SET status = :status,
-                            pathnamehash = :pathnamehash
+                            contenthash = :contenthash
                         WHERE question_number = :question_number AND
                               assign_id = :assign_id AND
                               user_id = :user_id
@@ -652,7 +682,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                 $params['assign_id'] = intval($this->assignment->get_instance()->id);
                 $params['user_id'] = intval($userid);
                 $params['status'] = ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PENDING;
-                $params['pathnamehash'] = $contenthash;
+                $params['contenthash'] = $contenthash;
 
                 $DB->execute($sql,$params);
             }
@@ -667,7 +697,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $source = array();
         $source["content"] = base64_encode($file->get_content());
         $source["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
-
         return $source;
         
     }
@@ -686,16 +715,24 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                         'component'=>'assignsubmission_file',
                         'filearea'=>ASSIGNSUBMISSION_FILE_FILEAREA,
                         'userid'=>$userid);
+        
+        $prefix = get_config('assignfeedback_customfeedback','prefix').$q;
+        
+        if(count($prefix)>3){
+            die("Please make sure the prefix set is less than or equals 3");
+        }
+
 
         $sql = "SELECT contenthash,pathnamehash FROM {assign_submission} s JOIN {files} f ON s.id = f.itemid
                 WHERE f.contextid = :contextid AND
                       f.component = :component AND
                       f.filearea = :filearea AND
                       s.userid = :userid AND
-                      f.filename LIKE 'sub$q%'
+                      f.filename LIKE '$prefix%'
                 ";
        
         $rec = $DB->get_records_sql($sql,$arr);
+        
         if(count($rec) == 1){
             $hashes = reset($rec);
             return $hashes;
@@ -709,15 +746,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
     /**
-    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
-    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
-    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
-    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
-    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
     */
     private function get_submission_record($userid,$question_number){
         global $DB;
-        //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
+
         if(!$this->SubmissionExists($question_number,$this->assignment->get_instance()->id,$userid)){
             return null;
         }
@@ -742,22 +774,17 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     /**
     * 
-    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
-    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
-    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
-    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
-    //TODO: once the attribute name of pathnamehash is changed to contenthash, update this function 
     */
     private function create_submission_record($userid,$question_number,$contenthash){
         global $DB;
 
-        $sql = "INSERT INTO {customfeedback_submission} VALUES(:question_number, :assign_id,:user_id ,NULL,NULL,1,:status, :pathnamehash)";
+        $sql = "INSERT INTO {customfeedback_submission} VALUES(:question_number, :assign_id,:user_id ,NULL,NULL,1,:status, :contenthash)";
         $params = array();
         $params['question_number'] = $question_number;
         $params['assign_id'] = $this->assignment->get_instance()->id;
         $params['user_id'] = $userid;
         $params['status'] = ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PENDING;
-        $params['pathnamehash'] = $contenthash;
+        $params['contenthash'] = $contenthash;
 
         $DB->execute($sql,$params);
     }
@@ -774,8 +801,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                     //some error
                     die("Its in the judge function");
                 }
-                die(var_dump($source));
+
                 $data['source'] = $source;
+                //$handler = $this->get_a_handler();
+                $this->post_to_handler($data);
             }
         }
     }
@@ -789,15 +818,17 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $userObj = $DB->get_record("user", array("id" => $userid));
         $data["firstname"] = $userObj->firstname;
         $data["lastname"]  = $userObj->lastname;
-        $data["language"]  = $this->get_config("language");
+        $data["language"]  = $this->get_language_code($this->get_config('language'));
         $data["cpu_limit"] = $this->get_config("timelimit".$question_number);
         $data["mem_limit"] = $this->get_config("memorylimit".$question_number);
         $data["pe_ratio"] = 0.0;
-        $data["callback"]  = $this->get_callback_url($this->assignment->get_context()->id, $question_number);
+        $data["callback"]  = $this->get_callback_url($this->assignment->get_instance()->id, $question_number);
 
         $fs = get_file_storage();
         $testcase_filearea = $this->get_testcase_filearea($question_number);
-        if ($files = $fs->get_area_files($this->assignment->get_context()->id, 'assignfeedback_customfeedback',$testcase_filearea , '0', 'sortorder', false)) {
+        $context = $this->assignment->get_context()->id;
+        $files = $fs->get_area_files($context, 'assignfeedback_customfeedback',$testcase_filearea , '0','sortorder', false);
+        if ($files) {
             $file = reset($files);
             $testcase = array();
             $fileurl = \moodle_url::make_pluginfile_url(
@@ -816,49 +847,49 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             $data["testcase"] = $testcase;
             return $data;
         }else{
+            die("No testcase uploaded for question $question_number");
             error_log("E1"); //TODO get rid of this
             return null;
         }
     }
 
     public function post_to_handler($data){
-    // Setup cURL
-    
-    error_log("Posting:" . $data["userid"]);
-    $data['witsoj_token'] = get_config('assignfeedback_customfeedback', 'secret');
-    $data['markerid'] = 0;
-    
-    //$handler_url =  get_config('assignfeedback_customfeedback','handler_url');
-    $ch = curl_init("http://1710409.ms.wits.ac.za/mosesTest/test2.php");
-    curl_setopt_array($ch, array(
-        CURLOPT_POST => count($data),
-        CURLOPT_RETURNTRANSFER => TRUE,
-        CURLOPT_HTTPHEADER => array(
-        //'Content-Type: application/json'
-        'Content-Type: text/plain'
-        ),
-        CURLOPT_POSTFIELDS => json_encode($data)
-    ));
+        // Setup cURL
+        error_log("Posting:" . $data["userid"]);
+        $data['customfeedback_token'] = get_config('assignfeedback_customfeedback', 'secret');
+        $data['markerid'] = 0;
+        //die(var_dump($data));
+        $handler_url =  get_config('assignfeedback_customfeedback','handler');
+        $ch = curl_init($handler_url);
+        curl_setopt_array($ch, array(
+            CURLOPT_POST => count($data),
+            CURLOPT_RETURNTRANSFER => TRUE,
+            CURLOPT_HTTPHEADER => array(
+            //'Content-Type: application/json'
+            'Content-Type: text/plain'
+            ),
+            CURLOPT_POSTFIELDS => json_encode($data)
+        ));
 
-    // Send the request
-    $response = curl_exec($ch);
-    die(var_dump($response));
-    /*
-    // Check for errors
-    if($response === FALSE){
-        error_log("Curl error");
-        die("Curl Error: " . curl_error($ch));
+        // Send the request
+        $response = curl_exec($ch);
+    
+        // Check for errors
+        if($response === FALSE){
+            error_log("Curl error");
+            die("Curl Error: " . curl_error($ch));
+        }
+
+        // Decode the response
+        $responseData = json_decode($response, TRUE);
+
+        //var_dump($responseData);
+        return $responseData;
+    
     }
 
-    // Decode the response
-    $responseData = json_decode($response, TRUE);
-
-    // Print the date from the response
-    //var_dump("Response: " . $response);
-    //print("<br/>");
-    var_dump($responseData);
-    return $responseData;
-    */
+    public function rejudge_orphans(){
+        
     }
 
 

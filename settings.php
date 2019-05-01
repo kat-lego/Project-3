@@ -32,18 +32,23 @@ $settings->add(new admin_setting_configtext('assignfeedback_customfeedback/basep
                    new lang_string('basepath', 'assignfeedback_customfeedback'),
                    new lang_string('basepath_help', 'assignfeedback_customfeedback'), '/var/www/'));
 
-$settings->add(new admin_setting_configtext('assignfeedback_customfeedback/markers',
-                   new lang_string('markers', 'assignfeedback_customfeedback'),
-                   new lang_string('markers_help', 'assignfeedback_customfeedback'), ''));
+$settings->add(new admin_setting_configtext('assignfeedback_customfeedback/handler',
+                   new lang_string('handler', 'assignfeedback_customfeedback'),
+                   new lang_string('handler_help', 'assignfeedback_customfeedback'), ''));
+
+$settings->add(new admin_setting_configtext('assignfeedback_customfeedback/prefix',
+                   new lang_string('prefix', 'assignfeedback_customfeedback'),
+                   new lang_string('prefix_help', 'assignfeedback_customfeedback'), 'sub'));
+
 
 $settings->add(new admin_setting_configtext('assignfeedback_customfeedback/secret',
                    new lang_string('secret', 'assignfeedback_customfeedback'),
                    new lang_string('secret_help', 'assignfeedback_customfeedback'), md5("Secret")));
-
+/*
 $settings->add(new admin_setting_configtext('assignfeedback_customfeedback/languages',
                    new lang_string('languages', 'assignfeedback_customfeedback'),
                    new lang_string('languages_help', 'assignfeedback_customfeedback'), ''));
-
+*/
 $settings->add(new admin_setting_configtext('assignfeedback_customfeedback/maxquestions',
                    new lang_string('maxquestions', 'assignfeedback_customfeedback'),
                    new lang_string('maxquestions_help', 'assignfeedback_customfeedback'), '10'));

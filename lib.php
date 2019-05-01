@@ -31,14 +31,14 @@ function assignfeedback_customfeedback_pluginfile($course,
     //}
     
     $auth = get_config('assignment_customfeedback', 'secret');
-    if(!isset($_POST["witsoj_token"]) || $_POST["witsoj_token"] !== $auth){
+    if(!isset($_POST["customfeedback_token"]) || $_POST["customfeedback_token"] !== $auth){
         die("No Auth");
     }
 
     require_once($CFG->dirroot . '/mod/assign/locallib.php');
     $assign = new assign($context, $cm, $course);
 
-    if ($filearea !== ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA) {
+    if (strpos( $filearea, ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA) !== false) {
         return false;
     }
     if (!$assign->show_intro()) {
