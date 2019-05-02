@@ -29,9 +29,11 @@ define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_MARKERERROR', 7);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_TIMELIMIT', 8);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ABORTED', 9);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_TIMEOUT', 10);
-define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILENOTFOUND', 11);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_MEMORYLIMIT', 11);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_RUNTIMEERROR', 12);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILEREMOVED', 11);
 
-require_once('html_element.php');
+require_once('HtmlElement.php');
 
 
 class assign_feedback_customfeedback extends assign_feedback_plugin {
@@ -63,7 +65,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
     public function get_language_code($lang){
-        $arrayName = array('Java' => 1, 'Python' => 4, 'C++' => 11);
+        $arrayName = array('Java' => 1, 'Python' => 4, 'C++' => 12);
         return $arrayName[$lang];
     }
 
@@ -389,38 +391,34 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $n = $this->get_config('numQ');
 
         //TODO: add these stuff the language strings
-        /*
-        $table = "<table width=100%>
-                    <tr>
-                        <th> Question </th>
-                        <th> Verdict </th>
-                    </tr>";
-                    */
+        $h = ['Question', 'Verdict'];
+        $ta = ['width'=>'100%', 'margin-bottom'=>'25px'];
+        $ha = [];
+        $table = HtmlElement::create_html_table($h,$ta,$ha);
 
         $qualifies = False;
         for($i = 0;$i<$n;$i++){
             $verdict = $this->get_question_verdict($grade,$i);
-            $table.="
-                <tr>
-                    <td>Question $i</td>
-                    <td>$verdict</td>
-                </tr>
-            ";
+            $rd = ["Question $i",$verdict];
+            HtmlElement::add_tabledata($table,$rd,[]);
 
         }
 
-        $table.="</table>";
-        $qualifies = $this->minimum_requirements($grade);
-        if($qualifies){
-             //TODO: leader board snippet.
-            $table.= "<h1>Leaderboard Goes Here</h1>";
 
-        }else{
-            $table.= "<h1>DID</h1>";
-            //TODO: minimum requirements.
+        $leaderboard = null;
+
+        if($this->get_config('mode') == 'Fastest Mode'){
+            $leaderboard = $this->getFastestModeLeaderBoard($grade->userid);
         }
+        
 
-        return $table;
+        return $table->str();
+    }
+
+    public function getFastestModeLeaderBoard($userid){
+        /*$tableheader = ['pos', 'username' , 'time'
+    ];
+        $leaderboard = HtmlElement::create_html_table()*/
     }
 
     function minimum_requirements(stdClass $grade){
@@ -473,40 +471,45 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             $record = $records[$question];
             switch ($record->status) {
                 case 0:
-                    return "Judging Request Pending";
+                    return'<span style="color: orange;font-weight:bold">Judge request pending</span>';
                     break;
                 case 1:
-                    return "Judging In Progress";
+                    return '<span style="color: orange;font-weight:bold">Judge in progress</span>';
                     break;
                 case 2:
-                    return "Compilation Error";
+                    return '<span style="color: red;font-weight:bold">Compilation Error</span>';
                     break;
                 case 3:
-                    return "Presentation Error";
+                    return '<span style="color: orange;font-weight:bold">Presentation Error</span>';
                     break;
                 case 4:
-                    return "Accepted";
+                    return '<span style="color: green;font-weight:bold">Accepted</span>';
                     break;
                 case 5:
-                    return "Partially Correct";
+                    return '<span style="color: green;font-weight:bold">Partially Accepted</span>';
                     break;
                 case 6:
-                    return "Incorrect";
+                    return '<span style="color: red;font-weight:bold">Incorrect</span>';
                     break;
                 case 7:
-                    return "Marker Error";
+                    return '<span style="color: red;font-weight:bold">Marker Error</span>';
                     break;
                 case 8:
-                    return "Timelimit Exceeded";
+                    return  '<span style="color: red;font-weight:bold">Time Limit Exceeded</span>';
                     break;
                 case 9:
-                    return "Aborted";
+                    return '<span style="color: red;font-weight:bold">Aborted</span>';
                     break; 
                 case 10:
-                    return "Timeout";
+                    return '<span style="color: red;font-weight:bold">Timeout</span>';
                     break;
                 case 11:
-                    return "Memory Limit Exceeded";
+                    return '<span style="color: red;font-weight:bold">Memory Limit Exceeded</span>';
+                case 12:
+                    return  '<span style="color: red;font-weight:bold">Run-time Error</span>';
+                    break;
+                case 13:
+                    return '<span style="color: red;font-weight:bold">Submission File has been Removed</span>';
                 default:
                     return "Ops A bug must have crawled through the cracks";
                     
@@ -633,7 +636,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $submission = $this->get_submission_record($userid,$question_number);
 
         if($pathnamehash == null){
-            if($submission){
+            
+            if(isset($submission->contenthash)){
+                //update the file removal
                 $sql = "UPDATE {customfeedback_submission} 
                         SET status = :status,
                             contenthash = NULL
@@ -642,13 +647,14 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                               user_id = :user_id
                         ";
                 $params = array();
-                $params['status'] = ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILENOTFOUND;
+                $params['status'] = ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILEREMOVED;
                 $params['question_number'] = intval($question_number);
                 $params['assign_id'] = intval($this->assignment->get_instance()->id);
                 $params['user_id'] = intval($userid);
 
+                //die("check");
                 $DB->execute($sql,$params);
-                //remove the submission file because the file no longer exists.
+                
             }
 
             return false;
@@ -732,11 +738,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         if(count($rec) == 1){
             $hashes = reset($rec);
             return $hashes;
-        }else{
-            error_log("COUNT: " . count($rec));
-            error_log("E4"); // TODO Deal with not getting a file.
-            var_dump($rec);
+        }else if(count($rec) == 0){
+            //var_dump($rec);
             $hashes = null;
+            return null;
+        }else{
+            die("Huge Error in get_submission_hashes");
             return null;
         }
     }
@@ -817,6 +824,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $data["language"]  = $this->get_language_code($this->get_config('language'));
         $data["cpu_limit"] = $this->get_config("timelimit".$question_number);
         $data["mem_limit"] = $this->get_config("memorylimit".$question_number);
+        $data["mode"] = $this->get_config('mode');
         $data["pe_ratio"] = 0.0;
         $data["callback"]  = $this->get_callback_url($this->assignment->get_instance()->id, $question_number);
 
@@ -854,7 +862,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         error_log("Posting:" . $data["userid"]);
         $data['customfeedback_token'] = get_config('assignfeedback_customfeedback', 'secret');
         $data['markerid'] = 0;
-        //die(var_dump($data));
+        
         $handler_url =  get_config('assignfeedback_customfeedback','handler');
         $ch = curl_init($handler_url);
         curl_setopt_array($ch, array(
@@ -869,7 +877,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         // Send the request
         $response = curl_exec($ch);
-    
+        //die($response);
         // Check for errors
         if($response === FALSE){
             error_log("Curl error");
