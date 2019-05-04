@@ -4,12 +4,12 @@ require_once('../../../../config.php');
 require_once($CFG->dirroot . '/mod/assign/locallib.php');
 require_once($CFG->libdir . '/gradelib.php');
 require_once("locallib.php");
-
 $inputJSON = file_get_contents('php://input');  // Get input from the client
 $params = json_decode($inputJSON, TRUE);
+//echo "hdsd";
+//die($inputJSON);
 $assign_id = $_REQUEST["assign_id"];
 $question_id=$_REQUEST["question_id"];
-echo $inputJSON;
 $auth = $params['customfeedback_token'];
 if($auth != get_config('assignfeedback_customfeedback', 'secret')){
 	die('{"status" : "Bad Auth"}');

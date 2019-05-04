@@ -31,7 +31,11 @@ define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ABORTED', 9);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_TIMEOUT', 10);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_MEMORYLIMIT', 11);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_RUNTIMEERROR', 12);
-define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILEREMOVED', 11);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILEREMOVED', 13);
+
+
+//Respond Codes
+
 
 require_once('HtmlElement.php');
 
@@ -392,7 +396,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         //TODO: add these stuff the language strings
         $h = ['Question', 'Verdict'];
-        $ta = ['width'=>'100%', 'margin-bottom'=>'25px'];
+        $ta = ['width'=>'100%', 'margin-bottom'=>'10%'];
         $ha = [];
         $table = HtmlElement::create_html_table($h,$ta,$ha);
 
@@ -409,16 +413,120 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         if($this->get_config('mode') == 'Fastest Mode'){
             $leaderboard = $this->getFastestModeLeaderBoard($grade->userid);
+        }else{
+            die("Error on view_summary");
         }
         
+        $lbTittle = new HtmlElement('h1',null,True);
+        $lbTittle->add_subelement(new HtmlElement(TEXT,'Leaderboard Snippet',false));
 
-        return $table->str();
+        $string = "";
+        if($table!==null && $lbTittle!==null && $leaderboard!==null){
+            $string = $table->str().$lbTittle->str().$leaderboard->str();
+        }
+        return $string;
     }
 
     public function getFastestModeLeaderBoard($userid){
-        /*$tableheader = ['pos', 'username' , 'time'
-    ];
-        $leaderboard = HtmlElement::create_html_table()*/
+        global $DB;
+        $lbheader = ['pos', 'username', 'Final Score'];
+        $lbattributes = ['width' => '100%'];
+        $leaderboard = HtmlElement::create_html_table($lbheader,$lbattributes,[]);
+        $players=$this->get_participants();
+
+        $userdata = array();
+        foreach ($players as $key => $value) {
+    
+            $userObj = $DB->get_record("user", array("id" => $key));
+            $user = new stdClass();
+            $user->id = $key;
+            $user->username = $userObj->username;
+            $user->question_list = $this->get_all_submissions($key);
+            $userdata[$key] = $user;                
+        
+        }
+        
+        $scores = array();
+        //calculating scores for each user
+        foreach ($userdata as $uid => $user) {
+            $score = 0;
+            $n = $this->get_config('numQ');
+            for($i=0;$i<$n;$i++){
+                if($user->question_list[$i]->runtime){
+                    $score+= $user->question_list[$i]->runtime;
+                }else{
+                    $score+=$this->get_config('timelimit'.$i)*1000;
+                }
+            }
+             
+            $user->score = $score.' ms';
+        }
+
+        //die(var_dump($userdata));
+        usort($userdata, function($a, $b) { return $a->score - $b->score; });
+
+        $playerpos = 0;
+        for($i=0; $i< count($userdata) ;$i++) {
+            if($userid==$userdata[$i]->id){
+                $playerpos = $i; 
+            }
+        }
+        //die(var_dump($userdata));
+        //die(var_dump($playerpos));
+
+        $start =0;
+        $end =0;
+        if($playerpos<3){
+            $start = 0;
+            $end = min(3,count($userdata));
+        }else{
+            $start = $playerpos-2;
+            $end = $playerpos+3;
+        }
+
+
+        
+        for($i=$start; $i< $end ;$i++) {
+            $data = [$i,$userdata[$i]->username, $userdata[$i]->score];
+            $attributes = [];
+
+            if($userdata[$i]->id == $userid){
+                $attributes['background-color'] = 'orange';
+            }
+            
+            HtmlElement::add_tabledata($leaderboard,$data,$attributes);
+        }
+
+        return $leaderboard;
+    }
+
+    public function get_participants(){
+        global $DB;
+        $sql = "SELECT user_id FROM {customfeedback_submission} 
+                WHERE 
+                assign_id = :assign_id
+                ";
+
+        $params = array();
+        $params['assign_id'] = $this->assignment->get_instance()->id;
+        $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
+
+        return $records;
+    }
+
+    public function get_all_submissions($userid){
+        global $DB;
+        $sql = "SELECT * FROM {customfeedback_submission} 
+                WHERE 
+                assign_id = :assign_id AND
+                user_id = :user_id
+                ";
+
+        $params = array();
+        $params['assign_id'] = $this->assignment->get_instance()->id;
+        $params['user_id'] = $userid;
+        $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
+        return $records;
     }
 
     function minimum_requirements(stdClass $grade){
@@ -652,9 +760,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                 $params['assign_id'] = intval($this->assignment->get_instance()->id);
                 $params['user_id'] = intval($userid);
 
-                //die("check");
+
                 $DB->execute($sql,$params);
-                
             }
 
             return false;
@@ -877,8 +984,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         // Send the request
         $response = curl_exec($ch);
-        //die($response);
-        // Check for errors
+        
+        //TODO: Handle Responses
+        //die(var_dump($response));
+
         if($response === FALSE){
             error_log("Curl error");
             die("Curl Error: " . curl_error($ch));
