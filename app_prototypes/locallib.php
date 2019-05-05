@@ -38,9 +38,9 @@ define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILEREMOVED', 13);
 
 
 require_once('HtmlElement.php');
+require_once('driver.php');
 
-
-class assign_feedback_customfeedback extends assign_feedback_plugin {
+class assign_feedback_customfeedback extends assign_feedback_plugin{
 
     /**
     * Gets the name of pluin
@@ -61,7 +61,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     /**
     * Gets the list of languages supported by the plugin
-    * @codeCoverageIgnore
     * @return array of strings with the names of the languages
     */
     public function get_languages(){
@@ -74,7 +73,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
     /**
-    *@codeCoverageIgnore
     * Gets a list of integers. Each integer is the number of questions an assignment might have
     * The integers range from 1 to the maxquestions configured in the settings of the plugin
     * @return array of integers from 1 to maxquestions
@@ -107,11 +105,11 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return  array(1,2,4,16,32,64,512,1024);
     }
     
-    private function get_testcase_filearea($question_number){
+    public function get_testcase_filearea($question_number){
         return ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA.$question_number;
     }
 
-    private function get_callback_url($assign_id,$question_number){
+    public function get_callback_url($assign_id,$question_number){
         global $CFG;
         $url = $CFG->wwwroot . "/mod/assign/feedback/customfeedback/update_record.php?assign_id=$assign_id&question_id=$question_number";
         return $url;
@@ -304,7 +302,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return true;
     }
 
-
+    /**
+    *@codeCoverageIgnore
+    */
     public function data_preprocessing(&$defaultvalues) {
         
         $n = get_config('assignfeedback_customfeedback','maxquestions');
@@ -347,6 +347,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             return true;
         }
     }
+
     /**
     *@codeCoverageIgnore
     */
@@ -635,7 +636,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     //called once marker finishes marking
     public function update_record($question_number,$assign_id,$user_id,$memory,$runtime,$status,$grade,$inputJson){
-        var_dump("here");
+        
         global $DB;
         $params = array();
         $params['question_number'] = $question_number;
