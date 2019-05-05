@@ -1,5 +1,6 @@
 <?php
 /*
+* @codeCoverageIgnore
 * This class tries to minimise moodle dependancy as much as possible
 */
 
@@ -16,6 +17,9 @@ class assign_feedback_plugin{
 
 
 //some moodle functions
+/**
+* @codeCoverageIgnore
+*/
 function get_config($name,$variable){
 	
 	$array = array();
