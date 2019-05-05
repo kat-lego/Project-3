@@ -27,7 +27,6 @@ class locallibTest extends TestCase{
         foreach ($langs as $lang => $code) {
             $this->assertEquals($tester->get_language_code($lang),$code);
         }
-
     }
 
     public function test_get_question_numbers(){

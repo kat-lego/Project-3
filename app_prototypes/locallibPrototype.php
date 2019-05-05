@@ -37,7 +37,7 @@ define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILEREMOVED', 13);
 //Respond Codes
 
 
-require_once('HtmlElement.php');
+require_once('HtmlElementPrototype.php');
 require_once('driver.php');
 
 class assign_feedback_customfeedback extends assign_feedback_plugin{
@@ -380,7 +380,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         }
     }
 
-
+    /**
+    *@codeCoverageIgnore
+    */
     public function set_initial_grade($userid){
         $grade = $this->assignment->get_user_grade($userid, true);
         $grade->grade = 0;
@@ -427,7 +429,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         }
         return $string;
     }
-
+    
+    /**
+    *@codeCoverageIgnore
+    */
     public function getFastestModeLeaderBoard($userid){
         global $DB;
         $lbheader = ['pos', 'username', 'Final Score'];
@@ -501,6 +506,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         return $leaderboard;
     }
 
+    /**
+    *@codeCoverageIgnore
+    */
     public function get_participants(){
         global $DB;
         $sql = "SELECT user_id FROM {customfeedback_submission} 
@@ -529,7 +537,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
         return $records;
     }
-
+    
+    /**
+    *@codeCoverageIgnore
+    */
     function minimum_requirements(stdClass $grade){
         global $DB;
         $sql = "SELECT * FROM {customfeedback_submission} 
@@ -555,7 +566,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
-    * 
+    *@codeCoverageIgnore
     */
     function get_question_verdict(stdClass $grade,$question){
         global $DB;
@@ -634,7 +645,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         return $this->assignment->render_area_files('assignfeedback_file', ASSIGNFEEDBACK_FILE_FILEAREA, $grade->id);
     }
 
-    //called once marker finishes marking
+    /**
+    *@codeCoverageIgnore
+    */
     public function update_record($question_number,$assign_id,$user_id,$memory,$runtime,$status,$grade,$inputJson){
         
         global $DB;
@@ -678,7 +691,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         }
 
     }
-
+    
+    /**
+    *@codeCoverageIgnore
+    */
     public function SubmissionExists($question_number,$assign_id,$user_id){
         global $DB;
         $param= array('assign_id' =>intval($assign_id),'question_number'=>intval($question_number),'user_id'=>intval($user_id));
@@ -816,6 +832,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         
     }
     /** 
+    * @codeCoverageIgnore
     * [Doc needs revision]
     * Get pathnamehash for the submission for a question for a particular user
     * @param $userid - the id of the user who's submission we are trying to get
@@ -862,6 +879,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
+    *@codeCoverageIgnore
     */
     private function get_submission_record($userid,$question_number){
         global $DB;
@@ -889,7 +907,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
-    * 
+    *@codeCoverageIgnore
     */
     private function create_submission_record($userid,$question_number,$contenthash){
         global $DB;
@@ -905,7 +923,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         $DB->execute($sql,$params);
     }
 
-
+    /**
+    *@codeCoverageIgnore
+    */
     public function judge($userid){
 
         $n = $this->get_config('numQ');
@@ -925,7 +945,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         }
     }
 
-
+    /**
+    *@codeCoverageIgnore
+    */
     public function get_testcase_data($userid,$question_number){
         global $DB;
 
@@ -969,7 +991,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
             return null;
         }
     }
-
+    
+    /**
+    *@codeCoverageIgnore
+    */
     public function post_to_handler($data){
         // Setup cURL
         error_log("Posting:" . $data["userid"]);

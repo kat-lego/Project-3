@@ -1,6 +1,7 @@
 <?php
 
 //html elements
+
 define('NONE', '');
 define('TEXT', '');
 define('TABLE', 'table');
@@ -11,7 +12,7 @@ define('TABLEHEADER', 'th');
 //attribute names
 
 
-class HtmlElement{
+class HtmlElementPrototype{
 	
 	private $type;
 	private $text;
@@ -77,7 +78,7 @@ class HtmlElement{
 		if(!$this->iscompound){
 			throw new LogicException("This element does not allow for addition of sub elements");
 		}
-		if(! $element instanceof HtmlElement){
+		if(! $element instanceof HtmlElementPrototype){
 			throw new InvalidArgumentException("element is supposed to be of thy HtmlElement");
 		}
 		$this->sub_elements[] = $element;
@@ -90,7 +91,7 @@ class HtmlElement{
 		}
 
 		foreach ($array as $key => $value) {
-			if(! $value instanceof HtmlElement){
+			if(! $value instanceof HtmlElementPrototype){
 				throw new InvalidArgumentException("One of the elements are not of type HtmlElement");
 			}
 		}
@@ -129,14 +130,14 @@ class HtmlElement{
 
 
 	public static function create_html_table($header,$table_attributes,$header_attributes){
-		$table = new HtmlElement(TABLE,null,True);
+		$table = new HtmlElementPrototype(TABLE,null,True);
 		$table->add_attributes($table_attributes);
 		
-		$header_row = new HtmlElement(TABLEROW,null,True);
+		$header_row = new HtmlElementPrototype(TABLEROW,null,True);
 		$header_row->add_attributes($header_attributes);
 		foreach ($header as $key => $value) {
-			$h = new HtmlElement(TABLEHEADER,null,True);
-			$h->add_subelement(new HtmlElement(TEXT,$value,false));
+			$h = new HtmlElementPrototype(TABLEHEADER,null,True);
+			$h->add_subelement(new HtmlElementPrototype(TEXT,$value,false));
 			$header_row->add_subelement($h);	
 		}
 		$table->add_subelement($header_row);
@@ -144,12 +145,12 @@ class HtmlElement{
 	}
 
 	public static function add_tabledata($table,$rowRata,$row_attributes){
-		$data_row = new HtmlElement(TABLEROW,null,True);
+		$data_row = new HtmlElementPrototype(TABLEROW,null,True);
 		$data_row->add_attributes($row_attributes);
 
 		foreach ($rowRata as $key => $value) {
-			$h = new HtmlElement(TABLEDATA,null,True);
-			$h->add_subelement(new HtmlElement(TEXT,$value,false));
+			$h = new HtmlElementPrototype(TABLEDATA,null,True);
+			$h->add_subelement(new HtmlElementPrototype(TEXT,$value,false));
 			$data_row->add_subelement($h);	
 		}
 		$table->add_subelement($data_row);

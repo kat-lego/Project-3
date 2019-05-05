@@ -635,7 +635,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     //called once marker finishes marking
     public function update_record($question_number,$assign_id,$user_id,$memory,$runtime,$status,$grade,$inputJson){
-        var_dump("here");
         global $DB;
         $params = array();
         $params['question_number'] = $question_number;
@@ -665,9 +664,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                         assign_id =:assign_id AND
                         user_id = :user_id
                         ";   
-                       if($DB->execute($sql, $params)){
-                        var_dump("hera");
-                       }
+                       $DB->execute($sql, $params);  
                     return true;//success     
             }
 
@@ -991,7 +988,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $response = curl_exec($ch);
         
         //TODO: Handle Responses
-        die(var_dump($response));
+       // die(var_dump($response));
 
         if($response === FALSE){
             error_log("Curl error");

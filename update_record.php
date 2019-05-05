@@ -8,7 +8,6 @@ $params = json_decode($inputJSON, TRUE);
 $assign_id = $_REQUEST["assign_id"];
 $question_id=$_REQUEST["question_id"];
 $auth = $params['customfeedback_token'];
-var_dump($params."its empty");
 if($auth != get_config('assignfeedback_customfeedback', 'secret')){	
 	die('{"status" : "Bad Auth"}');
 }
@@ -24,8 +23,6 @@ $status = intval($params['status']);
 $time=floatval($params['time']);
 $memory=floatval($params['memory']);
 $oj_testcases=$params["oj_testcases"];
-//echo $newgrade;
-var_dump("hera");
 list ($course, $cm) = get_course_and_cm_from_cmid($assign_id, 'assign');
 $context = context_module::instance($cm->id);
 $assign = new assign($context, $cm, $course);
@@ -35,10 +32,10 @@ if(!$plugin->is_enabled()){
 	var_dump('{"status" : "Assignment does not use customfeedback"}');
 	die('{"status" : "Assignment does not use customfeedback"}');//PLUGIN NOT ENABLED
 }
-
+if($status!=4 || $status!=3){
+$time=null;
+}
 $update=$plugin->update_record($question_id,$assign_id,$userid,$memory,$time,$status,$newgrade,$oj_testcases);
-var_dump($update);
-
 if($update===true){
 die('{"status" : "0"}');//SUCCESS
 }
