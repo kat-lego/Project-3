@@ -37,5 +37,7 @@ Once you have installed the plugin you will need to set up some settings for the
 ![Settings Example](https://github.com/maniac22/Project-3/blob/master/artifacts/img/example2.png)
 
 
+Once the settings have been set, you can proceed to create an assignment and enable the plugin for the assignment and set all the required settings.
+
 ## Developers
 We have left some Artifacts about the project in the [wiki](https://github.com/kat-lego/Project-3/wiki). It should be a usefull read for understanding the project.
