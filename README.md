@@ -32,6 +32,7 @@ Once you have cloned this repo, you can then zip it and [install the moodle plug
 
 ## User Instructions
 Once you have installed the plugin you will need to set up some settings for the plugin as shown below.
+![Settings Example](https://github.com/maniac22/Project-3/blob/master/artifacts/img/example2.png)
 
 
 ## Developers
