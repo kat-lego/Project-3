@@ -25,6 +25,7 @@ To install our plugin, first you need to clone this repo either with git clone o
 git clone https://github.com/maniac22/Project-3.git
 ```
 * option 2:
+
 ![Download Example](https://github.com/maniac22/Project-3/blob/master/artifacts/img/example1.png)
 
 Once you have cloned this repo, you can then zip it and [install the moodle plugin](https://docs.moodle.org/36/en/Installing_plugins). If you have downloaded the repo using the git download option, make sure you delete the .git folder inside the zip you have downloaded. 
