@@ -18,10 +18,7 @@ This is a moodle plug in to be used for conducting Competitive Programming Assin
 * [MySql](https://tutorials.ubuntu.com/tutorial/install-and-configure-apache#0)
 
 ## Installation
-To install our plugin, first you need to clone this repo either with git clone or the download option that is available on github. 
-
-## User Instructions
-If your somehow figured how to install the whole thing with out the instruction. Im sure you'll are smart enough to figure out how to use this.
+To install our plugin, first you need to clone this repo either with git clone or the download option that is available on github.
 
 * option 1(Recommended):
 ```
@@ -30,7 +27,12 @@ git clone https://github.com/maniac22/Project-3.git
 * option 2:
 put image here.
 
-Once you have cloned this repo, you can then zip it and [install the moodle plugin](https://docs.moodle.org/36/en/Installing_plugins). If you have downloaded the repo using the git download option, make sure you delete the .git folder inside the zip you have downloaded.
+Once you have cloned this repo, you can then zip it and [install the moodle plugin](https://docs.moodle.org/36/en/Installing_plugins). If you have downloaded the repo using the git download option, make sure you delete the .git folder inside the zip you have downloaded. 
+
+## User Instructions
+If your somehow figured how to install the whole thing with out the instruction. Im sure you'll are smart enough to figure out how to use this.
+
+
 
 ## Developers
 We have left some Artifacts about the project in the [wiki](https://github.com/kat-lego/Project-3/wiki). It should be a usefull read for understanding the project.
