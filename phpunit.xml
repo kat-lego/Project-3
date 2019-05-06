@@ -7,16 +7,17 @@
 
          <testsuites>
            <testsuite name="Unit tests">
-             <directory suffix=".php">Customfeedback/unitTests</directory>
+             <directory suffix=".php">unitTests</directory>
            </testsuite>
          </testsuites>
 
          <filter>
            <whitelist>
-            <directory suffix=".php">./Customfeedback/locallib.php</directory>
+            <directory suffix=".php">./app_prototypes/</directory>
            </whitelist>
          </filter>
 
+        
          <logging>
            <log type="coverage-html" target="test_reports/coverage" title="coverage" charset="UTF-8" yui="true" highlight="true"
              lowUpperBound="35" highLowerBound="70"/>

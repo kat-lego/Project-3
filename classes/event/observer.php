@@ -17,7 +17,7 @@
 /**
  * An event observer.
  *
- * @package    assignfeedback_witsoj
+ * @package    assignfeedback_customfeedback
  * @copyright  2016 Damyon Wiese
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -36,16 +36,21 @@ require_once($CFG->dirroot . '/mod/assign/locallib.php');
  */
 class observer {
     public static function assessable_submitted(\assignsubmission_file\event\assessable_uploaded $event) {
-        global $DB;
+    global $DB;
 	// Load assignment details
 	$id = $event->contextinstanceid;
 	list ($course, $cm) = get_course_and_cm_from_cmid($id, 'assign');
+	//die($id);
 	$context = \context_module::instance($cm->id);
 	$assign = new \assign($context, $cm, $course);
 	$plugin = $assign->get_feedback_plugin_by_type("customfeedback");
 	if(!$plugin->is_enabled()){
 		return;
 	}
-
+	$plugin->set_initial_grade($event->get_data()['userid']);
+	$plugin->judge($event->get_data()['userid']);
+	//$plugin->update_record(0,20,2,1,2,4,100);
+	//$data = ["a" => 2];
+	//$plugin->post_to_handler($data);
     }
 }
