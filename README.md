@@ -28,11 +28,10 @@ git clone https://github.com/maniac22/Project-3.git
 
 ![Download Example](https://github.com/maniac22/Project-3/blob/master/artifacts/img/example1.png)
 
-Once you have cloned this repo, you can then zip it and [install the moodle plugin](https://docs.moodle.org/36/en/Installing_plugins). If you have downloaded the repo using the git download option, make sure you delete the .git folder inside the zip you have downloaded. Once you are done download the [marker](https://github.com/maniac22/PiedMarker2)
+Once you have cloned this repo, you can then zip it and [install the moodle plugin](https://docs.moodle.org/36/en/Installing_plugins). If you have downloaded the repo using the git download option, make sure you delete the .git folder inside the zip you have downloaded. Once you are done download the [marker](https://github.com/maniac22/PiedMarker2) and move it to an apache server.
 
 ## User Instructions
-If your somehow figured how to install the whole thing with out the instruction. Im sure you'll are smart enough to figure out how to use this.
-
+Once you have installed the plugin you will need to set up some settings for the plugin as shown below.
 
 
 ## Developers
