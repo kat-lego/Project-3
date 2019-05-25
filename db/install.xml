@@ -36,10 +36,10 @@
        <FIELD NAME="user_id" TYPE="char" LENGTH="15" NOTNULL="true" SEQUENCE="false"/>
        <FIELD NAME="memory" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" DEFAULT="-1"/>
        <FIELD NAME="runtime" TYPE="float" LENGTH="10" NOTNULL="false" SEQUENCE="false" DEFAULT="-1"/>
-       <FIELD NAME="no_of_submittions" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false"/>
+       <FIELD NAME="no_of_submittions" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
        <FIELD NAME="status" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false"/> 
        <FIELD NAME="contenthash" TYPE="char" LENGTH="40" NOTNULL="false" SEQUENCE="false"/>
-       <FIELD NAME="score" TYPE="float" LENGTH="10" NOTNULL="false" SEQUENCE="false" DEFAULT="0"/>
+       <FIELD NAME="score" TYPE="float" LENGTH="10" NOTNULL="false" SEQUENCE="false" DEFAULT="-1"/>
       </FIELDS>
       <KEYS>
        <KEY NAME="primary" TYPE="primary" FIELDS="question_number,assign_id,user_id" COMMENT="composite primary key for a submission"/>

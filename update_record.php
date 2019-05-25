@@ -22,6 +22,7 @@ $newgrade = floatval($params['grade']);
 $status = intval($params['status']);
 $time=floatval($params['time']);
 $memory=floatval($params['memory']);
+$score = floatval($params["score"]);
 $oj_testcases=$params["oj_testcases"];
 list ($course, $cm) = get_course_and_cm_from_cmid($assign_id, 'assign');
 $context = context_module::instance($cm->id);
@@ -35,7 +36,7 @@ if(!$plugin->is_enabled()){
 if($status!=4 || $status!=3){
 $time=null;
 }
-$update=$plugin->update_record($question_id,$assign_id,$userid,$memory,$time,$status,$newgrade,$oj_testcases);
+$update=$plugin->update_record($question_id,$assign_id,$userid,$memory,$time,$status,$newgrade,$score,$oj_testcases);
 if($update===true){
 die('{"status" : "0"}');//SUCCESS
 }
