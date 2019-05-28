@@ -15,16 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ *
  * @package   assignfeedback_customfeedback
  * @copyright 2019, Moses Modupi <1614669@student.wits.ac.za>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2019041403;
-$plugin->requires = 2018050800; // Moodle 3.6
-$plugin->cron = 0;
-$plugin->component = 'assignfeedback_customfeedback';
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->release = 'v1.0';

@@ -8,7 +8,11 @@ $params = json_decode($inputJSON, TRUE);
 $assign_id = $_REQUEST["assign_id"];
 $question_id=$_REQUEST["question_id"];
 $auth = $params['customfeedback_token'];
+echo json_encode($params);
+die("dead");
+$auth="1e6947ac7fb3a9529a9726eb692c8cc5";
 if($auth != get_config('assignfeedback_customfeedback', 'secret')){	
+	echo $auth."eno";
 	die('{"status" : "Bad Auth"}');
 }
 

@@ -38,13 +38,12 @@ define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILEREMOVED', 13);
 
 
 require_once('HtmlElementPrototype.php');
-require_once('driver.php');
+require_once('stubs.php');
 
 class assign_feedback_customfeedback extends assign_feedback_plugin{
 
     /**
     * Gets the name of pluin
-    * 
     * @return string with name of the plugin
     */
     public function get_name() {
@@ -70,6 +69,30 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     public function get_language_code($lang){
         $arrayName = array('Java' => 1, 'Python' => 4, 'C++' => 12);
         return $arrayName[$lang];
+    }
+
+    /**
+    * 
+    * @return array or string representing the ordering options for the leaderboards
+    */
+    public function get_order_options(){
+        return array('Ascending' ,'Descending');
+    }
+
+    /**
+    * Get the code for the mode, identified by its position on the get_language array 
+    * @return integer for the code
+    */
+    public function get_mode_code($mode){
+        return array_search($mode, $this->get_modes());
+    }
+
+    /**
+    * Get a list of rerun options 
+    * @return array of integers for rerun options.
+    */
+    public function get_rerun_options(){
+        return array(1,2,4,8,16);
     }
 
     /**

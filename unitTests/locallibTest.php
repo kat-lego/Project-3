@@ -6,6 +6,13 @@ use PHPUnit\DbUnit\TestCaseTrait;
 #require_once('locallib.php');
 class locallibTest extends TestCase{
 
+    public function test_get_name(){
+        $tester=new assign_feedback_customfeedback;
+        $result = $tester->get_name();
+        $expected = "Competitive Assignment";
+        $this->assertEquals($expected,$result,"correct!");
+    }
+
     public function test_get_modes(){
         $tester=new assign_feedback_customfeedback;
         $result = $tester->get_modes();
@@ -27,6 +34,33 @@ class locallibTest extends TestCase{
         foreach ($langs as $lang => $code) {
             $this->assertEquals($tester->get_language_code($lang),$code);
         }
+    }
+
+    public function test_get_order_options(){
+        $tester=new assign_feedback_customfeedback;
+        $result = $tester->get_order_options();
+        $expected = array('Ascending' ,'Descending');
+        $this->assertEquals($expected,$result,"correct!");
+
+    }
+
+    public function test_get_mode_code(){
+        $tester=new assign_feedback_customfeedback;
+        $modes = $tester->get_modes();
+        $n = count($modes);
+
+        for($i=0;$i<$n;$i++){
+            $this->assertEquals($tester->get_mode_code($modes[$i]), $i);
+        }
+
+    }
+
+
+    public function test_get_rerun_options(){
+        $tester=new assign_feedback_customfeedback;
+        $result = $tester->get_rerun_options();
+        $expected = array(1,2,4,8,16);
+        $this->assertEquals($expected,$result,"correct!");
     }
 
     public function test_get_question_numbers(){

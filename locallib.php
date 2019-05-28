@@ -46,7 +46,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     /**
     * Gets the name of pluin
-    * 
     * @return string with name of the plugin
     */
     public function get_name() {
@@ -58,20 +57,15 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     * @return Array of strings with names of the modes
     */
     public function get_modes(){
-        return array("Classic Mode", "Fastest Mode","OptiMode" ,"Tournament Mode", "AI Mode");
+        return array("Fastest Mode", "OptiMode" , "Classic Mode", "Tournament Mode", "AI Mode");
     }
 
     /**
     * Gets the list of languages supported by the plugin
-    * @codeCoverageIgnore
     * @return array of strings with the names of the languages
     */
     public function get_languages(){
         return  array('Java', 'Python', 'C++');
-    }
-
-    public function get_order_options(){
-        return array('Ascending' ,'Descending');
     }
 
     public function get_language_code($lang){
@@ -79,14 +73,33 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return $arrayName[$lang];
     }
 
+    /**
+    * 
+    * @return array or string representing the ordering options for the leaderboards
+    */
+    public function get_order_options(){
+        return array('Ascending' ,'Descending');
+    }
 
+    /**
+    * Get the code for the mode, identified by its position on the get_language array 
+    * @return integer for the code
+    */
+    public function get_mode_code($mode){
+        return array_search($mode, $this->get_modes());
+    }
+
+    /**
+    * Get a list of rerun options 
+    * @return array of integers for rerun options.
+    */
     public function get_rerun_options(){
         return array(1,2,4,8,16);
     }
 
 
     /**
-    *@codeCoverageIgnore
+    *
     * Gets a list of integers. Each integer is the number of questions an assignment might have
     * The integers range from 1 to the maxquestions configured in the settings of the plugin
     * @return array of integers from 1 to maxquestions
@@ -107,14 +120,11 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     * @return array of integers
     */
     function get_time_limits(){
-    $limits=array(1,3,5,10,20,60);
+        $limits=array(1,3,5,10,20,60,120);
         return $limits;
     }
 
-    /**
-    * Gets the list of memory limits a question might have
-    * @return array of strings
-    */
+
     function get_memory_limits(){
         return  array(1,2,4,16,32,64,512,1024);
     }
@@ -129,11 +139,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return $url;
     }
 
-    /**
-    * 
-    * Allows this plugin to add a list of settings to the form when creating an assignment.
-    *@codeCoverageIgnore
-    */
+
     public function get_settings(MoodleQuickForm $mform) {
         
         //Tittle: Competitive Assignment Form
@@ -186,14 +192,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         $this->disable_form($mform,'assignfeedback_customfeedback_enabled','notchecked');
         $this->disable_form($mform,'assignfeedback_witsoj_enabled','checked');
-
-
     }
 
-    /**
-    * Adds the settings for a question to the form
-    *@codeCoverageIgnore
-    */
+
     public function addQuestion($i,MoodleQuickForm $mform){
         //Question numbering
         $id = $i+1;
@@ -239,10 +240,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return true;
     }
 
-    /**
-    *
-    *@codeCoverageIgnore
-    */
+
     function disable_form(MoodleQuickForm $mform, $dependent,$condition){
         $mform->disabledIf('assignfeedback_customfeedback_mode', $dependent,$condition );
         $mform->disabledIf('assignfeedback_customfeedback_rerun', $dependent, $condition);
@@ -259,9 +257,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
 
-    /**
-    *@codeCoverageIgnore
-    */
+ 
     public function save_settings(stdClass $data) {
         global $DB;
 
@@ -353,7 +349,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
     /**
-    * @codeCoverageIgnore
+    * 
     */
     public function get_form_elements_for_user($grade, MoodleQuickForm $mform, stdClass $data, $userid) {
         //$fileoptions = $this->get_file_options();
@@ -697,6 +693,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     //called once marker finishes marking
     public function update_record($question_number,$assign_id,$user_id,$memory,$runtime,$status,$grade,$score,$inputJson){
+        echo $score;
         global $DB;
         $params = array();
         $params['question_number'] = $question_number;
@@ -977,6 +974,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                 $mode = $this->get_config("mode");
                 if($mode == FASTEST_MODE){
                     $data = $this->FastestModeMarkingData($userid,$i);
+                    // die(var_dump($data));
                 }else if($mode = OPTIMODE){
                     $data = $this->OptiModeMarkingData($userid,$i);
                 }else{
@@ -989,7 +987,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                     die("Its in the judge function");
                 }
                 $data['source'] = $source;
-
+                die(var_dump($data));
                 //$handler = $this->get_a_handler();
                 $this->post_to_handler($data);
 
@@ -999,7 +997,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
 
     public function OptiModeMarkingData($userid,$question_number){
-         global $DB;
+        global $DB;
         $data = array();
         $data["userid"]    = $userid;
         $userObj = $DB->get_record("user", array("id" => $userid));
@@ -1017,6 +1015,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $files = $fs->get_area_files($context, 'assignfeedback_customfeedback',$testcase_filearea , '0','sortorder', false);
         if ($files) {
             $file = reset($files);
+            // die(var_dump($file));
             $testcase = array();
             $testcase["content"] = base64_encode($file->get_content());
             $testcase["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
@@ -1036,12 +1035,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $data["userid"]    = $userid;
         $userObj = $DB->get_record("user", array("id" => $userid));
         $data["firstname"] = $userObj->firstname;
-        $data["reruns"] = $this->get_config('reruns');
+        $data["n"] = $this->get_config('reruns');
         $data["lastname"]  = $userObj->lastname;
         $data["language"]  = $this->get_language_code($this->get_config('language'));
         $data["cpu_limit"] = $this->get_config("timelimit".$question_number);
         $data["mem_limit"] = $this->get_config("memorylimit".$question_number);
-        $data["mode"] = $this->get_config('mode');
+        $data["mode"] = array_search($this->get_config('mode'), $this->get_modes());
         $data["pe_ratio"] = 0.0;
         $data["callback"]  = $this->get_callback_url($this->assignment->get_instance()->id, $question_number);
 
@@ -1050,6 +1049,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $context = $this->assignment->get_context()->id;
         $files = $fs->get_area_files($context, 'assignfeedback_customfeedback',$testcase_filearea , '0','sortorder', false);
         if ($files) {
+
             $file = reset($files);
             $testcase = array();
             $fileurl = \moodle_url::make_pluginfile_url(
@@ -1097,7 +1097,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $response = curl_exec($ch);
         
         //TODO: Handle Responses
-       // die(var_dump($response));
+       die(var_dump($response));
 
         if($response === FALSE){
             error_log("Curl error");
