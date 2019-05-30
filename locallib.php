@@ -171,10 +171,14 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'neq', array_search(FASTEST_MODE, $modes) ); //only appear if Fastest Mode is selected- modes.indexof(FastestMode
 
         //Unit
-        $default_reruns = ($this->get_config('scoreunits')==0)?"Units":$this->get_config('scoreunits');
+        // die(var_dump());
+        $default_unit = "units";
+        if($this->get_config('scoreunits') !== "units" && $this->get_config('scoreunits')!=0){
+            $default_unit = $this->get_config('scoreunits');
+        }
         $mform->addElement('text', 'assignfeedback_customfeedback_scoreunits', get_string('scoreunits', 'assignfeedback_customfeedback'), $rerunOptions, null);
         $mform->addHelpButton('assignfeedback_customfeedback_scoreunits', 'scoreunits', 'assignfeedback_customfeedback');
-        $mform->setDefault('assignfeedback_customfeedback_scoreunits', $default_reruns);
+        $mform->setDefault('assignfeedback_customfeedback_scoreunits', $default_unit);
         $mform->hideIf('assignfeedback_customfeedback_scoreunits', 'assignfeedback_customfeedback_mode', 'neq', array_search(OPTIMODE, $modes) ); //only appear if Fastest Mode is selected- modes.indexof(FastestMode
 
         //choose language
@@ -283,6 +287,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $this->set_config('numQ', $assignData['number_of_questions']);
         $this->set_config('reruns', $this->get_rerun_options()[$data->assignfeedback_customfeedback_rerun]);
         $this->set_config('ordering', $this->get_order_options()[$data->assignfeedback_customfeedback_order]);
+        // die(var_dump($data->assignfeedback_customfeedback_scoreunits));
         $this->set_config('scoreunits', $data->assignfeedback_customfeedback_scoreunits);
 
         $isupdate = $DB->record_exists('customfeedback_assignment', ['id'=>$assignData['id']]);
@@ -407,7 +412,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         $filefeedback = $this->get_file_feedback($grade->id);
         if ($filefeedback) {
-            //$filefeedback->numfiles = $this->count_files($grade->id, ASSIGNFEEDBACK_FILE_FILEAREA);
+            // $filefeedback->numfiles = $this->count_files($grade->id, ASSIGNFEEDBACK_FILE_FILEAREA);
             return $DB->update_record('assignfeedback_file', $filefeedback);
         } else {
             $filefeedback = new stdClass();
@@ -441,8 +446,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         $qualifies = False;
         for($i = 0;$i<$n;$i++){
+            $qn = $i+1;
             $verdict = $this->get_question_verdict($grade,$i);
-            $rd = ["Question $i",$verdict];
+            $rd = ["Question $qn",$verdict];
             HtmlElement::add_tabledata($table,$rd,[]);
 
         }
@@ -459,13 +465,17 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         if($table!==null && $lbTittle!==null && $leaderboard!==null){
             $string = $table->str().$lbTittle->str().$leaderboard->str();
         }
-        return $string;
+
+        $link = '<a href="http://1710409.ms.wits.ac.za/latest.php?LeaderboardName='.$this->assignment->get_instance()->id.'">View The Full Leaderboard Here</a>';
+
+
+        return $string.$link;
     }
 
     public function getLeaderBoardSnippet($userid){
         global $DB;
         $lbheader = ['POS', 'USERNAME', 'TOTAL SCORE'];
-        $lbattributes = ['width' => '100%'];
+        $lbattributes = ['width' => '100%', 'margin-bottom'=>'10%'];
         $leaderboard = HtmlElement::create_html_table($lbheader,$lbattributes,[]);
 
         $userdata = $this->getLeaderBoardData();
@@ -516,8 +526,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $unit = "points";
         if($mode == FASTEST_MODE){
             $unit = "ms";
+        }elseif($mode == OPTIMODE){
+            $unit = $this->get_config('scoreunits');
         }
-        
+        $unit=" ".$unit;
 
         $playerpos = 0;
         for($i=0; $i< count($userdata) ;$i++) {
@@ -983,8 +995,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                 $mode = $this->get_config("mode");
                 if($mode == FASTEST_MODE){
                     $data = $this->FastestModeMarkingData($userid,$i);
-                }else if($mode = OPTIMODE){
+                }else if($mode == OPTIMODE){
                     $data = $this->OptiModeMarkingData($userid,$i);
+                    // die(var_dump($data));
                 }else{
                     die("Error in Judge Function");
                 }
@@ -1017,6 +1030,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     public function OptiModeMarkingData($userid,$question_number){
         global $DB;
         $data = array();
+        $data['n'] = 1;
+
 
         $fs = get_file_storage();
         $testcase_filearea = $this->get_testcase_filearea($question_number);
@@ -1029,7 +1044,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
             
             foreach ($files as $key => $file) {
-                if(strpos($file->get_filename(), "evaluate") !== false){
+                if(strpos($file->get_filename(), "evaluator") !== false){
                     $evaluator = array();
                     $evaluator["content"] = base64_encode($file->get_content());
                     $evaluator["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
@@ -1048,7 +1063,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                                         : $fileurl->get_scheme() . '://' . $fileurl->get_host() . $fileurl->get_path();
                     $testcase = array();
                     $testcase["url"] = $download_url;
-                    $testcase["filename"] = $file->get_filename();
                     $testcase["contenthash"] = $file->get_contenthash();
                     $testcase["pathnamehash"] = $file->get_pathnamehash();
                     
@@ -1060,6 +1074,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             // $file = reset($files);
             // $testcase["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
             // $data["testcase"] = $testcase;
+
             return $data;
         }else{
             die("No testcase uploaded for question $question_number");

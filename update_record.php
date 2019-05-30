@@ -8,9 +8,8 @@ $params = json_decode($inputJSON, TRUE);
 $assign_id = $_REQUEST["assign_id"];
 $question_id=$_REQUEST["question_id"];
 $auth = $params['customfeedback_token'];
-//echo json_encode($params);
+echo json_encode($params);
 if($auth != get_config('assignfeedback_customfeedback', 'secret')){	
-	echo $auth."eno";
 	die('{"status" : "Bad Auth"}');
 }
 
@@ -36,9 +35,9 @@ if(!$plugin->is_enabled()){
 	var_dump('{"status" : "Assignment does not use customfeedback"}');
 	die('{"status" : "Assignment does not use customfeedback"}');//PLUGIN NOT ENABLED
 }
-if($status!=4 || $status!=3){
-$time=null;
-}
+// if($status!=4 || $status!=3){
+// $time=null;
+// }
 $update=$plugin->update_record($question_id,$assign_id,$userid,$memory,$time,$status,$newgrade,$score,$oj_testcases);
 if($update===true){
 die('{"status" : "0"}');//SUCCESS

@@ -30,7 +30,7 @@ function assignfeedback_customfeedback_pluginfile($course,
     //    return false;
     //}
     
-    $auth = get_config('assignment_customfeedback', 'secret');
+    $auth = get_config('assignfeedback_customfeedback', 'secret');
     if(!isset($_POST["customfeedback_token"]) || $_POST["customfeedback_token"] !== $auth){
         die("No Auth");
     }
@@ -38,9 +38,10 @@ function assignfeedback_customfeedback_pluginfile($course,
     require_once($CFG->dirroot . '/mod/assign/locallib.php');
     $assign = new assign($context, $cm, $course);
 
-    if (strpos( $filearea, ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA) !== false) {
+    if (strpos( $filearea, ASSIGNFEEDBACK_CUSTOMFEEDBACK_TESTCASE_FILEAREA) === false) {
         return false;
     }
+
     if (!$assign->show_intro()) {
         return false;
     }
