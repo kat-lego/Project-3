@@ -170,6 +170,13 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->setDefault('assignfeedback_customfeedback_rerun', $default_reruns);
         $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'neq', array_search(FASTEST_MODE, $modes) ); //only appear if Fastest Mode is selected- modes.indexof(FastestMode
 
+        //Unit
+        $default_reruns = ($this->get_config('scoreunits')==0)?"Units":$this->get_config('scoreunits');
+        $mform->addElement('text', 'assignfeedback_customfeedback_scoreunits', get_string('scoreunits', 'assignfeedback_customfeedback'), $rerunOptions, null);
+        $mform->addHelpButton('assignfeedback_customfeedback_scoreunits', 'scoreunits', 'assignfeedback_customfeedback');
+        $mform->setDefault('assignfeedback_customfeedback_scoreunits', $default_reruns);
+        $mform->hideIf('assignfeedback_customfeedback_scoreunits', 'assignfeedback_customfeedback_mode', 'neq', array_search(OPTIMODE, $modes) ); //only appear if Fastest Mode is selected- modes.indexof(FastestMode
+
         //choose language
         $languages = $this->get_languages();
         $default_lang = array_search($this->get_config('language'), $languages);
@@ -247,6 +254,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->disabledIf('assignfeedback_customfeedback_language', $dependent, $condition);
         $mform->disabledIf('assignfeedback_customfeedback_numQ', $dependent, $condition);
         $mform->disabledIf('assignfeedback_customfeedback_order', $dependent, $condition);
+        $mform->disabledIf('assignfeedback_customfeedback_scoreunits', $dependent, $condition);
 
         $n = get_config('assignfeedback_customfeedback','maxquestions');
         for($i=0;$i<$n;$i++){
@@ -255,8 +263,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             $mform->disabledIf('assignfeedback_customfeedback_testcasesQ'.$i, $dependent, $condition);
         }
     }
-
-
  
     public function save_settings(stdClass $data) {
         global $DB;
@@ -277,6 +283,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $this->set_config('numQ', $assignData['number_of_questions']);
         $this->set_config('reruns', $this->get_rerun_options()[$data->assignfeedback_customfeedback_rerun]);
         $this->set_config('ordering', $this->get_order_options()[$data->assignfeedback_customfeedback_order]);
+        $this->set_config('scoreunits', $data->assignfeedback_customfeedback_scoreunits);
 
         $isupdate = $DB->record_exists('customfeedback_assignment', ['id'=>$assignData['id']]);
         if($isupdate){
@@ -378,6 +385,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             return true;
         }
     }
+
     /**
     *@codeCoverageIgnore
     */
@@ -463,47 +471,52 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $userdata = $this->getLeaderBoardData();
      
         $mode = $this->get_config('mode') ;
-        if( $mode == FASTEST_MODE ){
-                //calculating scores for each user
+
+
+        if($mode == FASTEST_MODE){
             foreach ($userdata as $uid => $user) {
                 $total_score = 0;
                 $n = $this->get_config('numQ');
                 for($i=0;$i<$n;$i++){
-                    
-                    if($user->question_list[$i]->score != '-1'){
+                    if($user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED || $user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR ){
                         $total_score+= $user->question_list[$i]->score;
                     }else{
                         $total_score+= $this->get_config('timelimit'.$i)*1000;
-                        // die(var_dump($user->question_list[$i]) );
-                    }
-                }
-                 
-                $user->total_score = $total_score.'ms';
-            }
-
-
-            //die(var_dump($userdata));
-            usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
-        }else if($mode == OPTIMODE){
-
-            foreach ($userdata as $uid => $user) {
-                $total_score = 0;
-                $n = $this->get_config('numQ');
-                for($i=0;$i<$n;$i++){
-                    
-                    if($user->question_list[$i]->score != '-1'){
-                        $total_score+= $user->question_list[$i]->score;
-                    }else{
-                        $total_score+= 10000000;
-                        // die(var_dump($user->question_list[$i]) );
                     }
                 }
                  
                 $user->total_score = $total_score;
             }
-             usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
+
+            usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
+        }elseif($mode == OPTIMODE){
+            $order = $this->get_config('ordering');
+            foreach ($userdata as $uid => $user) {
+                $total_score = 0;
+                $n = $this->get_config('numQ');
+                for($i=0;$i<$n;$i++){
+                    if($user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED || $user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR ){
+                        $total_score+= $user->question_list[$i]->score;
+                    }else{
+                        $total_score+= ($order == 0)? 10000: 0;
+                    }
+                }
+                 
+                $user->total_score = $total_score;
+            }
+
+            if($order == 0){
+                usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
+            }else{
+                usort($userdata, function($a, $b) { return $b->total_score - $a->total_score; });
+            }
+
         }
-        
+
+        $unit = "points";
+        if($mode == FASTEST_MODE){
+            $unit = "ms";
+        }
         
 
         $playerpos = 0;
@@ -525,7 +538,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
 
         for($i=$start; $i<= $end ;$i++) {
-            $data = [$i,$userdata[$i]->username, $userdata[$i]->total_score];
+            $data = [$i,$userdata[$i]->username, $userdata[$i]->total_score.$unit];
             $attributes = [];
 
             if($userdata[$i]->id == $userid){
@@ -693,7 +706,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     //called once marker finishes marking
     public function update_record($question_number,$assign_id,$user_id,$memory,$runtime,$status,$grade,$score,$inputJson){
-        echo $score;
         global $DB;
         $params = array();
         $params['question_number'] = $question_number;
@@ -705,8 +717,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $params['grade']=$grade;
         $params['score']=$score;
         
-
-          
         if($this->SubmissionExists($question_number,$assign_id,$user_id)){//submission update
 
             $sql = "SELECT * FROM {customfeedback_submission} 
@@ -719,7 +729,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             if($records = $DB->get_records_sql($sql,$params)){
                     $attempts=$records[0]->no_of_submittions+1;
                     $params['attempts']=$attempts;
-                    echo $score;
                     $sql="UPDATE {customfeedback_submission} 
                         SET no_of_submittions=:attempts,memory=:memory,status=:status,runtime=:runtime,score=:score
                         WHERE 
@@ -967,14 +976,13 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     * Sends out a judgement request to the marker whenever a student adds a submission
     */
     public function judge($userid){
-
+    global $DB;
         $n = $this->get_config('numQ');
         for($i=0;$i<$n;$i++){
             if($source = $this->new_question_submission($userid, $i)){
                 $mode = $this->get_config("mode");
                 if($mode == FASTEST_MODE){
                     $data = $this->FastestModeMarkingData($userid,$i);
-                    // die(var_dump($data));
                 }else if($mode = OPTIMODE){
                     $data = $this->OptiModeMarkingData($userid,$i);
                 }else{
@@ -986,9 +994,19 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                     //some error
                     die("Its in the judge function");
                 }
+
+                //basic marking data
+                $data["userid"]    = $userid;
+                $userObj = $DB->get_record("user", array("id" => $userid));
+                $data["firstname"] = $userObj->firstname;
+                $data["lastname"]  = $userObj->lastname;
+                $data["language"]  = $this->get_language_code($this->get_config('language'));
+                $data["mode"] = $this->get_mode_code($this->get_config('mode'));
+                $data["cpu_limit"] = $this->get_config("timelimit".$i);
+                $data["mem_limit"] = $this->get_config("memorylimit".$i);
+                $data["callback"]  = $this->get_callback_url($this->assignment->get_instance()->id, $i);
                 $data['source'] = $source;
-                die(var_dump($data));
-                //$handler = $this->get_a_handler();
+                // die(var_dump($data));
                 $this->post_to_handler($data);
 
             }
@@ -999,28 +1017,49 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     public function OptiModeMarkingData($userid,$question_number){
         global $DB;
         $data = array();
-        $data["userid"]    = $userid;
-        $userObj = $DB->get_record("user", array("id" => $userid));
-        $data["firstname"] = $userObj->firstname;
-        $data["lastname"]  = $userObj->lastname;
-        $data["language"]  = $this->get_language_code($this->get_config('language'));
-        $data["cpu_limit"] = $this->get_config("timelimit".$question_number);
-        $data["mem_limit"] = $this->get_config("memorylimit".$question_number);
-        $data["mode"] = $this->get_config('mode');
-        $data["callback"]  = $this->get_callback_url($this->assignment->get_instance()->id, $question_number);
 
         $fs = get_file_storage();
         $testcase_filearea = $this->get_testcase_filearea($question_number);
         $context = $this->assignment->get_context()->id;
         $files = $fs->get_area_files($context, 'assignfeedback_customfeedback',$testcase_filearea , '0','sortorder', false);
         if ($files) {
-            $file = reset($files);
-            // die(var_dump($file));
-            $testcase = array();
-            $testcase["content"] = base64_encode($file->get_content());
-            $testcase["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
-            $data["testcase"] = $testcase;
+            if(count($files)>2){
+                die("Error in OptiModeMarkingData, too many files were found");
+            }
 
+            
+            foreach ($files as $key => $file) {
+                if(strpos($file->get_filename(), "evaluate") !== false){
+                    $evaluator = array();
+                    $evaluator["content"] = base64_encode($file->get_content());
+                    $evaluator["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
+                    $data['evaluator'] = $evaluator;
+                }elseif (strpos($file->get_filename(), 'testcase') !== false) {
+                    
+                    $fileurl = \moodle_url::make_pluginfile_url(
+                            $file->get_contextid(), 
+                            $file->get_component(), 
+                            $file->get_filearea(), 
+                            $file->get_itemid(), 
+                            $file->get_filepath(), 
+                            $file->get_filename());
+                    $download_url = $fileurl->get_port() ? 
+                                        $fileurl->get_scheme() . '://' . $fileurl->get_host() . $fileurl->get_path() . ':' . $fileurl->get_port()
+                                        : $fileurl->get_scheme() . '://' . $fileurl->get_host() . $fileurl->get_path();
+                    $testcase = array();
+                    $testcase["url"] = $download_url;
+                    $testcase["filename"] = $file->get_filename();
+                    $testcase["contenthash"] = $file->get_contenthash();
+                    $testcase["pathnamehash"] = $file->get_pathnamehash();
+                    
+                    $data["testcase"] = $testcase;
+                }
+
+            }
+
+            // $file = reset($files);
+            // $testcase["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
+            // $data["testcase"] = $testcase;
             return $data;
         }else{
             die("No testcase uploaded for question $question_number");
@@ -1032,17 +1071,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     public function FastestModeMarkingData($userid,$question_number){
         global $DB;
         $data = array();
-        $data["userid"]    = $userid;
-        $userObj = $DB->get_record("user", array("id" => $userid));
-        $data["firstname"] = $userObj->firstname;
         $data["n"] = $this->get_config('reruns');
-        $data["lastname"]  = $userObj->lastname;
-        $data["language"]  = $this->get_language_code($this->get_config('language'));
-        $data["cpu_limit"] = $this->get_config("timelimit".$question_number);
-        $data["mem_limit"] = $this->get_config("memorylimit".$question_number);
-        $data["mode"] = array_search($this->get_config('mode'), $this->get_modes());
-        $data["pe_ratio"] = 0.0;
-        $data["callback"]  = $this->get_callback_url($this->assignment->get_instance()->id, $question_number);
 
         $fs = get_file_storage();
         $testcase_filearea = $this->get_testcase_filearea($question_number);
@@ -1093,11 +1122,13 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             CURLOPT_POSTFIELDS => json_encode($data)
         ));
 
+        // die(var_dump($data));
+
         // Send the request
         $response = curl_exec($ch);
+        die(var_dump($response));
         
         //TODO: Handle Responses
-       die(var_dump($response));
 
         if($response === FALSE){
             error_log("Curl error");
@@ -1107,7 +1138,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         // Decode the response
         $responseData = json_decode($response, TRUE);
 
-        //var_dump($responseData);
         return $responseData;
     
     }

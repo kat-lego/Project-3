@@ -1,0 +1,3 @@
+git config user.name kat-lego;
+git config user.email 1614669@students.wits.ac.za;
+git push<"kat-lego"

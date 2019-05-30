@@ -2,7 +2,8 @@
 /*
 * This class tries to minimise moodle dependancy as much as possible
 */
-
+define('FILE_INTERNAL', 0);
+define('FILE_EXTERNAL', 0);
 
 //moodle globals
 $cfg =new stdClass();
@@ -12,17 +13,74 @@ $GLOBALS['CFG'] = $cfg;
 //moodle classes
 class assign_feedback_plugin{
 
+	function get_config($name){
+	
+		$configs = array();
+		$configs['mode'] = 0 ;
+		$configs['language'] = 0;
+		$configs['numQ'] = 0;
+		for($i=0;$i<10;$i++){
+			$configs['timelimit'.$i] = 0;
+			$configs['memorylimit'.$i] = 0;
+		}
+
+
+
+		return $configs[$name];	
+	}
+
+
+
 }
+
+
+
+class MoodleQuickForm {
+
+	public $elements = array();
+
+	public function addElement(){
+
+	}
+
+	public function addHelpButton(){
+
+	}
+
+	public function setDefault(){
+
+	}
+
+	public function addGroup(){
+
+	}
+
+	public function hideIf(){
+
+	}
+
+	public function disabledIf(){
+		
+	}
+
+
+}
+
 
 //test stub for get config
 
 function get_config($name,$variable){
 	
 	$configs = array();
-	$configs['assignfeedback_customfeedback'] = array('maxquestions' => 10 );
+	$configs['assignfeedback_customfeedback'] = array();
+	$configs['assignfeedback_customfeedback']['maxquestions'] = 10;
+	$configs['assignfeedback_customfeedback']['maxbytes'] = 10;
 
 	return $configs[$name][$variable];	
 }
+
+
+
 
 
 /**

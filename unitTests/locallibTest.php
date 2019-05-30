@@ -6,6 +6,11 @@ use PHPUnit\DbUnit\TestCaseTrait;
 #require_once('locallib.php');
 class locallibTest extends TestCase{
 
+    public function test(){
+        $f = get_config("one", "atwo");
+        
+    }
+
     public function test_get_name(){
         $tester=new assign_feedback_customfeedback;
         $result = $tester->get_name();
@@ -81,7 +86,7 @@ class locallibTest extends TestCase{
     public function test_get_memory_limits(){
         $tester=new assign_feedback_customfeedback;
         $result = $tester->get_memory_limits();
-        $expected = array(1,2,4,16,32,64,512,1024);;
+        $expected = array(1,2,4,16,32,64,512,1024);
         $this->assertEquals($expected,$result,"correct!");
     }
 
@@ -90,7 +95,6 @@ class locallibTest extends TestCase{
         $result = $tester->get_testcase_filearea(1);
         $expected = 'competition_testcases1';
         $this->assertEquals($result,$expected);
-
     }
 
     public function test_get_callback_url(){
@@ -99,6 +103,12 @@ class locallibTest extends TestCase{
         $expected = 'someWebserver/mod/assign/feedback/customfeedback/update_record.php?assign_id=1&question_id=1';
 
         $this->assertEquals($result,$expected);
+    }
+
+    public function test_get_settings(){
+        $tester=new assign_feedback_customfeedback;
+        $form = new MoodleQuickForm(); 
+        $tester->get_settings($form);
     }
 
   

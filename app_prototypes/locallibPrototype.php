@@ -141,7 +141,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     /**
     * 
     * Allows this plugin to add a list of settings to the form when creating an assignment.
-    * @codeCoverageIgnore
     */
     public function get_settings(MoodleQuickForm $mform) {
         
@@ -182,7 +181,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
     /**
     * Adds the settings for a question to the form
-    * @codeCoverageIgnore
     */
     public function addQuestion($i,MoodleQuickForm $mform){
         //Question numbering
@@ -212,8 +210,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
                     'accepted_types' => array('.zip'), 'return_types'=> FILE_INTERNAL | FILE_EXTERNAL));
         $mform->addHelpButton('assignfeedback_customfeedback_testcasesQ'.$i, 'test_cases', 'assignfeedback_customfeedback');
 
-        $draftitemid = file_get_submitted_draft_itemid('assignfeedback_customfeedback_testcasesQ'.$i);
-        file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, 'assignfeedeback_customfeedback', 'attachment', null, array('subdirs' => 0, 'maxbytes' => $max_bytes, 'maxfiles' => 1));
+        // $draftitemid = file_get_submitted_draft_itemid('assignfeedback_customfeedback_testcasesQ'.$i);
+        // file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, 'assignfeedeback_customfeedback', 'attachment', null, array('subdirs' => 0, 'maxbytes' => $max_bytes, 'maxfiles' => 1));
 
         //hiding question elements
         $arr = array();
@@ -230,7 +228,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
-    * @codeCoverageIgnore
+    * 
     */
     function disable_form(MoodleQuickForm $mform, $dependent,$condition){
         $mform->disabledIf('assignfeedback_customfeedback_mode', $dependent,$condition );
