@@ -139,12 +139,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
-    * 
+    * @codeCoverageIgnore
     * Allows this plugin to add a list of settings to the form when creating an assignment.
     */
     public function get_settings(MoodleQuickForm $mform) {
         
-        //Tittle: Competitive Assignment Form
+         //Tittle: Competitive Assignment Form
         $htmlstring = '<h2 id = "assignfeedback_customfeedback_tittle">'.get_string('pluginname','assignfeedback_customfeedback').' Form</h2> <hr>';
         $mform->addElement('html', $htmlstring);
 
@@ -154,6 +154,34 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         $mform->addElement('select', 'assignfeedback_customfeedback_mode', get_string('assign_mode', 'assignfeedback_customfeedback'),$modes, null);
         $mform->addHelpButton('assignfeedback_customfeedback_mode','assign_mode','assignfeedback_customfeedback');
         $mform->setDefault('assignfeedback_customfeedback_mode', $default_mode);
+
+
+        // Orderings.
+        $Options = $this->get_order_options();
+        $default_option = array_search($this->get_config('mode'), $Options);
+        $mform->addElement('select', 'assignfeedback_customfeedback_order', get_string('ordering', 'assignfeedback_customfeedback'),$Options, null);
+        $mform->addHelpButton('assignfeedback_customfeedback_order','ordering','assignfeedback_customfeedback');
+        $mform->setDefault('assignfeedback_customfeedback_order', $default_option);
+        $mform->hideIf('assignfeedback_customfeedback_order', 'assignfeedback_customfeedback_mode', 'neq', array_search(OPTIMODE, $modes) ); 
+
+        //number of reruns
+        $rerunOptions = $this->get_rerun_options();
+        $default_reruns = array_search($this->get_config('reruns'), $rerunOptions);
+        $mform->addElement('select', 'assignfeedback_customfeedback_rerun', get_string('reruns', 'assignfeedback_customfeedback'), $rerunOptions, null);
+        $mform->addHelpButton('assignfeedback_customfeedback_rerun', 'reruns', 'assignfeedback_customfeedback');
+        $mform->setDefault('assignfeedback_customfeedback_rerun', $default_reruns);
+        $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'neq', array_search(FASTEST_MODE, $modes) ); //only appear if Fastest Mode is selected- modes.indexof(FastestMode
+
+        //Unit
+        // die(var_dump());
+        $default_unit = "units";
+        if($this->get_config('scoreunits') !== "units" && $this->get_config('scoreunits')!=0){
+            $default_unit = $this->get_config('scoreunits');
+        }
+        $mform->addElement('text', 'assignfeedback_customfeedback_scoreunits', get_string('scoreunits', 'assignfeedback_customfeedback'), $rerunOptions, null);
+        $mform->addHelpButton('assignfeedback_customfeedback_scoreunits', 'scoreunits', 'assignfeedback_customfeedback');
+        $mform->setDefault('assignfeedback_customfeedback_scoreunits', $default_unit);
+        $mform->hideIf('assignfeedback_customfeedback_scoreunits', 'assignfeedback_customfeedback_mode', 'neq', array_search(OPTIMODE, $modes) ); //only appear if Fastest Mode is selected- modes.indexof(FastestMode
 
         //choose language
         $languages = $this->get_languages();
@@ -180,6 +208,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
+    * @codeCoverageIgnore
     * Adds the settings for a question to the form
     */
     public function addQuestion($i,MoodleQuickForm $mform){
@@ -228,7 +257,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
-    * 
+    * @codeCoverageIgnore
     */
     function disable_form(MoodleQuickForm $mform, $dependent,$condition){
         $mform->disabledIf('assignfeedback_customfeedback_mode', $dependent,$condition );
