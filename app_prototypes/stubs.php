@@ -19,6 +19,10 @@ class assign_feedback_plugin{
 		$configs['mode'] = 0 ;
 		$configs['language'] = 0;
 		$configs['numQ'] = 0;
+		$configs['reruns'] = 1;
+		$configs['scoreunits'] = "units";
+		// $configs['']
+
 		for($i=0;$i<10;$i++){
 			$configs['timelimit'.$i] = 0;
 			$configs['memorylimit'.$i] = 0;
@@ -38,6 +42,7 @@ class assign_feedback_plugin{
 class MoodleQuickForm {
 
 	public $elements = array();
+
 
 	public function addElement(){
 
@@ -80,9 +85,6 @@ function get_config($name,$variable){
 }
 
 
-
-
-
 /**
 * Stub for get string
 */
@@ -116,6 +118,8 @@ function get_string($name, $variable){
 	$string['language_help'] = 'Programming Language recognised by the marking backend.';
 	$string['numQuestions'] = 'Number of Questions';
 	$string['numQuestions_help'] = 'The number of questions this assignment has.';
+	$string['scoreunits'] = 'Score Units';
+	$string['scoreunits_help'] = 'The assessment point system';
 	$string['ordering'] = "Order";
 	$string['ordering_help'] = "In which order the leaderboard will be in?";
 	$string['reruns'] = 'Number of Reruns';
@@ -131,10 +135,6 @@ function get_string($name, $variable){
 
 	return $string[$name];
 }
-
-
-
-
 
 
 ?>

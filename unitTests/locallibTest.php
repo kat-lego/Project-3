@@ -101,11 +101,14 @@ class locallibTest extends TestCase{
         $this->assertEquals($result,$expected);
     }
 
-    // public function test_get_settings(){
-    //     // $tester=new assign_feedback_customfeedback;
-    //     // $form = new MoodleQuickForm(); 
-    //     // $tester->get_settings($form);
-    // }
+    public function test_get_settings(){
+        $tester=new assign_feedback_customfeedback;
+        $form = new MoodleQuickForm(); 
+        $tester->get_settings($form);
+
+        $this->assertTrue(true);
+    }
+
 
   
     public function test_format_for_gradebook(){

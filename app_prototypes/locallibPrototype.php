@@ -141,7 +141,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
-    * @codeCoverageIgnore
+    * 
     * Allows this plugin to add a list of settings to the form when creating an assignment.
     */
     public function get_settings(MoodleQuickForm $mform) {
@@ -210,7 +210,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
-    * @codeCoverageIgnore
+    * 
     * Adds the settings for a question to the form
     */
     public function addQuestion($i,MoodleQuickForm $mform){
@@ -259,7 +259,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
-    * @codeCoverageIgnore
+    * 
     */
     function disable_form(MoodleQuickForm $mform, $dependent,$condition){
         $mform->disabledIf('assignfeedback_customfeedback_mode', $dependent,$condition );
