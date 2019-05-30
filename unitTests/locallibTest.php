@@ -6,10 +6,6 @@ use PHPUnit\DbUnit\TestCaseTrait;
 #require_once('locallib.php');
 class locallibTest extends TestCase{
 
-    public function test(){
-        $f = get_config("one", "atwo");
-        
-    }
 
     public function test_get_name(){
         $tester=new assign_feedback_customfeedback;
@@ -105,11 +101,11 @@ class locallibTest extends TestCase{
         $this->assertEquals($result,$expected);
     }
 
-    public function test_get_settings(){
-        $tester=new assign_feedback_customfeedback;
-        $form = new MoodleQuickForm(); 
-        $tester->get_settings($form);
-    }
+    // public function test_get_settings(){
+    //     // $tester=new assign_feedback_customfeedback;
+    //     // $form = new MoodleQuickForm(); 
+    //     // $tester->get_settings($form);
+    // }
 
   
     public function test_format_for_gradebook(){
