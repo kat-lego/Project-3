@@ -109,6 +109,33 @@ class locallibTest extends TestCase{
         $this->assertTrue(true);
     }
 
+    public function test_save_settings(){
+        $tester=new assign_feedback_customfeedback;
+        $data = new stdClass();
+        $data->assignfeedback_witsoj_enabled = true;
+
+
+        $data->assignfeedback_customfeedback_mode = 0;
+        $data->assignfeedback_customfeedback_language = 0;
+        $data->assignfeedback_customfeedback_numQ = 0;
+
+        $result = $tester->save_settings($data);
+        $this->assertTrue(!$result);
+
+        $data->assignfeedback_witsoj_enabled = false;
+        for($i=0;$i<10;$i++){
+            eval('$data->assignfeedback_customfeedback_timelimitQ'.$i.'=1;');
+            eval('$data->assignfeedback_customfeedback_memorylimitQ'.$i.'=1;');
+            eval('$data->assignfeedback_customfeedback_testcasesQ'.$i.'=1;');
+        }
+
+
+
+         $result = $tester->save_settings($data);
+        $this->assertTrue($result);
+
+    }
+
 
   
     public function test_format_for_gradebook(){

@@ -13,24 +13,30 @@ $GLOBALS['CFG'] = $cfg;
 //moodle classes
 class assign_feedback_plugin{
 
+	public $configs = array();
+
 	function get_config($name){
-	
-		$configs = array();
-		$configs['mode'] = 0 ;
-		$configs['language'] = 0;
-		$configs['numQ'] = 0;
-		$configs['reruns'] = 1;
-		$configs['scoreunits'] = "units";
+
+		$this->configs['mode'] = 0 ;
+		$this->configs['language'] = 0;
+		$this->configs['numQ'] = 0;
+		$this->configs['reruns'] = 1;
+		$this->configs['scoreunits'] = "units";
 		// $configs['']
 
 		for($i=0;$i<10;$i++){
-			$configs['timelimit'.$i] = 0;
-			$configs['memorylimit'.$i] = 0;
+			$this->configs['timelimit'.$i] = 0;
+			$this->configs['memorylimit'.$i] = 0;
 		}
 
 
 
-		return $configs[$name];	
+		return $this->configs[$name];	
+	}
+
+	function set_config($name, $value){
+
+		$configs[$name] = $value;
 	}
 
 

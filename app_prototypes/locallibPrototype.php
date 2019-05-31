@@ -276,7 +276,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
 
     /**
-    * @codeCoverageIgnore
+    * 
     */
     public function save_settings(stdClass $data) {
         global $DB;
@@ -286,7 +286,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         }
         
         $assignData = array();
-        $assignData['id'] = $this->assignment->get_instance()->id;
+        // $assignData['id'] = $this->assignment->get_instance()->id;
+        $assignData['id'] = 2;
         //$assignData['course_id'] = 0; //TODO: figure out how to get this course id.
         $assignData['mode'] = $this->get_modes()[$data->assignfeedback_customfeedback_mode];
         $assignData['language'] = $this->get_languages()[$data->assignfeedback_customfeedback_language];
@@ -296,7 +297,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         $this->set_config('language', $assignData['language']);
         $this->set_config('numQ', $assignData['number_of_questions']);
 
-        $isupdate = $DB->record_exists('customfeedback_assignment', ['id'=>$assignData['id']]);
+        // $isupdate = $DB->record_exists('customfeedback_assignment', ['id'=>$assignData['id']]);
+        $isupdate = false;
         if($isupdate){
             $sql = "UPDATE {customfeedback_assignment} 
                         SET mode = :mode,
@@ -304,10 +306,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
                             number_of_questions = :number_of_questions
                         WHERE id = :id
                         ";
-            $DB->execute($sql, $assignData);
+            // $DB->execute($sql, $assignData);
         }else{
             $sql = "INSERT INTO {customfeedback_assignment} VALUES(:id, :mode,:language ,:number_of_questions)";
-            $DB->execute($sql, $assignData);
+            // $DB->execute($sql, $assignData);
         }
 
         $n = $assignData['number_of_questions'];
@@ -336,18 +338,18 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
                             time_limit = :time_limit
                         WHERE assign_id = :assign_id AND question_number = :question_number
                         ";
-                $DB->execute($sql, $questionData);
+                // $DB->execute($sql, $questionData);
 
             }else{
                 $sql = "INSERT INTO {customfeedback_question} VALUES(:assign_id, :question_number,:memory_limit ,:time_limit)";
-                $DB->execute($sql, $questionData);
+                // $DB->execute($sql, $questionData);
             }
 
-            //saving test case files for question i
-            if (isset($v3)) {
-            file_save_draft_area_files($v3, $this->assignment->get_context()->id,
-                                       'assignfeedback_customfeedback',$this->get_testcase_filearea($i) , 0);
-            }
+            // //saving test case files for question i
+            // if (isset($v3)) {
+            // file_save_draft_area_files($v3, $this->assignment->get_context()->id,
+            //                            'assignfeedback_customfeedback',$this->get_testcase_filearea($i) , 0);
+            // }
 
         }
         return true;
