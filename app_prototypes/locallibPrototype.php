@@ -34,17 +34,18 @@ define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_RUNTIMEERROR', 12);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILEREMOVED', 13);
 
 
+define('FASTEST_MODE', "Fastest Mode");
+define('OPTIMODE', 'OptiMode');
 //Respond Codes
 
 
 require_once('HtmlElementPrototype.php');
-require_once('driver.php');
+require_once('stubs.php');
 
 class assign_feedback_customfeedback extends assign_feedback_plugin{
 
     /**
     * Gets the name of pluin
-    * 
     * @return string with name of the plugin
     */
     public function get_name() {
@@ -70,6 +71,30 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     public function get_language_code($lang){
         $arrayName = array('Java' => 1, 'Python' => 4, 'C++' => 12);
         return $arrayName[$lang];
+    }
+
+    /**
+    * 
+    * @return array or string representing the ordering options for the leaderboards
+    */
+    public function get_order_options(){
+        return array('Ascending' ,'Descending');
+    }
+
+    /**
+    * Get the code for the mode, identified by its position on the get_language array 
+    * @return integer for the code
+    */
+    public function get_mode_code($mode){
+        return array_search($mode, $this->get_modes());
+    }
+
+    /**
+    * Get a list of rerun options 
+    * @return array of integers for rerun options.
+    */
+    public function get_rerun_options(){
+        return array(1,2,4,8,16);
     }
 
     /**
@@ -118,11 +143,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     /**
     * 
     * Allows this plugin to add a list of settings to the form when creating an assignment.
-    * @codeCoverageIgnore
     */
     public function get_settings(MoodleQuickForm $mform) {
         
-        //Tittle: Competitive Assignment Form
+         //Tittle: Competitive Assignment Form
         $htmlstring = '<h2 id = "assignfeedback_customfeedback_tittle">'.get_string('pluginname','assignfeedback_customfeedback').' Form</h2> <hr>';
         $mform->addElement('html', $htmlstring);
 
@@ -132,6 +156,34 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         $mform->addElement('select', 'assignfeedback_customfeedback_mode', get_string('assign_mode', 'assignfeedback_customfeedback'),$modes, null);
         $mform->addHelpButton('assignfeedback_customfeedback_mode','assign_mode','assignfeedback_customfeedback');
         $mform->setDefault('assignfeedback_customfeedback_mode', $default_mode);
+
+
+        // Orderings.
+        $Options = $this->get_order_options();
+        $default_option = array_search($this->get_config('mode'), $Options);
+        $mform->addElement('select', 'assignfeedback_customfeedback_order', get_string('ordering', 'assignfeedback_customfeedback'),$Options, null);
+        $mform->addHelpButton('assignfeedback_customfeedback_order','ordering','assignfeedback_customfeedback');
+        $mform->setDefault('assignfeedback_customfeedback_order', $default_option);
+        $mform->hideIf('assignfeedback_customfeedback_order', 'assignfeedback_customfeedback_mode', 'neq', array_search(OPTIMODE, $modes) ); 
+
+        //number of reruns
+        $rerunOptions = $this->get_rerun_options();
+        $default_reruns = array_search($this->get_config('reruns'), $rerunOptions);
+        $mform->addElement('select', 'assignfeedback_customfeedback_rerun', get_string('reruns', 'assignfeedback_customfeedback'), $rerunOptions, null);
+        $mform->addHelpButton('assignfeedback_customfeedback_rerun', 'reruns', 'assignfeedback_customfeedback');
+        $mform->setDefault('assignfeedback_customfeedback_rerun', $default_reruns);
+        $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'neq', array_search(FASTEST_MODE, $modes) ); //only appear if Fastest Mode is selected- modes.indexof(FastestMode
+
+        //Unit
+        // die(var_dump());
+        $default_unit = "units";
+        if($this->get_config('scoreunits') !== "units" && $this->get_config('scoreunits')!=0){
+            $default_unit = $this->get_config('scoreunits');
+        }
+        $mform->addElement('text', 'assignfeedback_customfeedback_scoreunits', get_string('scoreunits', 'assignfeedback_customfeedback'), $rerunOptions, null);
+        $mform->addHelpButton('assignfeedback_customfeedback_scoreunits', 'scoreunits', 'assignfeedback_customfeedback');
+        $mform->setDefault('assignfeedback_customfeedback_scoreunits', $default_unit);
+        $mform->hideIf('assignfeedback_customfeedback_scoreunits', 'assignfeedback_customfeedback_mode', 'neq', array_search(OPTIMODE, $modes) ); //only appear if Fastest Mode is selected- modes.indexof(FastestMode
 
         //choose language
         $languages = $this->get_languages();
@@ -158,8 +210,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
+    * 
     * Adds the settings for a question to the form
-    * @codeCoverageIgnore
     */
     public function addQuestion($i,MoodleQuickForm $mform){
         //Question numbering
@@ -189,8 +241,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
                     'accepted_types' => array('.zip'), 'return_types'=> FILE_INTERNAL | FILE_EXTERNAL));
         $mform->addHelpButton('assignfeedback_customfeedback_testcasesQ'.$i, 'test_cases', 'assignfeedback_customfeedback');
 
-        $draftitemid = file_get_submitted_draft_itemid('assignfeedback_customfeedback_testcasesQ'.$i);
-        file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, 'assignfeedeback_customfeedback', 'attachment', null, array('subdirs' => 0, 'maxbytes' => $max_bytes, 'maxfiles' => 1));
+        // $draftitemid = file_get_submitted_draft_itemid('assignfeedback_customfeedback_testcasesQ'.$i);
+        // file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, 'assignfeedeback_customfeedback', 'attachment', null, array('subdirs' => 0, 'maxbytes' => $max_bytes, 'maxfiles' => 1));
 
         //hiding question elements
         $arr = array();
@@ -207,7 +259,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
-    * @codeCoverageIgnore
+    * 
     */
     function disable_form(MoodleQuickForm $mform, $dependent,$condition){
         $mform->disabledIf('assignfeedback_customfeedback_mode', $dependent,$condition );
@@ -224,7 +276,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
 
     /**
-    * @codeCoverageIgnore
+    * 
     */
     public function save_settings(stdClass $data) {
         global $DB;
@@ -234,7 +286,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         }
         
         $assignData = array();
-        $assignData['id'] = $this->assignment->get_instance()->id;
+        // $assignData['id'] = $this->assignment->get_instance()->id;
+        $assignData['id'] = 2;
         //$assignData['course_id'] = 0; //TODO: figure out how to get this course id.
         $assignData['mode'] = $this->get_modes()[$data->assignfeedback_customfeedback_mode];
         $assignData['language'] = $this->get_languages()[$data->assignfeedback_customfeedback_language];
@@ -244,7 +297,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         $this->set_config('language', $assignData['language']);
         $this->set_config('numQ', $assignData['number_of_questions']);
 
-        $isupdate = $DB->record_exists('customfeedback_assignment', ['id'=>$assignData['id']]);
+        // $isupdate = $DB->record_exists('customfeedback_assignment', ['id'=>$assignData['id']]);
+        $isupdate = false;
         if($isupdate){
             $sql = "UPDATE {customfeedback_assignment} 
                         SET mode = :mode,
@@ -252,10 +306,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
                             number_of_questions = :number_of_questions
                         WHERE id = :id
                         ";
-            $DB->execute($sql, $assignData);
+            // $DB->execute($sql, $assignData);
         }else{
             $sql = "INSERT INTO {customfeedback_assignment} VALUES(:id, :mode,:language ,:number_of_questions)";
-            $DB->execute($sql, $assignData);
+            // $DB->execute($sql, $assignData);
         }
 
         $n = $assignData['number_of_questions'];
@@ -284,18 +338,18 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
                             time_limit = :time_limit
                         WHERE assign_id = :assign_id AND question_number = :question_number
                         ";
-                $DB->execute($sql, $questionData);
+                // $DB->execute($sql, $questionData);
 
             }else{
                 $sql = "INSERT INTO {customfeedback_question} VALUES(:assign_id, :question_number,:memory_limit ,:time_limit)";
-                $DB->execute($sql, $questionData);
+                // $DB->execute($sql, $questionData);
             }
 
-            //saving test case files for question i
-            if (isset($v3)) {
-            file_save_draft_area_files($v3, $this->assignment->get_context()->id,
-                                       'assignfeedback_customfeedback',$this->get_testcase_filearea($i) , 0);
-            }
+            // //saving test case files for question i
+            // if (isset($v3)) {
+            // file_save_draft_area_files($v3, $this->assignment->get_context()->id,
+            //                            'assignfeedback_customfeedback',$this->get_testcase_filearea($i) , 0);
+            // }
 
         }
         return true;
@@ -316,8 +370,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         return;
     }
 
+
     /**
-    * @codeCoverageIgnore
+    * 
     */
     public function get_form_elements_for_user($grade, MoodleQuickForm $mform, stdClass $data, $userid) {
         //$fileoptions = $this->get_file_options();
@@ -328,10 +383,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
-     * @codeCoverageIgnore
+     * 
      */
     public function is_feedback_modified(stdClass $grade, stdClass $data) {
-        return false;
         $commenttext = '';
         if ($grade) {
             $feedbackcomments = $this->get_feedback_comments($grade->id);
@@ -392,7 +446,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
    /**
     * @codeCoverageIgnore
     */
-    public function view_summary(stdClass $grade, & $showviewlink) {
+   public function view_summary(stdClass $grade, & $showviewlink) {
          
         $n = $this->get_config('numQ');
 
@@ -404,8 +458,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
         $qualifies = False;
         for($i = 0;$i<$n;$i++){
+            $qn = $i+1;
             $verdict = $this->get_question_verdict($grade,$i);
-            $rd = ["Question $i",$verdict];
+            $rd = ["Question $qn",$verdict];
             HtmlElement::add_tabledata($table,$rd,[]);
 
         }
@@ -413,12 +468,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
         $leaderboard = null;
 
-        if($this->get_config('mode') == 'Fastest Mode'){
-            $leaderboard = $this->getFastestModeLeaderBoard($grade->userid);
-        }else{
-            die("Error on view_summary");
-        }
-        
+        $leaderboard = $this->getLeaderBoardSnippet($grade->userid);
+
         $lbTittle = new HtmlElement('h1',null,True);
         $lbTittle->add_subelement(new HtmlElement(TEXT,'Leaderboard Snippet',false));
 
@@ -426,49 +477,74 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         if($table!==null && $lbTittle!==null && $leaderboard!==null){
             $string = $table->str().$lbTittle->str().$leaderboard->str();
         }
-        return $string;
+
+        $link = '<a href="http://1710409.ms.wits.ac.za/latest.php?LeaderboardName='.$this->assignment->get_instance()->id.'">View The Full Leaderboard Here</a>';
+
+
+        return $string.$link;
     }
-    
+
     /**
     * @codeCoverageIgnore
     */
-    public function getFastestModeLeaderBoard($userid){
+    public function getLeaderBoardSnippet($userid){
         global $DB;
-        $lbheader = ['pos', 'username', 'Final Score'];
-        $lbattributes = ['width' => '100%'];
+        $lbheader = ['POS', 'USERNAME', 'TOTAL SCORE'];
+        $lbattributes = ['width' => '100%', 'margin-bottom'=>'10%'];
         $leaderboard = HtmlElement::create_html_table($lbheader,$lbattributes,[]);
-        $players=$this->get_participants();
 
-        $userdata = array();
-        foreach ($players as $key => $value) {
-    
-            $userObj = $DB->get_record("user", array("id" => $key));
-            $user = new stdClass();
-            $user->id = $key;
-            $user->username = $userObj->username;
-            $user->question_list = $this->get_all_submissions($key);
-            $userdata[$key] = $user;                
-        
-        }
-        
-        $scores = array();
-        //calculating scores for each user
-        foreach ($userdata as $uid => $user) {
-            $score = 0;
-            $n = $this->get_config('numQ');
-            for($i=0;$i<$n;$i++){
-                if($user->question_list[$i]->runtime){
-                    $score+= $user->question_list[$i]->runtime;
-                }else{
-                    $score+=$this->get_config('timelimit'.$i)*1000;
+        $userdata = $this->getLeaderBoardData();
+     
+        $mode = $this->get_config('mode') ;
+
+
+        if($mode == FASTEST_MODE){
+            foreach ($userdata as $uid => $user) {
+                $total_score = 0;
+                $n = $this->get_config('numQ');
+                for($i=0;$i<$n;$i++){
+                    if($user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED || $user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR ){
+                        $total_score+= $user->question_list[$i]->score;
+                    }else{
+                        $total_score+= $this->get_config('timelimit'.$i)*1000;
+                    }
                 }
+                 
+                $user->total_score = $total_score;
             }
-             
-            $user->score = $score.' ms';
+
+            usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
+        }elseif($mode == OPTIMODE){
+            $order = $this->get_config('ordering');
+            foreach ($userdata as $uid => $user) {
+                $total_score = 0;
+                $n = $this->get_config('numQ');
+                for($i=0;$i<$n;$i++){
+                    if($user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED || $user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR ){
+                        $total_score+= $user->question_list[$i]->score;
+                    }else{
+                        $total_score+= ($order == 0)? 10000: 0;
+                    }
+                }
+                 
+                $user->total_score = $total_score;
+            }
+
+            if($order == 0){
+                usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
+            }else{
+                usort($userdata, function($a, $b) { return $b->total_score - $a->total_score; });
+            }
+
         }
 
-        //die(var_dump($userdata));
-        usort($userdata, function($a, $b) { return $a->score - $b->score; });
+        $unit = "points";
+        if($mode == FASTEST_MODE){
+            $unit = "ms";
+        }elseif($mode == OPTIMODE){
+            $unit = $this->get_config('scoreunits');
+        }
+        $unit=" ".$unit;
 
         $playerpos = 0;
         for($i=0; $i< count($userdata) ;$i++) {
@@ -476,23 +552,20 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
                 $playerpos = $i; 
             }
         }
-        //die(var_dump($userdata));
-        //die(var_dump($playerpos));
 
-        $start =0;
-        $end =0;
-        if($playerpos<3){
+        $start = $playerpos-2;
+        $end = $playerpos+2;
+        $len = count($userdata);
+        if($playerpos<2){
             $start = 0;
-            $end = min(3,count($userdata));
-        }else{
-            $start = $playerpos-2;
-            $end = $playerpos+3;
         }
 
+        if($len - $playerpos <= 2){
+            $end = $len-1;
+        }
 
-        
-        for($i=$start; $i< $end ;$i++) {
-            $data = [$i,$userdata[$i]->username, $userdata[$i]->score];
+        for($i=$start; $i<= $end ;$i++) {
+            $data = [$i,$userdata[$i]->username, $userdata[$i]->total_score.$unit];
             $attributes = [];
 
             if($userdata[$i]->id == $userid){
@@ -503,6 +576,29 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         }
 
         return $leaderboard;
+    }
+
+    /**
+    * @codeCoverageIgnore
+    */
+    public function getLeaderBoardData(){
+        global $DB;
+
+        $players=$this->get_participants();
+
+        $userdata = array();
+        foreach ($players as $key => $value) {
+            
+            $userObj = $DB->get_record("user", array("id" => $key));
+            $user = new stdClass();
+            $user->id = $key;
+            $user->username = $userObj->username;
+            $user->question_list = $this->get_all_submissions($key);
+            $userdata[$key] = $user;
+        
+        }
+
+       return $userdata;
     }
 
     /**
@@ -522,9 +618,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         return $records;
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     public function get_all_submissions($userid){
         global $DB;
-        $sql = "SELECT * FROM {customfeedback_submission} 
+        $sql = "SELECT question_number, memory, runtime, no_of_submittions, status, score FROM {customfeedback_submission} 
                 WHERE 
                 assign_id = :assign_id AND
                 user_id = :user_id
@@ -583,7 +682,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
         $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
 
-        if(empty($records)){
+        if(empty($records)){ 
             //add to language strings
             return "No Submission Made";
         }else{

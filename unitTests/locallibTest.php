@@ -6,6 +6,14 @@ use PHPUnit\DbUnit\TestCaseTrait;
 #require_once('locallib.php');
 class locallibTest extends TestCase{
 
+
+    public function test_get_name(){
+        $tester=new assign_feedback_customfeedback;
+        $result = $tester->get_name();
+        $expected = "Competitive Assignment";
+        $this->assertEquals($expected,$result,"correct!");
+    }
+
     public function test_get_modes(){
         $tester=new assign_feedback_customfeedback;
         $result = $tester->get_modes();
@@ -29,6 +37,33 @@ class locallibTest extends TestCase{
         }
     }
 
+    public function test_get_order_options(){
+        $tester=new assign_feedback_customfeedback;
+        $result = $tester->get_order_options();
+        $expected = array('Ascending' ,'Descending');
+        $this->assertEquals($expected,$result,"correct!");
+
+    }
+
+    public function test_get_mode_code(){
+        $tester=new assign_feedback_customfeedback;
+        $modes = $tester->get_modes();
+        $n = count($modes);
+
+        for($i=0;$i<$n;$i++){
+            $this->assertEquals($tester->get_mode_code($modes[$i]), $i);
+        }
+
+    }
+
+
+    public function test_get_rerun_options(){
+        $tester=new assign_feedback_customfeedback;
+        $result = $tester->get_rerun_options();
+        $expected = array(1,2,4,8,16);
+        $this->assertEquals($expected,$result,"correct!");
+    }
+
     public function test_get_question_numbers(){
         $tester=new assign_feedback_customfeedback;
         $result = $tester->get_question_numbers();
@@ -47,7 +82,7 @@ class locallibTest extends TestCase{
     public function test_get_memory_limits(){
         $tester=new assign_feedback_customfeedback;
         $result = $tester->get_memory_limits();
-        $expected = array(1,2,4,16,32,64,512,1024);;
+        $expected = array(1,2,4,16,32,64,512,1024);
         $this->assertEquals($expected,$result,"correct!");
     }
 
@@ -56,7 +91,6 @@ class locallibTest extends TestCase{
         $result = $tester->get_testcase_filearea(1);
         $expected = 'competition_testcases1';
         $this->assertEquals($result,$expected);
-
     }
 
     public function test_get_callback_url(){
@@ -66,6 +100,59 @@ class locallibTest extends TestCase{
 
         $this->assertEquals($result,$expected);
     }
+
+    public function test_get_settings(){
+        $tester=new assign_feedback_customfeedback;
+        $form = new MoodleQuickForm(); 
+        $tester->get_settings($form);
+
+        $this->assertTrue(true);
+    }
+
+    public function test_save_settings(){
+        $tester=new assign_feedback_customfeedback;
+        $data = new stdClass();
+        $data->assignfeedback_witsoj_enabled = true;
+
+
+        $data->assignfeedback_customfeedback_mode = 0;
+        $data->assignfeedback_customfeedback_language = 0;
+        $data->assignfeedback_customfeedback_numQ = 0;
+
+        $result = $tester->save_settings($data);
+        $this->assertTrue(!$result);
+
+        $data->assignfeedback_witsoj_enabled = false;
+        for($i=0;$i<10;$i++){
+            eval('$data->assignfeedback_customfeedback_timelimitQ'.$i.'=1;');
+            eval('$data->assignfeedback_customfeedback_memorylimitQ'.$i.'=1;');
+            eval('$data->assignfeedback_customfeedback_testcasesQ'.$i.'=1;');
+        }
+
+
+
+         $result = $tester->save_settings($data);
+        $this->assertTrue($result);
+
+    }
+
+    public function test_is_feedback_modified(){
+        $tester = new assign_feedback_customfeedback;
+        $data = new stdClass();
+        $data->assignfeedbackcomments_editor = array("text"=>'comment');
+        $grade = new stdClass();
+        $grade->id = 2;
+
+        $result = $tester->is_feedback_modified($grade, $data);
+        $this->assertTrue(!$result);
+
+        $data->assignfeedbackcomments_editor = array("text"=>'comment2');
+        $grade->id = 2;
+
+         $result = $tester->is_feedback_modified($grade, $data);
+        $this->assertTrue($result);
+    }
+
 
   
     public function test_format_for_gradebook(){
