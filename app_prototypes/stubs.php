@@ -39,6 +39,11 @@ class assign_feedback_plugin{
 		$configs[$name] = $value;
 	}
 
+	function get_feedback_comments($id){
+		$comment = new stdClass();
+		$comment->commenttext = 'comment';
+		return $comment;
+	}
 
 
 }

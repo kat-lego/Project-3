@@ -370,8 +370,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         return;
     }
 
+
     /**
-    * @codeCoverageIgnore
+    * 
     */
     public function get_form_elements_for_user($grade, MoodleQuickForm $mform, stdClass $data, $userid) {
         //$fileoptions = $this->get_file_options();
@@ -382,10 +383,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
-     * @codeCoverageIgnore
+     * 
      */
     public function is_feedback_modified(stdClass $grade, stdClass $data) {
-        return false;
         $commenttext = '';
         if ($grade) {
             $feedbackcomments = $this->get_feedback_comments($grade->id);

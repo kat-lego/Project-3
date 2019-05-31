@@ -136,6 +136,23 @@ class locallibTest extends TestCase{
 
     }
 
+    public function test_is_feedback_modified(){
+        $tester = new assign_feedback_customfeedback;
+        $data = new stdClass();
+        $data->assignfeedbackcomments_editor = array("text"=>'comment');
+        $grade = new stdClass();
+        $grade->id = 2;
+
+        $result = $tester->is_feedback_modified($grade, $data);
+        $this->assertTrue(!$result);
+
+        $data->assignfeedbackcomments_editor = array("text"=>'comment2');
+        $grade->id = 2;
+
+         $result = $tester->is_feedback_modified($grade, $data);
+        $this->assertTrue($result);
+    }
+
 
   
     public function test_format_for_gradebook(){
