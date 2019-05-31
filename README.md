@@ -44,10 +44,10 @@ Once the settings have been set, you can proceed to create an assignment and ena
 
 ## More information
   
-  * fact 1 : The current stable version plugin only supports two competitive assignment modes,namely the Fastest and OptiMode.
-  * fact 2 : The current stable plugin version supports multiple file submissions,but a specific naming convention for student submissions has to be followed as set in the plugin settings.
-  * fact 3 : The current stable plugin version supports 3 languages namely C++11,Python3 and Java1.8.
-  * fact 4 : When creating an optimode assignment,the testcase zip file which contains input for the student's submission should be named in such a way that there exist a "testcase" substring,and the grading function should contain "evaluator".
+  * The current stable version plugin only supports two competitive assignment modes,namely the Fastest and OptiMode.
+  * The current stable plugin version supports multiple file submissions,but a specific naming convention for student submissions has to be followed as set in the plugin settings.
+  * The current stable plugin version supports 3 languages namely C++11,Python3 and Java1.8.
+  * When creating an optimode assignment,the testcase zip file which contains input for the student's submission should be named in such a way that there exist a "testcase" substring,and the grading function should contain "evaluator".
 
 ## Developers
 We have left some Artifacts about the project in the [wiki](https://github.com/kat-lego/Project-3/wiki). It should be a usefull read for understanding the project.
