@@ -39,8 +39,9 @@ Once you have installed the plugin you will need to set up some settings for the
 
 Once the settings have been set, you can proceed to create an assignment and enable the plugin for the assignment and set all the required settings. Creating an assignment should look a bit like this.
 
-![Creating an Assignment Example](https://github.com/maniac22/Project-3/blob/master/artifacts/img/example3.png)
+![Creating Fastest Mode Assignment Example](https://github.com/maniac22/Project-3/blob/master/artifacts/img/example3.png)
 
+![Creating Opti Mode Assignment Example](https://github.com/maniac22/Project-3/blob/master/artifacts/img/Example3.png)
 
 ## More information
   
