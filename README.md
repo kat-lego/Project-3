@@ -41,7 +41,10 @@ Once the settings have been set, you can proceed to create an assignment and ena
 
 ![Creating an Assignment Example](https://github.com/maniac22/Project-3/blob/master/artifacts/img/example3.png)
 
-![Optimode Example](https://github.com/maniac22/Project-3/blob/master/artifacts/img/optiExample.png)
+
+## More information
+  
+  * fact 1:The current stable version only supports two competitive assignment modes,namely the Fastest and OptiMode.
 
 ## Developers
 We have left some Artifacts about the project in the [wiki](https://github.com/kat-lego/Project-3/wiki). It should be a usefull read for understanding the project.
