@@ -1,4 +1,4 @@
-phpunit-8.0.phar
+phpunit
 vendor
 test.php
 .phpunit.result.cache

@@ -344,6 +344,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             }
 
         }
+        $this->rejudge_submissions();
         return true;
     }
 
@@ -1141,7 +1142,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         // Send the request
         $response = curl_exec($ch);
-        die(var_dump($response));
+        // die(var_dump($response));
         
         //TODO: Handle Responses
 
@@ -1157,8 +1158,22 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     
     }
 
-    public function rejudge_orphans(){
-        
+    public function rejudge_submissions(){
+        global $DB;
+        $sql="
+            UPDATE {customfeedback_submission} 
+            SET contenthash='cleared'
+            WHERE 
+            assign_id =:assign_id
+            ";
+        $params = array();
+        $params['assign_id'] = $this->assignment->get_instance()->id;
+        $DB->execute($sql, $params);
+
+        $participants = $this->get_participants();
+        foreach ($participants as $key => $value) {
+            $this->judge($key);
+        }
     }
 
 

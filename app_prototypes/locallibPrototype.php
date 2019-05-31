@@ -446,7 +446,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
    /**
     * @codeCoverageIgnore
     */
-    public function view_summary(stdClass $grade, & $showviewlink) {
+   public function view_summary(stdClass $grade, & $showviewlink) {
          
         $n = $this->get_config('numQ');
 
@@ -458,8 +458,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
         $qualifies = False;
         for($i = 0;$i<$n;$i++){
+            $qn = $i+1;
             $verdict = $this->get_question_verdict($grade,$i);
-            $rd = ["Question $i",$verdict];
+            $rd = ["Question $qn",$verdict];
             HtmlElement::add_tabledata($table,$rd,[]);
 
         }
@@ -467,12 +468,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
         $leaderboard = null;
 
-        if($this->get_config('mode') == 'Fastest Mode'){
-            $leaderboard = $this->getFastestModeLeaderBoard($grade->userid);
-        }else{
-            die("Error on view_summary");
-        }
-        
+        $leaderboard = $this->getLeaderBoardSnippet($grade->userid);
+
         $lbTittle = new HtmlElement('h1',null,True);
         $lbTittle->add_subelement(new HtmlElement(TEXT,'Leaderboard Snippet',false));
 
@@ -480,49 +477,74 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         if($table!==null && $lbTittle!==null && $leaderboard!==null){
             $string = $table->str().$lbTittle->str().$leaderboard->str();
         }
-        return $string;
+
+        $link = '<a href="http://1710409.ms.wits.ac.za/latest.php?LeaderboardName='.$this->assignment->get_instance()->id.'">View The Full Leaderboard Here</a>';
+
+
+        return $string.$link;
     }
-    
+
     /**
     * @codeCoverageIgnore
     */
-    public function getFastestModeLeaderBoard($userid){
+    public function getLeaderBoardSnippet($userid){
         global $DB;
-        $lbheader = ['pos', 'username', 'Final Score'];
-        $lbattributes = ['width' => '100%'];
+        $lbheader = ['POS', 'USERNAME', 'TOTAL SCORE'];
+        $lbattributes = ['width' => '100%', 'margin-bottom'=>'10%'];
         $leaderboard = HtmlElement::create_html_table($lbheader,$lbattributes,[]);
-        $players=$this->get_participants();
 
-        $userdata = array();
-        foreach ($players as $key => $value) {
-    
-            $userObj = $DB->get_record("user", array("id" => $key));
-            $user = new stdClass();
-            $user->id = $key;
-            $user->username = $userObj->username;
-            $user->question_list = $this->get_all_submissions($key);
-            $userdata[$key] = $user;                
-        
-        }
-        
-        $scores = array();
-        //calculating scores for each user
-        foreach ($userdata as $uid => $user) {
-            $score = 0;
-            $n = $this->get_config('numQ');
-            for($i=0;$i<$n;$i++){
-                if($user->question_list[$i]->runtime){
-                    $score+= $user->question_list[$i]->runtime;
-                }else{
-                    $score+=$this->get_config('timelimit'.$i)*1000;
+        $userdata = $this->getLeaderBoardData();
+     
+        $mode = $this->get_config('mode') ;
+
+
+        if($mode == FASTEST_MODE){
+            foreach ($userdata as $uid => $user) {
+                $total_score = 0;
+                $n = $this->get_config('numQ');
+                for($i=0;$i<$n;$i++){
+                    if($user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED || $user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR ){
+                        $total_score+= $user->question_list[$i]->score;
+                    }else{
+                        $total_score+= $this->get_config('timelimit'.$i)*1000;
+                    }
                 }
+                 
+                $user->total_score = $total_score;
             }
-             
-            $user->score = $score.' ms';
+
+            usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
+        }elseif($mode == OPTIMODE){
+            $order = $this->get_config('ordering');
+            foreach ($userdata as $uid => $user) {
+                $total_score = 0;
+                $n = $this->get_config('numQ');
+                for($i=0;$i<$n;$i++){
+                    if($user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED || $user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR ){
+                        $total_score+= $user->question_list[$i]->score;
+                    }else{
+                        $total_score+= ($order == 0)? 10000: 0;
+                    }
+                }
+                 
+                $user->total_score = $total_score;
+            }
+
+            if($order == 0){
+                usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
+            }else{
+                usort($userdata, function($a, $b) { return $b->total_score - $a->total_score; });
+            }
+
         }
 
-        //die(var_dump($userdata));
-        usort($userdata, function($a, $b) { return $a->score - $b->score; });
+        $unit = "points";
+        if($mode == FASTEST_MODE){
+            $unit = "ms";
+        }elseif($mode == OPTIMODE){
+            $unit = $this->get_config('scoreunits');
+        }
+        $unit=" ".$unit;
 
         $playerpos = 0;
         for($i=0; $i< count($userdata) ;$i++) {
@@ -530,23 +552,20 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
                 $playerpos = $i; 
             }
         }
-        //die(var_dump($userdata));
-        //die(var_dump($playerpos));
 
-        $start =0;
-        $end =0;
-        if($playerpos<3){
+        $start = $playerpos-2;
+        $end = $playerpos+2;
+        $len = count($userdata);
+        if($playerpos<2){
             $start = 0;
-            $end = min(3,count($userdata));
-        }else{
-            $start = $playerpos-2;
-            $end = $playerpos+3;
         }
 
+        if($len - $playerpos <= 2){
+            $end = $len-1;
+        }
 
-        
-        for($i=$start; $i< $end ;$i++) {
-            $data = [$i,$userdata[$i]->username, $userdata[$i]->score];
+        for($i=$start; $i<= $end ;$i++) {
+            $data = [$i,$userdata[$i]->username, $userdata[$i]->total_score.$unit];
             $attributes = [];
 
             if($userdata[$i]->id == $userid){
@@ -557,6 +576,29 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         }
 
         return $leaderboard;
+    }
+
+    /**
+    * @codeCoverageIgnore
+    */
+    public function getLeaderBoardData(){
+        global $DB;
+
+        $players=$this->get_participants();
+
+        $userdata = array();
+        foreach ($players as $key => $value) {
+            
+            $userObj = $DB->get_record("user", array("id" => $key));
+            $user = new stdClass();
+            $user->id = $key;
+            $user->username = $userObj->username;
+            $user->question_list = $this->get_all_submissions($key);
+            $userdata[$key] = $user;
+        
+        }
+
+       return $userdata;
     }
 
     /**
@@ -576,9 +618,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
         return $records;
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     public function get_all_submissions($userid){
         global $DB;
-        $sql = "SELECT * FROM {customfeedback_submission} 
+        $sql = "SELECT question_number, memory, runtime, no_of_submittions, status, score FROM {customfeedback_submission} 
                 WHERE 
                 assign_id = :assign_id AND
                 user_id = :user_id
@@ -637,7 +682,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
         $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
 
-        if(empty($records)){
+        if(empty($records)){ 
             //add to language strings
             return "No Submission Made";
         }else{
