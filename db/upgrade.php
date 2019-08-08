@@ -23,5 +23,5 @@ function xmldb_assignfeedback_customfeedback_upgrade($oldversion) {
 
  
     return $result;
-}
+} 
 ?>

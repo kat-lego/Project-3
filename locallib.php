@@ -36,6 +36,9 @@ define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILEREMOVED', 13);
 
 define('FASTEST_MODE', "Fastest Mode");
 define('OPTIMODE', 'OptiMode');
+define("CLASSIC_MODE", "Classic Mode");
+define("TOURNAMENT_MODE", "Tournament Mode");
+define("AI_MODE", "AI Mode");
 //Respond Codes
 
 
@@ -168,7 +171,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->addElement('select', 'assignfeedback_customfeedback_rerun', get_string('reruns', 'assignfeedback_customfeedback'), $rerunOptions, null);
         $mform->addHelpButton('assignfeedback_customfeedback_rerun', 'reruns', 'assignfeedback_customfeedback');
         $mform->setDefault('assignfeedback_customfeedback_rerun', $default_reruns);
-        $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'neq', array_search(FASTEST_MODE, $modes) ); //only appear if Fastest Mode is selected- modes.indexof(FastestMode
+        $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'eq', array_search(TOURNAMENT_MODE, $modes));
+        $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'eq', array_search(CLASSIC_MODE, $modes));
+        $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'eq', array_search(AI_MODE, $modes));
+
 
         //Unit
         // die(var_dump());
@@ -467,6 +473,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             $string = $table->str().$lbTittle->str().$leaderboard->str();
         }
 
+        //TODO: update this link
         $link = '<a href="http://1710409.ms.wits.ac.za/latest.php?LeaderboardName='.$this->assignment->get_instance()->id.'">View The Full Leaderboard Here</a>';
 
 
@@ -481,7 +488,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         $userdata = $this->getLeaderBoardData();
      
-        $mode = $this->get_config('mode') ;
+        $mode = $this->get_config('mode');
 
 
         if($mode == FASTEST_MODE){
@@ -1031,7 +1038,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     public function OptiModeMarkingData($userid,$question_number){
         global $DB;
         $data = array();
-        $data['n'] = 1;
+        $data["n"] = $this->get_config('reruns');
 
 
         $fs = get_file_storage();
