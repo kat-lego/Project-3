@@ -8,15 +8,17 @@ $params = json_decode($inputJSON, TRUE);
 $assign_id = $_REQUEST["assign_id"];
 $question_id=$_REQUEST["question_id"];
 $auth = $params['customfeedback_token'];
-echo json_encode($params);
+
 if($auth != get_config('assignfeedback_customfeedback', 'secret')){	
+
 	die('{"status" : "Bad Auth"}');
+
 }
 
 if(!isset($_REQUEST["assign_id"])or !isset($_REQUEST["question_id"])){
 	die('{"status":"missing parameters"}');
 }
-
+//die(var_dump($assign_id));
 $markerid = intval($params['markerid']);
 $userid = intval($params['userid']);
 $newgrade = floatval($params['grade']);
@@ -27,6 +29,7 @@ $score = floatval($params["score"]);
 
 $oj_testcases=$params["oj_testcases"];
 list ($course, $cm) = get_course_and_cm_from_cmid($assign_id, 'assign');
+//die(var_dump("ds"));
 $context = context_module::instance($cm->id);
 $assign = new assign($context, $cm, $course);
 
@@ -35,9 +38,7 @@ if(!$plugin->is_enabled()){
 	var_dump('{"status" : "Assignment does not use customfeedback"}');
 	die('{"status" : "Assignment does not use customfeedback"}');//PLUGIN NOT ENABLED
 }
-// if($status!=4 || $status!=3){
-// $time=null;
-// }
+
 $update=$plugin->update_record($question_id,$assign_id,$userid,$memory,$time,$status,$newgrade,$score,$oj_testcases);
 if($update===true){
 die('{"status" : "0"}');//SUCCESS

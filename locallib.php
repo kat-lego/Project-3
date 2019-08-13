@@ -159,7 +159,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         // Orderings.
         $Options = $this->get_order_options();
-        $default_option = array_search($this->get_config('mode'), $Options);
+        $default_option = array_search($this->get_config('ordering'), $Options);
         $mform->addElement('select', 'assignfeedback_customfeedback_order', get_string('ordering', 'assignfeedback_customfeedback'),$Options, null);
         $mform->addHelpButton('assignfeedback_customfeedback_order','ordering','assignfeedback_customfeedback');
         $mform->setDefault('assignfeedback_customfeedback_order', $default_option);
@@ -174,6 +174,16 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'eq', array_search(TOURNAMENT_MODE, $modes));
         $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'eq', array_search(CLASSIC_MODE, $modes));
         $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'eq', array_search(AI_MODE, $modes));
+
+        //default score
+        $mform->addElement('text', 'assignfeedback_customfeedback_default_score', get_string('default_score', 'assignfeedback_customfeedback'), 'Numeric');
+        $mform->addRule('assignfeedback_customfeedback_default_score', 'Numeric', 'numeric', null, 'client');
+        $mform->setDefault('assignfeedback_customfeedback_default_score', $this->get_config("default_score"));
+        $mform->addHelpButton('assignfeedback_customfeedback_default_score','default_score','assignfeedback_customfeedback');
+        $mform->hideIf('assignfeedback_customfeedback_default_score', 'assignfeedback_customfeedback_mode', 'eq', array_search(FASTEST_MODE, $modes));
+        $mform->hideIf('assignfeedback_customfeedback_default_score', 'assignfeedback_customfeedback_mode', 'eq', array_search(TOURNAMENT_MODE, $modes));
+        $mform->hideIf('assignfeedback_customfeedback_default_score', 'assignfeedback_customfeedback_mode', 'eq', array_search(CLASSIC_MODE, $modes));
+        $mform->hideIf('assignfeedback_customfeedback_default_score', 'assignfeedback_customfeedback_mode', 'eq', array_search(AI_MODE, $modes));
 
 
         //Unit
@@ -283,30 +293,40 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         
         $assignData = array();
         $assignData['id'] = $this->assignment->get_instance()->id;
-        //$assignData['course_id'] = 0; //TODO: figure out how to get this course id.
         $assignData['mode'] = $this->get_modes()[$data->assignfeedback_customfeedback_mode];
         $assignData['language'] = $this->get_languages()[$data->assignfeedback_customfeedback_language];
         $assignData['number_of_questions'] = $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ];
+
+        $order = intval($data->assignfeedback_customfeedback_order);
+        $assignData['ordering'] = ($order)?$order:0;
+
+        $default_score = floatval($data->assignfeedback_customfeedback_default_score);
+        $assignData['default_score'] = ($default_score)?$default_score:0.0;
 
         $this->set_config('mode', $assignData['mode']);
         $this->set_config('language', $assignData['language']);
         $this->set_config('numQ', $assignData['number_of_questions']);
         $this->set_config('reruns', $this->get_rerun_options()[$data->assignfeedback_customfeedback_rerun]);
         $this->set_config('ordering', $this->get_order_options()[$data->assignfeedback_customfeedback_order]);
-        // die(var_dump($data->assignfeedback_customfeedback_scoreunits));
+        $this->set_config('default_score',floatval($data->assignfeedback_customfeedback_default_score));
         $this->set_config('scoreunits', $data->assignfeedback_customfeedback_scoreunits);
 
         $isupdate = $DB->record_exists('customfeedback_assignment', ['id'=>$assignData['id']]);
         if($isupdate){
             $sql = "UPDATE {customfeedback_assignment} 
-                        SET mode = :mode,
-                            language = :language,
-                            number_of_questions = :number_of_questions
-                        WHERE id = :id
-                        ";
+                    SET mode = :mode,
+                        language = :language,
+                        number_of_questions = :number_of_questions,
+                        default_score = :default_score,
+                        ordering = :ordering
+
+                    WHERE id = :id
+                    ";
+
+            // die(var_dump($assignData));
             $DB->execute($sql, $assignData);
         }else{
-            $sql = "INSERT INTO {customfeedback_assignment} VALUES(:id, :mode,:language ,:number_of_questions)";
+            $sql = "INSERT INTO {customfeedback_assignment} VALUES(:id, :mode,:language ,:number_of_questions, :ordering, :default_score)";
             $DB->execute($sql, $assignData);
         }
 
@@ -474,7 +494,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
 
         //TODO: update this link
-        $link = '<a href="http://1710409.ms.wits.ac.za/latest.php?LeaderboardName='.$this->assignment->get_instance()->id.'">View The Full Leaderboard Here</a>';
+        $site = get_config('assignfeedback_customfeedback','leaderboardsite');
+        $link = '<a href="'.$site.'?assign_id='.$this->assignment->get_instance()->id.'">View The Full Leaderboard Here</a>';
 
 
         return $string.$link;
@@ -516,7 +537,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                     if($user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED || $user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR ){
                         $total_score+= $user->question_list[$i]->score;
                     }else{
-                        $total_score+= ($order == 0)? 10000: 0;
+                        $total_score+= intval($this->get_config("default_score"));
                     }
                 }
                  
@@ -542,7 +563,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $playerpos = 0;
         for($i=0; $i< count($userdata) ;$i++) {
             if($userid==$userdata[$i]->id){
-                $playerpos = $i; 
+                $playerpos = $i;
+                break; 
             }
         }
 
@@ -557,15 +579,26 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             $end = $len-1;
         }
 
-        for($i=$start; $i<= $end ;$i++) {
-            $data = [$i,$userdata[$i]->username, $userdata[$i]->total_score.$unit];
-            $attributes = [];
-
-            if($userdata[$i]->id == $userid){
-                $attributes['background-color'] = 'orange';
+        $pos = 0;
+        $prev = $userdata[0]->total_score;
+        for($i=0; $i< $len ;$i++) {
+            $curr = $userdata[$i]->total_score;
+            if($prev!=$curr){
+                $pos++;
+                $prev = $curr;
             }
-            
-            HtmlElement::add_tabledata($leaderboard,$data,$attributes);
+
+            if($start<=$i and $i<=$end){
+                $data = [$pos,$userdata[$i]->username, $userdata[$i]->total_score.$unit];
+                $attributes = [];
+
+                if($userdata[$i]->id == $userid){
+                    $attributes['background-color'] = 'orange';
+                }
+                
+                HtmlElement::add_tabledata($leaderboard,$data,$attributes);
+            }
+
         }
 
         return $leaderboard;
@@ -1048,8 +1081,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         if ($files) {
             if(count($files)>2){
                 die("Error in OptiModeMarkingData, too many files were found");
+            }else if(count($files)<2){
+                die("Error in OptiModeMarkingData, missing files");
             }
-
             
             foreach ($files as $key => $file) {
                 if(strpos($file->get_filename(), "evaluator") !== false){
@@ -1082,7 +1116,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             // $file = reset($files);
             // $testcase["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
             // $data["testcase"] = $testcase;
-
+            // die(var_dump($data));
             return $data;
         }else{
             die("No testcase uploaded for question $question_number");
@@ -1129,11 +1163,13 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     public function post_to_handler($data){
         // Setup cURL
+        // die(var_dump($data));
         error_log("Posting:" . $data["userid"]);
         $data['customfeedback_token'] = get_config('assignfeedback_customfeedback', 'secret');
         $data['markerid'] = 0;
         
         $handler_url =  get_config('assignfeedback_customfeedback','handler');
+
         $ch = curl_init($handler_url);
         curl_setopt_array($ch, array(
             CURLOPT_POST => count($data),
