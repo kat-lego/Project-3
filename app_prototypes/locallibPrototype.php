@@ -434,7 +434,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
-    * @codeCoverageIgnore
+    * 
     */
     public function set_initial_grade($userid){
         $grade = $this->assignment->get_user_grade($userid, true);
@@ -444,7 +444,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
 
 
    /**
-    * @codeCoverageIgnore
+    *
     */
    public function view_summary(stdClass $grade, & $showviewlink) {
          
@@ -485,7 +485,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin{
     }
 
     /**
-    * @codeCoverageIgnore
+    * 
     */
     public function getLeaderBoardSnippet($userid){
         global $DB;
