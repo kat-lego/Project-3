@@ -7,8 +7,9 @@ $inputJSON = file_get_contents('php://input');  // Get input from the client
 $params = json_decode($inputJSON, TRUE);
 $assign_id = $_REQUEST["assign_id"];
 $question_id=$_REQUEST["question_id"];
+$cmid = $_REQUEST['cmid'];
 $auth = $params['customfeedback_token'];
-
+//die(var_dump($params));
 if($auth != get_config('assignfeedback_customfeedback', 'secret')){	
 
 	die('{"status" : "Bad Auth"}');
@@ -28,8 +29,9 @@ $memory=floatval($params['memory']);
 $score = floatval($params["score"]);
 
 $oj_testcases=$params["oj_testcases"];
-list ($course, $cm) = get_course_and_cm_from_cmid($assign_id, 'assign');
-//die(var_dump("ds"));
+list ($course, $cm) = get_course_and_cm_from_cmid($cmid, 'assign');
+// die(var_dump($cmid));
+
 $context = context_module::instance($cm->id);
 $assign = new assign($context, $cm, $course);
 

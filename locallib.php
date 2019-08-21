@@ -138,7 +138,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     private function get_callback_url($assign_id,$question_number){
         global $CFG;
-        $url = $CFG->wwwroot . "/mod/assign/feedback/customfeedback/update_record.php?assign_id=$assign_id&question_id=$question_number";
+        $cmid = $this->assignment->get_context()->instanceid;
+        $url = $CFG->wwwroot . "/mod/assign/feedback/customfeedback/update_record.php?assign_id=$assign_id&question_id=$question_number&cmid=$cmid";
         return $url;
     }
 
@@ -178,9 +179,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         //default score
         $mform->addElement('text', 'assignfeedback_customfeedback_default_score', get_string('default_score', 'assignfeedback_customfeedback'), 'Numeric');
         $mform->addRule('assignfeedback_customfeedback_default_score', 'Numeric', 'numeric', null, 'client');
-        $mform->setDefault('assignfeedback_customfeedback_default_score', $this->get_config("default_score"));
+        if($this->get_config("default_score"))$mform->setDefault('assignfeedback_customfeedback_default_score', $this->get_config("default_score"));
         $mform->addHelpButton('assignfeedback_customfeedback_default_score','default_score','assignfeedback_customfeedback');
-        $mform->hideIf('assignfeedback_customfeedback_default_score', 'assignfeedback_customfeedback_mode', 'eq', array_search(FASTEST_MODE, $modes));
         $mform->hideIf('assignfeedback_customfeedback_default_score', 'assignfeedback_customfeedback_mode', 'eq', array_search(TOURNAMENT_MODE, $modes));
         $mform->hideIf('assignfeedback_customfeedback_default_score', 'assignfeedback_customfeedback_mode', 'eq', array_search(CLASSIC_MODE, $modes));
         $mform->hideIf('assignfeedback_customfeedback_default_score', 'assignfeedback_customfeedback_mode', 'eq', array_search(AI_MODE, $modes));
@@ -275,6 +275,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->disabledIf('assignfeedback_customfeedback_numQ', $dependent, $condition);
         $mform->disabledIf('assignfeedback_customfeedback_order', $dependent, $condition);
         $mform->disabledIf('assignfeedback_customfeedback_scoreunits', $dependent, $condition);
+        $mform->disabledIf('assignfeedback_customfeedback_default_score', $dependent, $condition);
 
         $n = get_config('assignfeedback_customfeedback','maxquestions');
         for($i=0;$i<$n;$i++){
@@ -298,10 +299,19 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $assignData['number_of_questions'] = $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ];
 
         $order = intval($data->assignfeedback_customfeedback_order);
-        $assignData['ordering'] = ($order)?$order:0;
-
+        
+        if($order){
+            $assignData['ordering'] = ($order)?$order:0;
+        }else{
+            $assignData['ordering'] = 0;
+        }
+        //setting the default score
         $default_score = floatval($data->assignfeedback_customfeedback_default_score);
-        $assignData['default_score'] = ($default_score)?$default_score:0.0;
+        if($default_score){
+            $assignData['default_score'] = $default_score;
+        }else{
+             $assignData['default_score'] = ($order == 0)?100000:0;
+        }
 
         $this->set_config('mode', $assignData['mode']);
         $this->set_config('language', $assignData['language']);
@@ -492,11 +502,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         if($table!==null && $lbTittle!==null && $leaderboard!==null){
             $string = $table->str().$lbTittle->str().$leaderboard->str();
         }
-
+        $courseid = $this->assignment->get_instance()->course;
+        $assignid = $this->assignment->get_instance()->id;
         //TODO: update this link
         $site = get_config('assignfeedback_customfeedback','leaderboardsite');
-        $link = '<a href="'.$site.'?assign_id='.$this->assignment->get_instance()->id.'">View The Full Leaderboard Here</a>';
-
+        $link = '<a href="'.$site.'?assignid='.$assignid.'&courseid='.$courseid.'">View The Full Leaderboard Here</a>';
+        
 
         return $string.$link;
     }
@@ -511,45 +522,24 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
      
         $mode = $this->get_config('mode');
 
-
-        if($mode == FASTEST_MODE){
-            foreach ($userdata as $uid => $user) {
-                $total_score = 0;
-                $n = $this->get_config('numQ');
-                for($i=0;$i<$n;$i++){
-                    if($user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED || $user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR ){
-                        $total_score+= $user->question_list[$i]->score;
-                    }else{
-                        $total_score+= $this->get_config('timelimit'.$i)*1000;
-                    }
+        $n = $this->get_config('numQ');
+        foreach ($userdata as $uid => $user) {
+            $total_score = 0;
+            for($i=0;$i<$n;$i++){
+                if($user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED || $user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR ){
+                    $total_score+= $user->question_list[$i]->score;
+                }else{
+                    $total_score+= intval($this->get_config("default_score"));
                 }
-                 
-                $user->total_score = $total_score;
             }
+             
+            $user->total_score = $total_score;
+        }
 
+        if($order == 0){
             usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
-        }elseif($mode == OPTIMODE){
-            $order = $this->get_config('ordering');
-            foreach ($userdata as $uid => $user) {
-                $total_score = 0;
-                $n = $this->get_config('numQ');
-                for($i=0;$i<$n;$i++){
-                    if($user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED || $user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR ){
-                        $total_score+= $user->question_list[$i]->score;
-                    }else{
-                        $total_score+= intval($this->get_config("default_score"));
-                    }
-                }
-                 
-                $user->total_score = $total_score;
-            }
-
-            if($order == 0){
-                usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
-            }else{
-                usort($userdata, function($a, $b) { return $b->total_score - $a->total_score; });
-            }
-
+        }else{
+            usort($userdata, function($a, $b) { return $b->total_score - $a->total_score; });
         }
 
         $unit = "points";
@@ -1181,7 +1171,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             CURLOPT_POSTFIELDS => json_encode($data)
         ));
 
-        // die(var_dump($data));
+       // die(var_dump($data));
 
         // Send the request
         $response = curl_exec($ch);
