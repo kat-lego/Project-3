@@ -44,11 +44,11 @@ $settings->add(new admin_setting_configtext('assignfeedback_customfeedback/prefi
 $settings->add(new admin_setting_configtext('assignfeedback_customfeedback/secret',
                    new lang_string('secret', 'assignfeedback_customfeedback'),
                    new lang_string('secret_help', 'assignfeedback_customfeedback'), md5("Secret")));
-/*
-$settings->add(new admin_setting_configtext('assignfeedback_customfeedback/languages',
-                   new lang_string('languages', 'assignfeedback_customfeedback'),
-                   new lang_string('languages_help', 'assignfeedback_customfeedback'), ''));
-*/
+
+$settings->add(new admin_setting_configtext('assignfeedback_customfeedback/leaderboardsite',
+                   new lang_string('leaderboardsite', 'assignfeedback_customfeedback'),
+                   new lang_string('leaderboardsite_help', 'assignfeedback_customfeedback'), 'http://'));
+
 $settings->add(new admin_setting_configtext('assignfeedback_customfeedback/maxquestions',
                    new lang_string('maxquestions', 'assignfeedback_customfeedback'),
                    new lang_string('maxquestions_help', 'assignfeedback_customfeedback'), '10'));

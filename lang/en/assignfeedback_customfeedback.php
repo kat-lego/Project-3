@@ -42,6 +42,9 @@ $string['maxquestions_help'] = 'Input the maximum number of questions a competit
 $string['maximumtestcasesize'] = 'Maximum test case size';
 $string['maximumtestcasesize_help'] = 'Files uploaded by teachers as test cases may be up to this size.';
 $string['configmaxbytes'] = 'Maximum file size';
+$string['leaderboardsite'] = 'Leaderboard Site';
+$string['leaderboardsite_help'] = 'Url for the site where the full leaderboard is hosted';
+
 
 $string['assign_mode'] = 'Assignment Mode';
 $string['assign_mode_help'] = 'The competition mode recognised by the backend marker';
@@ -62,4 +65,5 @@ $string['memorylimit'] = 'Memory Limit';
 $string['memorylimit_help'] = 'Maximum memory the student submissions are allowed to use.';
 $string['test_cases'] = 'Test Cases';
 $string['test_cases_help'] = 'Upload the test case zip file here.';
-
+$string['default_score'] = 'Default Score';
+$string['default_score_help'] = 'Default score for an unsubmitted or incorrect solution to a question.';

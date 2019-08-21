@@ -29,7 +29,7 @@ function assignfeedback_customfeedback_pluginfile($course,
     //if (!has_capability('mod/assign:view', $context)) {
     //    return false;
     //}
-    
+     
     $auth = get_config('assignfeedback_customfeedback', 'secret');
     if(!isset($_POST["customfeedback_token"]) || $_POST["customfeedback_token"] !== $auth){
         die("No Auth");
