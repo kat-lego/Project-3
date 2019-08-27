@@ -72,7 +72,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
     public function get_language_code($lang){
-        $arrayName = array('Java' => 2, 'Python' => 4, 'C++' => 12);
+        $arrayName = array('Java' => 2, 'Python' => 16, 'C++' => 12);
         return $arrayName[$lang];
     }
 
