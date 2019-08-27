@@ -72,7 +72,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
     public function get_language_code($lang){
-        $arrayName = array('Java' => 2, 'Python' => 4, 'C++' => 12);
+        $arrayName = array('Java' => 2, 'Python' => 16, 'C++' => 12);
         return $arrayName[$lang];
     }
 
@@ -909,6 +909,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                 $params['status'] = ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PENDING;
                 $params['contenthash'] = $contenthash;
 
+
                 $DB->execute($sql,$params);
             }
         }
@@ -918,7 +919,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             print("E2");
             return false;
         }
-
+        
         $source = array();
         $source["content"] = base64_encode($file->get_content());
         $source["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
@@ -1175,7 +1176,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         // Send the request
         $response = curl_exec($ch);
-        // die(var_dump($response));
+         //die(var_dump($response));
         
         //TODO: Handle Responses
 
