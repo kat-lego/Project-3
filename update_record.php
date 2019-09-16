@@ -9,9 +9,9 @@ $assign_id = $_REQUEST["assign_id"];
 $question_id=$_REQUEST["question_id"];
 $cmid = $_REQUEST['cmid'];
 $auth = $params['customfeedback_token'];
-//die(var_dump($params));
+// die(var_dump($params));
 if($auth != get_config('assignfeedback_customfeedback', 'secret')){	
-
+	
 	die('{"status" : "Bad Auth"}');
 
 }

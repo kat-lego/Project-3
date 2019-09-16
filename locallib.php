@@ -32,6 +32,7 @@ define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_TIMEOUT', 10);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_MEMORYLIMIT', 11);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_RUNTIMEERROR', 12);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILEREMOVED', 13);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_NULL_OUTPUT_OPTIMODE', 14);
 
 
 define('FASTEST_MODE', "Fastest Mode");
@@ -204,6 +205,44 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->addHelpButton('assignfeedback_customfeedback_language', 'language', 'assignfeedback_customfeedback');
         $mform->setDefault('assignfeedback_customfeedback_language', $default_lang);
 
+
+        // --------------------------------- Grading Options ----------------------------------//
+
+        // Toggle Grading Options on/off
+
+        //Class Max Proportion
+        $mform->addElement('text', 'assignfeedback_customfeedback_max_proportion', get_string('max_proportion', 'assignfeedback_customfeedback'), 'Numeric');
+        $mform->addRule('assignfeedback_customfeedback_max_proportion', 'Numeric', 'numeric', null, 'client');
+        if($this->get_config("max_proportion"))
+            $mform->setDefault('assignfeedback_customfeedback_max_proportion', $this->get_config("max_proportion"));
+        else
+            $mform->setDefault('assignfeedback_customfeedback_max_proportion', 1);
+
+        $mform->addHelpButton('assignfeedback_customfeedback_max_proportion','max_proportion','assignfeedback_customfeedback');
+
+        //Class Proportion difference
+        $mform->addElement('text', 'assignfeedback_customfeedback_proportion_difference', get_string('proportion_difference', 'assignfeedback_customfeedback'), 'Numeric');
+        $mform->addRule('assignfeedback_customfeedback_proportion_difference', 'Numeric', 'numeric', null, 'client');
+        if($this->get_config("proportion_difference"))
+            $mform->setDefault('assignfeedback_customfeedback_proportion_difference', $this->get_config("proportion_difference"));
+        else
+            $mform->setDefault('assignfeedback_customfeedback_proportion_difference', 0.1);
+
+        $mform->addHelpButton('assignfeedback_customfeedback_proportion_difference','proportion_difference','assignfeedback_customfeedback');
+
+        //Class Target difference
+        $mform->addElement('text', 'assignfeedback_customfeedback_target_difference', get_string('target_difference', 'assignfeedback_customfeedback'), 'Numeric');
+        $mform->addRule('assignfeedback_customfeedback_target_difference', 'Numeric', 'numeric', null, 'client');
+        if($this->get_config("target_difference"))
+            $mform->setDefault('assignfeedback_customfeedback_target_difference', $this->get_config("target_difference"));
+        else
+            $mform->setDefault('assignfeedback_customfeedback_target_difference', 0);
+
+        $mform->addHelpButton('assignfeedback_customfeedback_target_difference','target_difference','assignfeedback_customfeedback');
+
+
+        //----------------------------------------------------------------------------------------------------------
+
         //Number of questions
         $numQValues = $this->get_question_numbers();
         $default_numQValue = array_search($this->get_config('numQ'), $numQValues);
@@ -276,6 +315,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->disabledIf('assignfeedback_customfeedback_order', $dependent, $condition);
         $mform->disabledIf('assignfeedback_customfeedback_scoreunits', $dependent, $condition);
         $mform->disabledIf('assignfeedback_customfeedback_default_score', $dependent, $condition);
+        $mform->disabledIf('assignfeedback_customfeedback_max_proportion', $dependent, $condition);
+        $mform->disabledIf('assignfeedback_customfeedback_proportion_difference', $dependent, $condition);
+        $mform->disabledIf('assignfeedback_customfeedback_target_difference', $dependent, $condition);
 
         $n = get_config('assignfeedback_customfeedback','maxquestions');
         for($i=0;$i<$n;$i++){
@@ -297,6 +339,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $assignData['mode'] = $this->get_modes()[$data->assignfeedback_customfeedback_mode];
         $assignData['language'] = $this->get_languages()[$data->assignfeedback_customfeedback_language];
         $assignData['number_of_questions'] = $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ];
+
 
         $order = intval($data->assignfeedback_customfeedback_order);
         
@@ -320,6 +363,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $this->set_config('ordering', $this->get_order_options()[$data->assignfeedback_customfeedback_order]);
         $this->set_config('default_score',floatval($data->assignfeedback_customfeedback_default_score));
         $this->set_config('scoreunits', $data->assignfeedback_customfeedback_scoreunits);
+        $this->set_config('max_proportion', floatval($data->assignfeedback_customfeedback_max_proportion));
+        $this->set_config('proportion_difference', floatval($data->assignfeedback_customfeedback_proportion_difference));
+        $this->set_config('target_difference', floatval($data->assignfeedback_customfeedback_target_difference));
 
         $isupdate = $DB->record_exists('customfeedback_assignment', ['id'=>$assignData['id']]);
         if($isupdate){
@@ -460,6 +506,45 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
     }
 
+    public function set_grade2($userid){
+        $grade = $this->assignment->get_user_grade($userid, true);
+        $grade->grade = 0;
+
+        $data = $this->get_all_submissions2($userid);
+        $n = $this->get_config('numQ');
+        $total_score = 0;
+        for($i=0;$i<$n;$i++){
+            if($data[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED || $data[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR ){
+                $total_score+= intval($data[$i]->score);
+            }else{
+                $total_score+= intval($this->get_config("default_score"));
+            }
+        }
+
+        $tsd = $this->get_config("target_difference");
+        $pd = $this->get_config("proportion_difference");
+        $maxp = $this->get_config("max_proportion");
+        $default_score = $this->get_config("default_score");
+
+        // die("$default_score $tsd $maxp $pd $total_score");
+
+        if($tsd == 0 || $pd == 0){
+            $grade->grade = 100*$maxp;
+        }else{
+            if($this->get_config("ordering") == 0){
+                //ascending order
+                $grade->grade = 100*intdiv($default_score - $total_score, $tsd)*$pd;
+            }else{
+                $grade->grade = 100*intdiv($total_score, $tsd)*$pd;
+            }
+        }
+
+        $grade->grade = min(100*$maxp,$grade->grade);
+
+
+        $this->assignment->update_grade($grade, false);
+
+    }
 
     public function set_initial_grade($userid){
         $grade = $this->assignment->get_user_grade($userid, true);
@@ -507,7 +592,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         //TODO: update this link
         $site = get_config('assignfeedback_customfeedback','leaderboardsite');
         $link = '<a href="'.$site.'?assignid='.$assignid.'&courseid='.$courseid.'">View The Full Leaderboard Here</a>';
-        
 
         return $string.$link;
     }
@@ -606,7 +690,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             $user = new stdClass();
             $user->id = $key;
             $user->username = $userObj->username;
-            $user->question_list = $this->get_all_submissions($key);
+            $user->question_list = $this->get_all_submissions2($key);
             $userdata[$key] = $user;
         
         }
@@ -628,7 +712,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return $records;
     }
 
-    public function get_all_submissions($userid){
+    public function get_all_submissions2($userid){
         global $DB;
         $sql = "SELECT question_number, memory, runtime, no_of_submittions, status, score FROM {customfeedback_submission} 
                 WHERE 
@@ -732,6 +816,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                     break;
                 case 13:
                     return '<span style="color: red;font-weight:bold">Submission File has been Removed</span>';
+								case 14:
+										return '<span style="color: red;font-weight:bold">NULL Output, Run-Time Error, Compilation Error</span>';
                 default:
                     return "Ops A bug must have crawled through the cracks";
                     
@@ -759,8 +845,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $params['runtime']= $runtime;
         $params['grade']=$grade;
         $params['score']=$score;
+
+        
         
         if($this->SubmissionExists($question_number,$assign_id,$user_id)){//submission update
+
+
 
             $sql = "SELECT * FROM {customfeedback_submission} 
                     WHERE 
@@ -779,7 +869,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                         assign_id =:assign_id AND
                         user_id = :user_id
                         ";   
-                       $DB->execute($sql, $params);  
+                       $DB->execute($sql, $params);
+
+                    $this->set_grade2();     
                     return true;//success     
             }
 
@@ -1158,7 +1250,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         error_log("Posting:" . $data["userid"]);
         $data['customfeedback_token'] = get_config('assignfeedback_customfeedback', 'secret');
         $data['markerid'] = 0;
-        
+      
         $handler_url =  get_config('assignfeedback_customfeedback','handler');
 
         $ch = curl_init($handler_url);
@@ -1175,9 +1267,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
        // die(var_dump($data));
 
         // Send the request
+  
         $response = curl_exec($ch);
-         //die(var_dump($response));
-        
+         // die(var_dump($response));
         //TODO: Handle Responses
 
         if($response === FALSE){
