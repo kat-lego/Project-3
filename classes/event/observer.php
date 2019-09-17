@@ -47,7 +47,7 @@ class observer {
 	if(!$plugin->is_enabled()){
 		return;
 	}
-	$plugin->set_initial_grade($event->get_data()['userid'],0);
+	$plugin->set_initial_grade($event->get_data()['userid']);
 	$plugin->judge($event->get_data()['userid']);
 	//$plugin->update_record(0,20,2,1,2,4,100);
 	//$data = ["a" => 2];

@@ -1363,6 +1363,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
     }
 
+    public function view_page($pluginaction){
+        
+    }
 
     /**
     *@codeCoverageIgnore
