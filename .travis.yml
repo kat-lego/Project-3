@@ -8,13 +8,13 @@ services:
 addons:
   apt:
     sources:
-      - mysql-5.7-trusty
+      #- mysql-5.7-trusty
     packages:
-      - mysql-server
+      #- mysql-server
 dist: trusty
 sudo: required
 before_install:
-  - composer self-update --rollback
+  #- composer self-update --rollback
   #- mysql -e 'CREATE DATABASE moodle;'
   #- mysql -u root --password='' moodle < dbDump/dump.sql
   #- mysql -e 'USE moodle; SELECT * FROM mdl_assignfeedback_customfeedback WHERE id=2;'

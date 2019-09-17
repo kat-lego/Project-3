@@ -40,6 +40,7 @@ define('OPTIMODE', 'OptiMode');
 define("CLASSIC_MODE", "Classic Mode");
 define("TOURNAMENT_MODE", "Tournament Mode");
 define("AI_MODE", "AI Mode");
+
 //Respond Codes
 
 
@@ -69,11 +70,11 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     * @return array of strings with the names of the languages
     */
     public function get_languages(){
-        return  array('Java', 'Python', 'C++','PythonZip');
+        return  array('Java', 'Python', 'C++','PythonZip','C');
     }
 
     public function get_language_code($lang){
-        $arrayName = array('Java' => 2, 'Python' => 4, 'C++' => 12, 'PythonZip' => 16);
+        $arrayName = array('Java' => 2, 'Python' => 4, 'C++' => 12, 'PythonZip' => 16,'C' => 5);
         return $arrayName[$lang];
     }
 
@@ -165,7 +166,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->addElement('select', 'assignfeedback_customfeedback_order', get_string('ordering', 'assignfeedback_customfeedback'),$Options, null);
         $mform->addHelpButton('assignfeedback_customfeedback_order','ordering','assignfeedback_customfeedback');
         $mform->setDefault('assignfeedback_customfeedback_order', $default_option);
-        $mform->hideIf('assignfeedback_customfeedback_order', 'assignfeedback_customfeedback_mode', 'neq', array_search(OPTIMODE, $modes) ); 
+        $mform->hideIf('assignfeedback_customfeedback_order', 'assignfeedback_customfeedback_mode', 'eq', array_search(FASTEST_MODE, $modes) ); 
 
         //number of reruns
         $rerunOptions = $this->get_rerun_options();
@@ -175,7 +176,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->setDefault('assignfeedback_customfeedback_rerun', $default_reruns);
         $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'eq', array_search(TOURNAMENT_MODE, $modes));
         $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'eq', array_search(CLASSIC_MODE, $modes));
-        $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'eq', array_search(AI_MODE, $modes));
 
         //default score
         $mform->addElement('text', 'assignfeedback_customfeedback_default_score', get_string('default_score', 'assignfeedback_customfeedback'), 'Numeric');
@@ -184,7 +184,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->addHelpButton('assignfeedback_customfeedback_default_score','default_score','assignfeedback_customfeedback');
         $mform->hideIf('assignfeedback_customfeedback_default_score', 'assignfeedback_customfeedback_mode', 'eq', array_search(TOURNAMENT_MODE, $modes));
         $mform->hideIf('assignfeedback_customfeedback_default_score', 'assignfeedback_customfeedback_mode', 'eq', array_search(CLASSIC_MODE, $modes));
-        $mform->hideIf('assignfeedback_customfeedback_default_score', 'assignfeedback_customfeedback_mode', 'eq', array_search(AI_MODE, $modes));
 
 
         //Unit
@@ -871,7 +870,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                         ";   
                        $DB->execute($sql, $params);
 
-                    $this->set_grade2();     
+                    $this->set_grade2($user_id);     
                     return true;//success     
             }
 
@@ -1116,12 +1115,16 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $n = $this->get_config('numQ');
         for($i=0;$i<$n;$i++){
             if($source = $this->new_question_submission($userid, $i)){
+                $this->set_initial_grade($userid);
                 $mode = $this->get_config("mode");
                 if($mode == FASTEST_MODE){
                     $data = $this->FastestModeMarkingData($userid,$i);
                 }else if($mode == OPTIMODE){
                     $data = $this->OptiModeMarkingData($userid,$i);
                     // die(var_dump($data));
+                }else if($mode == AI_MODE){
+                    $data = AIModeMarkingData($userid,$i);
+                    die($data);
                 }else{
                     die("Error in Judge Function");
                 }
@@ -1143,10 +1146,68 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                 $data["mem_limit"] = $this->get_config("memorylimit".$i);
                 $data["callback"]  = $this->get_callback_url($this->assignment->get_instance()->id, $i);
                 $data['source'] = $source;
-                // die(var_dump($data));
+                //die(var_dump($data));
                 $this->post_to_handler($data);
 
+
             }
+        }
+    }
+
+        public function AIModeMarkingData($userid,$question_number){
+        global $DB;
+        $data = array();
+        $data["n"] = $this->get_config('reruns');
+
+
+        $fs = get_file_storage();
+        $testcase_filearea = $this->get_testcase_filearea($question_number);
+        $context = $this->assignment->get_context()->id;
+        $files = $fs->get_area_files($context, 'assignfeedback_customfeedback',$testcase_filearea , '0','sortorder', false);
+        if ($files) {
+            if(count($files)>2){
+                die("Error in OptiModeMarkingData, too many files were found");
+            }else if(count($files)<2){
+                die("Error in OptiModeMarkingData, missing files");
+            }
+            
+            foreach ($files as $key => $file) {
+                if(strpos($file->get_filename(), "evaluator") !== false){
+                    $evaluator = array();
+                    $evaluator["content"] = base64_encode($file->get_content());
+                    $evaluator["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
+                    $data['evaluator'] = $evaluator;
+                }elseif (strpos($file->get_filename(), 'testcase') !== false) {
+                    
+                    $fileurl = \moodle_url::make_pluginfile_url(
+                            $file->get_contextid(), 
+                            $file->get_component(), 
+                            $file->get_filearea(), 
+                            $file->get_itemid(), 
+                            $file->get_filepath(), 
+                            $file->get_filename());
+                    $download_url = $fileurl->get_port() ? 
+                                        $fileurl->get_scheme() . '://' . $fileurl->get_host() . $fileurl->get_path() . ':' . $fileurl->get_port()
+                                        : $fileurl->get_scheme() . '://' . $fileurl->get_host() . $fileurl->get_path();
+                    $testcase = array();
+                    $testcase["url"] = $download_url;
+                    $testcase["contenthash"] = $file->get_contenthash();
+                    $testcase["pathnamehash"] = $file->get_pathnamehash();
+                    
+                    $data["testcase"] = $testcase;
+                }
+
+            }
+
+            // $file = reset($files);
+            // $testcase["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
+            // $data["testcase"] = $testcase;
+            // die(var_dump($data));
+            return $data;
+        }else{
+            die("No testcase uploaded for question $question_number");
+            error_log("E1"); //TODO get rid of this
+            return null;
         }
     }
 
@@ -1269,7 +1330,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         // Send the request
   
         $response = curl_exec($ch);
-         // die(var_dump($response));
+    // die(var_dump($response));
         //TODO: Handle Responses
 
         if($response === FALSE){
