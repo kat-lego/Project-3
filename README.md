@@ -2,7 +2,7 @@
 **We are the Pipers**
 
 [![Build Status](https://travis-ci.org/maniac22/Project-3.svg?branch=sprint3_dev)](https://travis-ci.org/maniac22/Project-3)
-[![Coverage Status](https://coveralls.io/repos/github/maniac22/Project-3/badge.svg?branch=sprint3_dev)](https://coveralls.io/github/maniac22/Project-3?branch=sprint3_dev)
+[![Coverage Status](https://coveralls.io/repos/github/maniac22/Project-3/badge.svg?branch=master)](https://coveralls.io/github/maniac22/Project-3?branch=master)
 
 ##  Abstract
 This is a moodle plug in to be used for conducting Competitive Programming Assingments. The platform will be equiped with a number of different types of Assignments. The Platform consists of two parts.An automating marker(or handler) running off some remote server and the plugin on moodle.
@@ -37,9 +37,22 @@ Once you have installed the plugin you will need to set up some settings for the
 ![Settings Example](https://github.com/maniac22/Project-3/blob/master/artifacts/img/example2.png)
 
 
-Once the settings have been set, you can proceed to create an assignment and enable the plugin for the assignment and set all the required settings. Creating an assignment should look a bit like this.
+Once the settings have been set, you can proceed to create an assignment and enable the plugin for the assignment and set all the required settings.
 
-![Creating an Assignment Example](https://github.com/maniac22/Project-3/blob/master/artifacts/img/example3.png)
+Creating Fastest mode assignment should look a bit like this.
+
+![Creating Fastest Mode Assignment Example](https://github.com/maniac22/Project-3/blob/master/artifacts/img/example3.png)
+
+ Creating Optimode mode assignment should look a bit like this.
+ 
+![Creating Opti Mode Assignment Example](https://github.com/maniac22/Project-3/blob/master/artifacts/img/Example3.png)
+
+## More information
+  
+  * The current stable version plugin only supports two competitive assignment modes,namely the Fastest and OptiMode.
+  * The current stable plugin version supports multiple file submissions,but a specific naming convention for student submissions has to be followed as set in the plugin settings.
+  * The current stable plugin version supports 3 languages namely C++11,Python3 and Java1.8.
+  * When creating an optimode assignment,the testcase zip file which contains input for the student's submission should be named in such a way that there exist a "testcase" substring,and the grading function should contain "evaluator".
 
 ## Developers
 We have left some Artifacts about the project in the [wiki](https://github.com/kat-lego/Project-3/wiki). It should be a usefull read for understanding the project.
