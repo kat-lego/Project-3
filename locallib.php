@@ -32,6 +32,7 @@ define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_TIMEOUT', 10);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_MEMORYLIMIT', 11);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_RUNTIMEERROR', 12);
 define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILEREMOVED', 13);
+define('ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_NULL_OUTPUT_OPTIMODE', 14);
 
 
 define('FASTEST_MODE', "Fastest Mode");
@@ -39,6 +40,7 @@ define('OPTIMODE', 'OptiMode');
 define("CLASSIC_MODE", "Classic Mode");
 define("TOURNAMENT_MODE", "Tournament Mode");
 define("AI_MODE", "AI Mode");
+
 //Respond Codes
 
 
@@ -68,11 +70,11 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     * @return array of strings with the names of the languages
     */
     public function get_languages(){
-        return  array('Java', 'Python', 'C++');
+        return  array('Java', 'Python', 'C++','PythonZip','C');
     }
 
     public function get_language_code($lang){
-        $arrayName = array('Java' => 2, 'Python' => 16, 'C++' => 12);
+        $arrayName = array('Java' => 2, 'Python' => 4, 'C++' => 12, 'PythonZip' => 16,'C' => 5);
         return $arrayName[$lang];
     }
 
@@ -164,7 +166,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->addElement('select', 'assignfeedback_customfeedback_order', get_string('ordering', 'assignfeedback_customfeedback'),$Options, null);
         $mform->addHelpButton('assignfeedback_customfeedback_order','ordering','assignfeedback_customfeedback');
         $mform->setDefault('assignfeedback_customfeedback_order', $default_option);
-        $mform->hideIf('assignfeedback_customfeedback_order', 'assignfeedback_customfeedback_mode', 'neq', array_search(OPTIMODE, $modes) ); 
+        $mform->hideIf('assignfeedback_customfeedback_order', 'assignfeedback_customfeedback_mode', 'eq', array_search(FASTEST_MODE, $modes) ); 
 
         //number of reruns
         $rerunOptions = $this->get_rerun_options();
@@ -174,7 +176,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->setDefault('assignfeedback_customfeedback_rerun', $default_reruns);
         $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'eq', array_search(TOURNAMENT_MODE, $modes));
         $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'eq', array_search(CLASSIC_MODE, $modes));
-        $mform->hideIf('assignfeedback_customfeedback_rerun', 'assignfeedback_customfeedback_mode', 'eq', array_search(AI_MODE, $modes));
 
         //default score
         $mform->addElement('text', 'assignfeedback_customfeedback_default_score', get_string('default_score', 'assignfeedback_customfeedback'), 'Numeric');
@@ -183,7 +184,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->addHelpButton('assignfeedback_customfeedback_default_score','default_score','assignfeedback_customfeedback');
         $mform->hideIf('assignfeedback_customfeedback_default_score', 'assignfeedback_customfeedback_mode', 'eq', array_search(TOURNAMENT_MODE, $modes));
         $mform->hideIf('assignfeedback_customfeedback_default_score', 'assignfeedback_customfeedback_mode', 'eq', array_search(CLASSIC_MODE, $modes));
-        $mform->hideIf('assignfeedback_customfeedback_default_score', 'assignfeedback_customfeedback_mode', 'eq', array_search(AI_MODE, $modes));
 
 
         //Unit
@@ -203,6 +203,44 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->addElement('select', 'assignfeedback_customfeedback_language', get_string('language', 'assignfeedback_customfeedback'), $languages, null);
         $mform->addHelpButton('assignfeedback_customfeedback_language', 'language', 'assignfeedback_customfeedback');
         $mform->setDefault('assignfeedback_customfeedback_language', $default_lang);
+
+
+        // --------------------------------- Grading Options ----------------------------------//
+
+        // Toggle Grading Options on/off
+
+        //Class Max Proportion
+        $mform->addElement('text', 'assignfeedback_customfeedback_max_proportion', get_string('max_proportion', 'assignfeedback_customfeedback'), 'Numeric');
+        $mform->addRule('assignfeedback_customfeedback_max_proportion', 'Numeric', 'numeric', null, 'client');
+        if($this->get_config("max_proportion"))
+            $mform->setDefault('assignfeedback_customfeedback_max_proportion', $this->get_config("max_proportion"));
+        else
+            $mform->setDefault('assignfeedback_customfeedback_max_proportion', 1);
+
+        $mform->addHelpButton('assignfeedback_customfeedback_max_proportion','max_proportion','assignfeedback_customfeedback');
+
+        //Class Proportion difference
+        $mform->addElement('text', 'assignfeedback_customfeedback_proportion_difference', get_string('proportion_difference', 'assignfeedback_customfeedback'), 'Numeric');
+        $mform->addRule('assignfeedback_customfeedback_proportion_difference', 'Numeric', 'numeric', null, 'client');
+        if($this->get_config("proportion_difference"))
+            $mform->setDefault('assignfeedback_customfeedback_proportion_difference', $this->get_config("proportion_difference"));
+        else
+            $mform->setDefault('assignfeedback_customfeedback_proportion_difference', 0.1);
+
+        $mform->addHelpButton('assignfeedback_customfeedback_proportion_difference','proportion_difference','assignfeedback_customfeedback');
+
+        //Class Target difference
+        $mform->addElement('text', 'assignfeedback_customfeedback_target_difference', get_string('target_difference', 'assignfeedback_customfeedback'), 'Numeric');
+        $mform->addRule('assignfeedback_customfeedback_target_difference', 'Numeric', 'numeric', null, 'client');
+        if($this->get_config("target_difference"))
+            $mform->setDefault('assignfeedback_customfeedback_target_difference', $this->get_config("target_difference"));
+        else
+            $mform->setDefault('assignfeedback_customfeedback_target_difference', 0);
+
+        $mform->addHelpButton('assignfeedback_customfeedback_target_difference','target_difference','assignfeedback_customfeedback');
+
+
+        //----------------------------------------------------------------------------------------------------------
 
         //Number of questions
         $numQValues = $this->get_question_numbers();
@@ -276,6 +314,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->disabledIf('assignfeedback_customfeedback_order', $dependent, $condition);
         $mform->disabledIf('assignfeedback_customfeedback_scoreunits', $dependent, $condition);
         $mform->disabledIf('assignfeedback_customfeedback_default_score', $dependent, $condition);
+        $mform->disabledIf('assignfeedback_customfeedback_max_proportion', $dependent, $condition);
+        $mform->disabledIf('assignfeedback_customfeedback_proportion_difference', $dependent, $condition);
+        $mform->disabledIf('assignfeedback_customfeedback_target_difference', $dependent, $condition);
 
         $n = get_config('assignfeedback_customfeedback','maxquestions');
         for($i=0;$i<$n;$i++){
@@ -297,6 +338,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $assignData['mode'] = $this->get_modes()[$data->assignfeedback_customfeedback_mode];
         $assignData['language'] = $this->get_languages()[$data->assignfeedback_customfeedback_language];
         $assignData['number_of_questions'] = $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ];
+
 
         $order = intval($data->assignfeedback_customfeedback_order);
         
@@ -320,6 +362,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $this->set_config('ordering', $this->get_order_options()[$data->assignfeedback_customfeedback_order]);
         $this->set_config('default_score',floatval($data->assignfeedback_customfeedback_default_score));
         $this->set_config('scoreunits', $data->assignfeedback_customfeedback_scoreunits);
+        $this->set_config('max_proportion', floatval($data->assignfeedback_customfeedback_max_proportion));
+        $this->set_config('proportion_difference', floatval($data->assignfeedback_customfeedback_proportion_difference));
+        $this->set_config('target_difference', floatval($data->assignfeedback_customfeedback_target_difference));
 
         $isupdate = $DB->record_exists('customfeedback_assignment', ['id'=>$assignData['id']]);
         if($isupdate){
@@ -460,6 +505,45 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
     }
 
+    public function set_grade2($userid){
+        $grade = $this->assignment->get_user_grade($userid, true);
+        $grade->grade = 0;
+
+        $data = $this->get_all_submissions2($userid);
+        $n = $this->get_config('numQ');
+        $total_score = 0;
+        for($i=0;$i<$n;$i++){
+            if($data[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED || $data[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR ){
+                $total_score+= intval($data[$i]->score);
+            }else{
+                $total_score+= intval($this->get_config("default_score"));
+            }
+        }
+
+        $tsd = $this->get_config("target_difference");
+        $pd = $this->get_config("proportion_difference");
+        $maxp = $this->get_config("max_proportion");
+        $default_score = $this->get_config("default_score");
+
+        // die("$default_score $tsd $maxp $pd $total_score");
+
+        if($tsd == 0 || $pd == 0){
+            $grade->grade = 100*$maxp;
+        }else{
+            if($this->get_config("ordering") == 0){
+                //ascending order
+                $grade->grade = 100*intdiv($default_score - $total_score, $tsd)*$pd;
+            }else{
+                $grade->grade = 100*intdiv($total_score, $tsd)*$pd;
+            }
+        }
+
+        $grade->grade = min(100*$maxp,$grade->grade);
+
+
+        $this->assignment->update_grade($grade, false);
+
+    }
 
     public function set_initial_grade($userid){
         $grade = $this->assignment->get_user_grade($userid, true);
@@ -507,7 +591,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         //TODO: update this link
         $site = get_config('assignfeedback_customfeedback','leaderboardsite');
         $link = '<a href="'.$site.'?assignid='.$assignid.'&courseid='.$courseid.'">View The Full Leaderboard Here</a>';
-        
 
         return $string.$link;
     }
@@ -606,7 +689,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             $user = new stdClass();
             $user->id = $key;
             $user->username = $userObj->username;
-            $user->question_list = $this->get_all_submissions($key);
+            $user->question_list = $this->get_all_submissions2($key);
             $userdata[$key] = $user;
         
         }
@@ -628,7 +711,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return $records;
     }
 
-    public function get_all_submissions($userid){
+    public function get_all_submissions2($userid){
         global $DB;
         $sql = "SELECT question_number, memory, runtime, no_of_submittions, status, score FROM {customfeedback_submission} 
                 WHERE 
@@ -732,6 +815,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                     break;
                 case 13:
                     return '<span style="color: red;font-weight:bold">Submission File has been Removed</span>';
+								case 14:
+										return '<span style="color: red;font-weight:bold">NULL Output, Run-Time Error, Compilation Error</span>';
                 default:
                     return "Ops A bug must have crawled through the cracks";
                     
@@ -759,8 +844,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $params['runtime']= $runtime;
         $params['grade']=$grade;
         $params['score']=$score;
+
+        
         
         if($this->SubmissionExists($question_number,$assign_id,$user_id)){//submission update
+
+
 
             $sql = "SELECT * FROM {customfeedback_submission} 
                     WHERE 
@@ -779,7 +868,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                         assign_id =:assign_id AND
                         user_id = :user_id
                         ";   
-                       $DB->execute($sql, $params);  
+                       $DB->execute($sql, $params);
+
+                    $this->set_grade2($user_id);     
                     return true;//success     
             }
 
@@ -909,6 +1000,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                 $params['status'] = ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PENDING;
                 $params['contenthash'] = $contenthash;
 
+
                 $DB->execute($sql,$params);
             }
         }
@@ -918,7 +1010,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             print("E2");
             return false;
         }
-
+        
         $source = array();
         $source["content"] = base64_encode($file->get_content());
         $source["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
@@ -1023,12 +1115,16 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $n = $this->get_config('numQ');
         for($i=0;$i<$n;$i++){
             if($source = $this->new_question_submission($userid, $i)){
+                $this->set_initial_grade($userid);
                 $mode = $this->get_config("mode");
                 if($mode == FASTEST_MODE){
                     $data = $this->FastestModeMarkingData($userid,$i);
                 }else if($mode == OPTIMODE){
                     $data = $this->OptiModeMarkingData($userid,$i);
                     // die(var_dump($data));
+                }else if($mode == AI_MODE){
+                    $data = AIModeMarkingData($userid,$i);
+                    die($data);
                 }else{
                     die("Error in Judge Function");
                 }
@@ -1050,10 +1146,68 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                 $data["mem_limit"] = $this->get_config("memorylimit".$i);
                 $data["callback"]  = $this->get_callback_url($this->assignment->get_instance()->id, $i);
                 $data['source'] = $source;
-                // die(var_dump($data));
+                //die(var_dump($data));
                 $this->post_to_handler($data);
 
+
             }
+        }
+    }
+
+        public function AIModeMarkingData($userid,$question_number){
+        global $DB;
+        $data = array();
+        $data["n"] = $this->get_config('reruns');
+
+
+        $fs = get_file_storage();
+        $testcase_filearea = $this->get_testcase_filearea($question_number);
+        $context = $this->assignment->get_context()->id;
+        $files = $fs->get_area_files($context, 'assignfeedback_customfeedback',$testcase_filearea , '0','sortorder', false);
+        if ($files) {
+            if(count($files)>2){
+                die("Error in OptiModeMarkingData, too many files were found");
+            }else if(count($files)<2){
+                die("Error in OptiModeMarkingData, missing files");
+            }
+            
+            foreach ($files as $key => $file) {
+                if(strpos($file->get_filename(), "evaluator") !== false){
+                    $evaluator = array();
+                    $evaluator["content"] = base64_encode($file->get_content());
+                    $evaluator["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
+                    $data['evaluator'] = $evaluator;
+                }elseif (strpos($file->get_filename(), 'testcase') !== false) {
+                    
+                    $fileurl = \moodle_url::make_pluginfile_url(
+                            $file->get_contextid(), 
+                            $file->get_component(), 
+                            $file->get_filearea(), 
+                            $file->get_itemid(), 
+                            $file->get_filepath(), 
+                            $file->get_filename());
+                    $download_url = $fileurl->get_port() ? 
+                                        $fileurl->get_scheme() . '://' . $fileurl->get_host() . $fileurl->get_path() . ':' . $fileurl->get_port()
+                                        : $fileurl->get_scheme() . '://' . $fileurl->get_host() . $fileurl->get_path();
+                    $testcase = array();
+                    $testcase["url"] = $download_url;
+                    $testcase["contenthash"] = $file->get_contenthash();
+                    $testcase["pathnamehash"] = $file->get_pathnamehash();
+                    
+                    $data["testcase"] = $testcase;
+                }
+
+            }
+
+            // $file = reset($files);
+            // $testcase["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
+            // $data["testcase"] = $testcase;
+            // die(var_dump($data));
+            return $data;
+        }else{
+            die("No testcase uploaded for question $question_number");
+            error_log("E1"); //TODO get rid of this
+            return null;
         }
     }
 
@@ -1157,7 +1311,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         error_log("Posting:" . $data["userid"]);
         $data['customfeedback_token'] = get_config('assignfeedback_customfeedback', 'secret');
         $data['markerid'] = 0;
-        
+      
         $handler_url =  get_config('assignfeedback_customfeedback','handler');
 
         $ch = curl_init($handler_url);
@@ -1174,9 +1328,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
        // die(var_dump($data));
 
         // Send the request
+  
         $response = curl_exec($ch);
-        // die(var_dump($response));
-        
+    // die(var_dump($response));
         //TODO: Handle Responses
 
         if($response === FALSE){
@@ -1209,6 +1363,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
     }
 
+    public function view_page($pluginaction){
+        
+    }
 
     /**
     *@codeCoverageIgnore
