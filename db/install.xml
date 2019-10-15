@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/assign/feedback/customfeedback/db" VERSION="20190525" COMMENT="XMLDB file for Moodle mod/assign/feedback/customfeedback"
+<XMLDB PATH="mod/assign/feedback/customfeedback/db" VERSION="20191014" COMMENT="XMLDB file for Moodle mod/assign/feedback/customfeedback"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../../lib/xmldb/xmldb.xsd"
 >
@@ -43,6 +43,21 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="question_number, assign_id, user_id" COMMENT="composite primary key for a submission"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="customfeedback_group_subs" COMMENT="Default comment for the table, please edit me">
+      <FIELDS>
+        <FIELD NAME="question_number" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="assign_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="group_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="memory" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="-1" SEQUENCE="false" DECIMALS="3"/>
+        <FIELD NAME="runtime" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="-1" SEQUENCE="false" DECIMALS="3"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="contenthash" TYPE="char" LENGTH="40" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="score" TYPE="number" LENGTH="10" NOTNULL="false" DEFAULT="-1" SEQUENCE="false" DECIMALS="3"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="question_number, assign_id, group_id"/>
       </KEYS>
     </TABLE>
   </TABLES>

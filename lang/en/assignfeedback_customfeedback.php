@@ -45,31 +45,51 @@ $string['configmaxbytes'] = 'Maximum file size';
 $string['leaderboardsite'] = 'Leaderboard Site';
 $string['leaderboardsite_help'] = 'Url for the site where the full leaderboard is hosted';
 
-
+//form lang strings
 $string['assign_mode'] = 'Assignment Mode';
 $string['assign_mode_help'] = 'The competition mode recognised by the backend marker';
+
 $string['language'] = 'Programming Language';
 $string['language_help'] = 'Programming Language recognised by the marking backend.';
+
 $string['numQuestions'] = 'Number of Questions';
 $string['numQuestions_help'] = 'The number of questions this assignment has.';
+
 $string['ordering'] = "Order";
 $string['ordering_help'] = "In which order the leaderboard will be in?";
+
 $string['reruns'] = 'Number of Reruns';
 $string['reruns_help'] = 'The number of times code for time based assignments is going to be ran in determining the score.';
+
 $string['scoreunits'] = 'Score Units';
 $string['scoreunits_help'] = 'The assessment point system';
+
 $string['question'] = 'Question';
+
 $string['timelimit'] = 'Time Limit';
 $string['timelimit_help'] = 'Maximum time (in seconds) the student submissions are allowed to run.';
+
 $string['memorylimit'] = 'Memory Limit';
 $string['memorylimit_help'] = 'Maximum memory the student submissions are allowed to use.';
+
 $string['test_cases'] = 'Test Cases';
 $string['test_cases_help'] = 'Upload the test case zip file here.';
+
 $string['default_score'] = 'Default Score';
 $string['default_score_help'] = 'Default score for an unsubmitted or incorrect solution to a question.';
-$string['max_proportion'] = 'Maximum Proportion';
-$string['max_proportion_help'] = 'maximum proportion of 100% of the grade students are allowed to reach';
-$string['proportion_difference'] = 'Proportion Difference';
-$string['proportion_difference_help'] = 'how much the grade proportion changes for the next target class ';
-$string['target_difference'] = 'Target Score Difference';
-$string['target_difference_help'] = 'How much the target score increases for the next target class, if set to zero every one will get the max_proportion. This has to be negative when the leaderboard is to be in ascending order and positive otherwise';
+
+$string['autograding_option'] = 'Autograding Option';
+$string['autograding_option_help'] = 'Toggle autograding on or off';
+
+$string['autograding_cron'] = 'Autograding Cron';
+$string['autograding_cron_help'] = 'Specify how often autograding occurs intervals';
+
+$string['autograde_script'] = 'Autograding Script';
+$string['autograde_script_help'] = 'Python script for autograding';
+
+$string['rejudge_option'] = 'Rejudge Option';
+$string['rejudge_option_help'] = 'Toggle Rejudge on saving settings on and off';
+
+$string['jugde_nochange'] = 'Judge Unchanged Submissions';
+$string['jugde_nochange_help'] = 'Choose whether to judge Unchanged submissions or not';
+
