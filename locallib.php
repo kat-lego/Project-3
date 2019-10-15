@@ -769,7 +769,22 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     * Sends out a judgement request to the marker whenever a student adds a submission
     */
     public function judge($userid){
+        
+        
+        $isteams = $this->assignment->get_instance()->teamsubmission;
+        if($isteams){
+            $groupingid = $this->assignment->get_instance()->teamsubmissiongroupingid;
+            $groupid = $this->get_group_id($userid, $groupingid);
+            $this->group_submission($userid,$groupid);
+        }else{
+            $this->individual_submission($userid);      
+        }
+
+    }
+
+    private function individual_submission($userid){
         global $DB;
+
         $n = $this->get_config('numQ');
         for($i=0;$i<$n;$i++){
             $source = $this->get_question_submission($userid, $i);
@@ -921,17 +936,17 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                 WHERE f.contextid = :contextid AND
                       f.component = :component AND
                       f.filearea = :filearea AND
-                      s.userid = :userid AND
+                      f.userid = :userid AND
                       f.filename LIKE '$prefix%'
                 ";
        
         $rec = $DB->get_records_sql($sql,$arr);
-        
+        // die(var_dump($rec));
         if(count($rec) == 1){
             $hashes = reset($rec);
             return $hashes;
         }else if(count($rec) == 0){
-            //var_dump($rec);
+            // var_dump($rec);
             $hashes = null;
             return null;
         }else{
@@ -1179,6 +1194,205 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                                                                              //
+    //                                           GROUP SUBMISSIONS                                  //
+    //                                                                                              //
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private function group_submission($userid,$groupid){
+        global $DB;
+        
+        $n = $this->get_config('numQ');
+        for($i=0;$i<$n;$i++){
+            
+            $source = $this->get_group_submission($userid, $groupid,$i);
+            if($source != null){
+                $this->set_initial_grade($userid);
+                $mode = $this->get_config("mode");
+                if($mode == FASTEST_MODE){
+                    $data = $this->FastestModeMarkingData($userid,$i);
+                }else if($mode == OPTIMODE){
+                    $data = $this->OptiModeMarkingData($userid,$i);
+                    // die(var_dump($data));
+                }else if($mode == AI_MODE){
+                    $data = AIModeMarkingData($userid,$i);
+                    die($data);
+                }else{
+                    die("Error in Judge Function");
+                }
+
+
+                if(!$data){
+                    //some error
+                    die("Its in the judge function");
+                }
+
+                //basic marking data
+                $data["userid"]    = $userid;
+                $userObj = $DB->get_record("user", array("id" => $userid));
+                $data["firstname"] = $userObj->firstname;
+                $data["lastname"]  = $userObj->lastname;
+                $data["language"]  = $this->get_language_code($this->get_config('language'));
+                $data["mode"] = $this->get_mode_code($this->get_config('mode'));
+                $data["cpu_limit"] = $this->get_config("timelimit".$i);
+                $data["mem_limit"] = $this->get_config("memorylimit".$i);
+                $data["callback"]  = $this->get_callback_url($this->assignment->get_instance()->id, $i);
+                $data['source'] = $source;
+                //die(var_dump($data));
+                $this->post_to_handler($data);
+
+
+            }
+        }
+    }
+
+    private function get_group_submission($userid,$groupid,$question_number){
+        global $DB;
+        $pathnamehash = null;
+        $hashes = $this->get_submission_hashes($userid,$question_number);
+        $pathnamehash = $hashes->pathnamehash;
+        $contenthash = $hashes->contenthash;
+
+        $submission = $this->get_group_submission_record($groupid,$question_number);
+        //if the file was not submitted
+        if($pathnamehash == null){
+            
+            //if the file was removed
+            if(isset($submission->contenthash)){
+                //update the file removal
+                $sql = "UPDATE {customfeedback_group_subs} 
+                        SET status = :status,
+                            contenthash = NULL
+                        WHERE question_number = :question_number AND
+                              assign_id = :assign_id AND
+                              group_id = :group_id
+                        ";
+                $params = array();
+                $params['status'] = ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_FILEREMOVED;
+                $params['question_number'] = intval($question_number);
+                $params['assign_id'] = intval($this->assignment->get_instance()->id);
+                $params['group_id'] = intval($userid);
+
+                $DB->execute($sql,$params);
+            }
+
+            return null;
+        }
+
+        
+        //if this is a first time submission
+        if($submission == null){
+            $this->create_group_submission_record($groupid,$question_number,$contenthash);
+        }else{
+
+            $lasthash = $submission->contenthash;
+            $jugde_nochange = $this->get_config('jugde_nochange');
+            
+            if($jugde_nochange == 0 && $lasthash == $contenthash){
+                return null;
+            }else{
+                //update submission status and lastpathnamehash
+
+                //NEEDS ATTENTION
+                $sql = "UPDATE {customfeedback_group_subs} 
+                        SET status = :status,
+                            contenthash = :contenthash
+                        WHERE question_number = :question_number AND
+                              assign_id = :assign_id AND
+                              group_id = :groupid
+                    ";
+                $params = array();
+                $params['question_number'] = intval($question_number);
+                $params['assign_id'] = intval($this->assignment->get_instance()->id);
+                $params['groupid'] = intval($groupid);
+                $params['status'] = ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PENDING;
+                $params['contenthash'] = $contenthash;
+
+
+                $DB->execute($sql,$params);
+            }
+        }
+
+        $fs = get_file_storage();
+        $file = $fs->get_file_by_hash($pathnamehash);
+        if (!$file or $file->is_directory()) {
+            print("E2");
+            return null;
+        }
+        
+        $source = array();
+        $source["content"] = base64_encode($file->get_content());
+        $source["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
+        return $source;
+        
+    }
+
+    private function get_group_submission_record($groupid,$question_number){
+        global $DB;
+
+        $sql = "SELECT * FROM {customfeedback_group_subs}
+                WHERE
+                question_number=:question_number AND
+                assign_id = :assign_id AND
+                group_id = :groupid
+                ";
+        $params = array();
+        $params['question_number'] =intval($question_number);
+        $params['assign_id'] = intval($this->assignment->get_instance()->id);
+        $params['groupid'] = intval($groupid);
+
+        $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
+        $records = reset($records);
+        return $records;
+
+    }
+
+    private function create_group_submission_record($groupid,$question_number,$contenthash){
+        global $DB;
+
+        $sql = "INSERT INTO {customfeedback_group_subs} (question_number,assign_id,group_id,status,contenthash) VALUES(:question_number, :assign_id,:groupid ,:status, :contenthash)";
+
+        $params = array();
+        $params['question_number'] = $question_number;
+        $params['assign_id'] = $this->assignment->get_instance()->id;
+        $params['groupid'] = $groupid;
+        $params['status'] = ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PENDING;
+        $params['contenthash'] = $contenthash;
+        
+        $DB->execute($sql,$params);
+    }
+
+
+    private function get_group_id($userid, $groupingid){
+        global $DB;
+
+        $sql = "SELECT m.groupid FROM {groupings_groups} g JOIN {groups_members} m
+                ON g.groupid = m.groupid
+                WHERE
+                m.userid = :userid AND
+                g.groupingid = :groupingid
+                ";
+
+        // die($sql);
+        $params = array();
+        $params['userid'] = $userid;
+        $params['groupingid'] = $groupingid;
+        $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
+        $records = reset($records);
+        return intval($records->groupid);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                                                                              //
+    //                                 END GROUP SUBMISSIONS                                        //
+    //                                                                                              //
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     //////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                              //
     //                                 DISPLAYING FEEDBACK                                          //
@@ -1186,7 +1400,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
     public function view_summary(stdClass $grade, & $showviewlink) {
-         
+
         $n = $this->get_config('numQ');
 
         //TODO: add these stuff the language strings
@@ -1203,7 +1417,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         }
 
-        $leaderboard = $this->getLeaderBoardSnippet($grade->userid);
+        $isteams = $this->assignment->get_instance()->teamsubmission;
+        if($isteams){
+            $leaderboard = $this->getGroupLeaderBoardSnippet($grade->userid);
+        }else{
+            $leaderboard = $this->getLeaderBoardSnippet($grade->userid);
+        }
 
         $lbTittle = new HtmlElement('h1',null,True);
         $lbTittle->add_subelement(new HtmlElement(TEXT,'Leaderboard Snippet',false));
@@ -1354,25 +1573,184 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
 
+
+
+    public function getGroupLeaderBoardSnippet($userid){
+        global $DB;
+        $lbheader = ['POS', 'TEAM NAME', 'TOTAL SCORE'];
+        $lbattributes = ['width' => '100%', 'margin-bottom'=>'10%'];
+        $leaderboard = HtmlElement::create_html_table($lbheader,$lbattributes,[]);
+        
+
+        $userdata = $this->getGroupLeaderBoardData();
+        // die(var_dump($userdata));
+        $groupingid = $this->assignment->get_instance()->teamsubmissiongroupingid;
+        $userid = $this->get_group_id($userid, $groupingid);
+        $mode = $this->get_config('mode');
+
+        $n = $this->get_config('numQ');
+        foreach ($userdata as $uid => $user) {
+            $total_score = 0;
+            for($i=0;$i<$n;$i++){
+                if($user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED || $user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR ){
+                    $total_score+= $user->question_list[$i]->score;
+                }else{
+                    $total_score+= intval($this->get_config("default_score"));
+                }
+            }
+             
+            $user->total_score = $total_score;
+        }
+
+
+        if($order == ASCENDING){
+            usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
+        }else{
+            usort($userdata, function($a, $b) { return $b->total_score - $a->total_score; });
+        }
+
+        $unit = "points";
+        if($mode == FASTEST_MODE){
+            $unit = "ms";
+        }elseif($mode == OPTIMODE){
+            $unit = $this->get_config('scoreunits');
+        }
+        $unit=" ".$unit;
+
+        $playerpos = 0;
+        for($i=0; $i< count($userdata) ;$i++) {
+            if($userid==$userdata[$i]->id){
+                $playerpos = $i;
+                break; 
+            }
+        }
+
+        $start = $playerpos-2;
+        $end = $playerpos+2;
+        $len = count($userdata);
+        if($playerpos<2){
+            $start = 0;
+        }
+
+        if($len - $playerpos <= 2){
+            $end = $len-1;
+        }
+
+        $pos = 0;
+        $prev = $userdata[0]->total_score;
+        for($i=0; $i< $len ;$i++) {
+            $curr = $userdata[$i]->total_score;
+            if($prev!=$curr){
+                $pos++;
+                $prev = $curr;
+            }
+
+            if($start<=$i and $i<=$end){
+                $data = [$pos,$userdata[$i]->name, $userdata[$i]->total_score.$unit];
+                $attributes = [];
+
+                if($userdata[$i]->id == $userid){
+                    $attributes['background-color'] = 'orange';
+                }
+                
+                HtmlElement::add_tabledata($leaderboard,$data,$attributes);
+            }
+
+        }
+
+        return $leaderboard;
+    }
+
+    public function getGroupLeaderBoardData(){
+        global $DB;
+
+        $groups=$this->get_groups();
+        
+        $groupdata = array();
+        foreach ($groups as $key => $value) {
+            
+            $groupObj = $DB->get_record("groups", array("id" => $key));
+            $group = new stdClass();
+            $group->id = $key;
+            $group->name = $groupObj->name;
+            $group->question_list = $this->get_all_group_submissions2($key);
+            $groupdata[$key] = $group;
+        
+        }
+
+       return $groupdata;
+    }
+
+    public function get_all_group_submissions2($groupid){
+        global $DB;
+        $sql = "SELECT question_number, memory, runtime, status, score FROM {customfeedback_group_subs} 
+                WHERE 
+                assign_id = :assign_id AND
+                group_id = :groupid
+                ";
+
+        $params = array();
+        $params['assign_id'] = $this->assignment->get_instance()->id;
+        $params['groupid'] = $groupid;
+        $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
+        return $records;
+    }
+
+    public function get_groups(){
+        global $DB;
+        $sql = "SELECT group_id FROM {customfeedback_group_subs} 
+                WHERE 
+                assign_id = :assign_id
+                ";
+
+        $params = array();
+        $params['assign_id'] = $this->assignment->get_instance()->id;
+        $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
+
+        return $records;
+    }
+
     /**
     * 
     */
     function get_question_verdict(stdClass $grade,$question){
         global $DB;
 
-        $sql = "SELECT * FROM {customfeedback_submission} 
-                WHERE 
-                question_number=:question_number AND
-                assign_id = :assign_id AND
-                user_id = :user_id
-                ";
-        $params = array();
-        $params['question_number'] = $question;
-        $params['assign_id'] = $this->assignment->get_instance()->id;
-        $params['user_id'] = $grade->userid;
+        $isteams = $this->assignment->get_instance()->teamsubmission;
+        if(!$isteams){
+            $sql = "SELECT * FROM {customfeedback_submission} 
+                    WHERE 
+                    question_number=:question_number AND
+                    assign_id = :assign_id AND
+                    user_id = :user_id
+                    ";
+            $params = array();
+            $params['question_number'] = $question;
+            $params['assign_id'] = $this->assignment->get_instance()->id;
+            $params['user_id'] = $grade->userid;
+        }else{
+            $sql = "SELECT * FROM {customfeedback_group_subs} 
+                    WHERE 
+                    question_number=:question_number AND
+                    assign_id = :assign_id AND
+                    group_id = :id
+                    ";
+            $groupingid = $this->assignment->get_instance()->teamsubmissiongroupingid;
+            $params = array();
+            $params['question_number'] = $question;
+            $params['assign_id'] = $this->assignment->get_instance()->id;
+            $params['id'] = $this->get_group_id($grade->userid,$groupingid);
+        }
+
 
         $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
+        
+        $v = $this->verdict($records,$question);
+        return $v;
 
+    }
+
+    function verdict($records,$question){
         if(empty($records)){
             //add to language strings
             return "No Submission Made";
@@ -1426,8 +1804,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                     
             } 
         }
-
     }
+
+
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1441,49 +1820,66 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     //called once marker finishes marking
     public function update_record($question_number,$assign_id,$user_id,$memory,$runtime,$status,$grade,$score,$inputJson){
         global $DB;
+
+        $isteams = $this->assignment->get_instance()->teamsubmission;
+        if($isteams){
+            $groupingid = $this->assignment->get_instance()->teamsubmissiongroupingid;
+            $id = $this->get_group_id($user_id, $groupingid);
+            $table = "customfeedback_group_subs";
+            $idField = "group_id";
+        }else{
+            $id = $user_id;
+            $table = "customfeedback_submission"; 
+            $idField = "user_id";    
+        }
+
+
         $params = array();
         $params['question_number'] = $question_number;
         $params['assign_id'] = $assign_id;
-        $params['user_id'] = $user_id;
+        $params['id'] = $id;
         $params['memory']=$memory;
         $params['status']=$status;
         $params['runtime']= $runtime;
         $params['grade']=$grade;
         $params['score']=$score;
 
-        
-        
-        if($this->SubmissionExists($question_number,$assign_id,$user_id)){//submission update
 
+        $sql = "SELECT * FROM {".$table."} 
+                WHERE 
+                question_number=:question_number AND
+                assign_id = :assign_id AND
+                $idField = :id
+                ";
+        $records = $DB->get_records_sql($sql,$params);
+        if($records && !$isteams){      
+            $attempts=$records[0]->no_of_submittions+1;
+            $params['attempts']=$attempts;
+            $sql="UPDATE {customfeedback_submission} 
+                SET no_of_submittions=:attempts,memory=:memory,status=:status,runtime=:runtime,score=:score
+                WHERE 
+                question_number=:question_number AND
+                assign_id =:assign_id AND
+                user_id = :id
+                ";   
+            // die(var_dump($params));
+               $DB->execute($sql, $params);
 
+            return true;//success     
+        }else if($records && $isteams){
+            $sql="UPDATE {customfeedback_group_subs} 
+                SET memory=:memory,status=:status,runtime=:runtime,score=:score
+                WHERE 
+                question_number=:question_number AND
+                assign_id =:assign_id AND
+                group_id = :id
+                ";   
+               $DB->execute($sql, $params);
 
-            $sql = "SELECT * FROM {customfeedback_submission} 
-                    WHERE 
-                    question_number=:question_number AND
-                    assign_id = :assign_id AND
-                    user_id = :user_id
-                    ";
-
-            if($records = $DB->get_records_sql($sql,$params)){
-                    $attempts=$records[0]->no_of_submittions+1;
-                    $params['attempts']=$attempts;
-                    $sql="UPDATE {customfeedback_submission} 
-                        SET no_of_submittions=:attempts,memory=:memory,status=:status,runtime=:runtime,score=:score
-                        WHERE 
-                        question_number=:question_number AND
-                        assign_id =:assign_id AND
-                        user_id = :user_id
-                        ";   
-                       $DB->execute($sql, $params);
-    
-                    return true;//success     
-            }
-
+            return true;//success   
         }
-        else{//submission record doest exist
-    
-        }
 
+        return false;
     }
 
     public function SubmissionExists($question_number,$assign_id,$user_id){
