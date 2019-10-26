@@ -16,32 +16,32 @@ class locallibTest extends TestCase{
     public function test_get_modes(){
         $tester=new assign_feedback_customfeedback;
         $result = $tester->get_modes();
-        $expected = array("Classic Mode", "Fastest Mode", "Tournament Mode", "AI Mode");
+        $expected = array("Fastest Mode", "OptiMode" , "Classic Mode", "Tournament Mode", "AI Mode");
         $this->assertEquals($expected,$result,"correct!");
     }
 
     public function test_get_languages(){
         $tester=new assign_feedback_customfeedback;
         $result = $tester->get_languages();
-        $expected = array('Java', 'Python', 'C++');
+        $expected =  array('Java', 'Python', 'C++', 'PythonDocker');
         $this->assertEquals($expected,$result,"correct!");
     }
 
     public function test_get_language_code(){
         $tester=new assign_feedback_customfeedback;
-        $langs = array('Java' => 1, 'Python' => 4, 'C++' => 12);
+        $langs = array('Java' => 2, 'Python' => 4, 'C++' => 12, 'PythonDocker' => 16);
 
         foreach ($langs as $lang => $code) {
             $this->assertEquals($tester->get_language_code($lang),$code);
         }
     }
 
+
     public function test_get_order_options(){
         $tester=new assign_feedback_customfeedback;
         $result = $tester->get_order_options();
-        $expected = array('Ascending' ,'Descending');
+        $expected =  array('Ascending' ,'Descending');
         $this->assertEquals($expected,$result,"correct!");
-
     }
 
     public function test_get_mode_code(){
@@ -54,7 +54,6 @@ class locallibTest extends TestCase{
         }
 
     }
-
 
     public function test_get_rerun_options(){
         $tester=new assign_feedback_customfeedback;
@@ -74,7 +73,7 @@ class locallibTest extends TestCase{
     public function test_get_time_limits(){
         $tester=new assign_feedback_customfeedback;
         $result = $tester->get_time_limits();
-        $expected = array(1,3,5,10,20,60);
+        $expected = array(1,3,5,10,20,60,120,240,360,500);
         $this->assertEquals($expected,$result,"correct!");
     }
 
@@ -85,12 +84,21 @@ class locallibTest extends TestCase{
         $this->assertEquals($expected,$result,"correct!");
     }
 
+    public function test_get_cron_option(){
+        $tester=new assign_feedback_customfeedback;
+        $result = $tester->get_cron_option();
+        $expected = array(1,2,5,12,24);
+        $this->assertEquals($expected,$result,"correct!");
+    }
+
     public function test_get_testcase_filearea(){
         $tester=new assign_feedback_customfeedback;
         $result = $tester->get_testcase_filearea(1);
         $expected = 'competition_testcases1';
         $this->assertEquals($result,$expected);
     }
+
+
 
     public function test_get_callback_url(){
         $tester=new assign_feedback_customfeedback;
@@ -100,84 +108,260 @@ class locallibTest extends TestCase{
         $this->assertEquals($result,$expected);
     }
 
-    public function test_get_settings(){
+
+
+
+
+    public function test_mform_title(){
+        $mform = new MoodleQuickForm;
         $tester=new assign_feedback_customfeedback;
-        $form = new MoodleQuickForm(); 
-        $tester->get_settings($form);
+        $tester->mform_title($mform);
 
-        $this->assertTrue(true);
+        $expected = array(
+            '<h2 id = "assignfeedback_customfeedback_tittle">Competitive Assignment Form</h2> <hr>' => array('type'=>'html')
+        );
+
+        $this->assertEquals($mform->elements,$expected);
     }
 
-    public function test_save_settings(){
+    public function test_mform_type_selection(){
+        $mform = new MoodleQuickForm;
         $tester=new assign_feedback_customfeedback;
-        $data = new stdClass();
-        $data->assignfeedback_witsoj_enabled = true;
+        $tester->mform_type_selection($mform);
 
+        $expected = array(
+            'assignfeedback_customfeedback_mode' => 
+             array('type'=>'select')
+        );
 
-        $data->assignfeedback_customfeedback_mode = 0;
-        $data->assignfeedback_customfeedback_language = 0;
-        $data->assignfeedback_customfeedback_numQ = 0;
-
-        $result = $tester->save_settings($data);
-        $this->assertTrue(!$result);
-
-        $data->assignfeedback_witsoj_enabled = false;
-        for($i=0;$i<10;$i++){
-            eval('$data->assignfeedback_customfeedback_timelimitQ'.$i.'=1;');
-            eval('$data->assignfeedback_customfeedback_memorylimitQ'.$i.'=1;');
-            eval('$data->assignfeedback_customfeedback_testcasesQ'.$i.'=1;');
-        }
-
-
-
-         $result = $tester->save_settings($data);
-        $this->assertTrue($result);
-
+        $this->assertEquals($mform->elements,$expected);
     }
 
-    public function test_is_feedback_modified(){
-        $tester = new assign_feedback_customfeedback;
-        $data = new stdClass();
-        $data->assignfeedbackcomments_editor = array("text"=>'comment');
-        $grade = new stdClass();
-        $grade->id = 2;
+    public function test_mform_ordering_selection(){
+        $mform = new MoodleQuickForm;
+        $tester=new assign_feedback_customfeedback;
+        $tester->mform_ordering_selection($mform);
 
-        $result = $tester->is_feedback_modified($grade, $data);
-        $this->assertTrue(!$result);
+        $expected = array(
+            'assignfeedback_customfeedback_order' => 
+             array('type'=>'select')
+        );
 
-        $data->assignfeedbackcomments_editor = array("text"=>'comment2');
-        $grade->id = 2;
-
-         $result = $tester->is_feedback_modified($grade, $data);
-        $this->assertTrue($result);
+        $this->assertEquals($mform->elements,$expected);
     }
+    
+
+
+    public function test_mform_rerun_selection(){
+        $mform = new MoodleQuickForm;
+        $tester=new assign_feedback_customfeedback;
+        $tester->mform_rerun_selection($mform);
+
+        $expected = array(
+            'assignfeedback_customfeedback_rerun' => 
+             array('type'=>'select')
+        );
+
+        $this->assertEquals($mform->elements,$expected);
+    }
+    
+
+    public function test_mform_default_score_inputbox(){
+        $mform = new MoodleQuickForm;
+        $tester=new assign_feedback_customfeedback;
+        $tester->mform_default_score_inputbox($mform);
+
+        $expected = array(
+            'assignfeedback_customfeedback_default_score' => 
+             array('type'=>'text')
+        );
+
+        $this->assertEquals($mform->elements,$expected);
+    }
+
+
+    public function test_mform_unit_inputbox(){
+        $mform = new MoodleQuickForm;
+        $tester=new assign_feedback_customfeedback;
+        $tester->mform_unit_inputbox($mform);
+
+        $expected = array(
+            'assignfeedback_customfeedback_scoreunits' => 
+             array('type'=>'text')
+        );
+
+        $this->assertEquals($mform->elements,$expected);
+    }
+
+    
+    public function test_mform_language_selection(){
+        $mform = new MoodleQuickForm;
+        $tester=new assign_feedback_customfeedback;
+        $tester->mform_language_selection($mform);
+
+        $expected = array(
+            'assignfeedback_customfeedback_language' => 
+             array('type'=>'select')
+        );
+
+        $this->assertEquals($mform->elements,$expected);
+    }
+
+    
+
+    public function test_mform_grading_options(){
+        $mform = new MoodleQuickForm;
+        $tester=new assign_feedback_customfeedback;
+        $tester->mform_grading_options($mform);
+
+        $expected = array(
+            'assignfeedback_customfeedback_autograding_option' => 
+             array('type'=>'checkbox'),
+             'assignfeedback_customfeedback_autograding_cron' => 
+             array('type'=>'select'),
+             'assignfeedback_customfeedback_autograde_script' => 
+             array('type'=>'filemanager')
+        );
+
+        $this->assertEquals($mform->elements,$expected);
+    }
+
+    public function test_mform_rejudge_checkbox(){
+        $mform = new MoodleQuickForm;
+        $tester=new assign_feedback_customfeedback;
+        $tester->mform_rejudge_checkbox($mform);
+
+        $expected = array(
+            'assignfeedback_customfeedback_rejudge' => 
+             array('type'=>'checkbox')
+        );
+
+        $this->assertEquals($mform->elements,$expected);
+    }
+
+    public function test_mform_judge_nochange(){
+        $mform = new MoodleQuickForm;
+        $tester=new assign_feedback_customfeedback;
+        $tester->mform_judge_nochange($mform);
+
+        $expected = array(
+            'assignfeedback_customfeedback_judge_nochange' => 
+             array('type'=>'checkbox')
+        );
+
+        $this->assertEquals($mform->elements,$expected);
+    }
+    
+
+    public function test_mform_num_question_options(){
+        $mform = new MoodleQuickForm;
+        $tester=new assign_feedback_customfeedback;
+        $tester->mform_num_question_options($mform);
+
+        $expected = array(
+            'assignfeedback_customfeedback_numQ' => 
+             array('type'=>'select')
+        );
+
+        $this->assertEquals($mform->elements,$expected);
+    }
+
+    public function test_mform_add_question(){
+        $mform = new MoodleQuickForm;
+        $tester=new assign_feedback_customfeedback;
+        $tester->mform_add_question(0,$mform);
+
+        $expected = array(
+            'assignfeedback_customfeedback_timelimitQ0' => 
+             array('type'=>'select'),
+            'assignfeedback_customfeedback_memorylimitQ0' => 
+             array('type'=>'select'),
+            'assignfeedback_customfeedback_testcasesQ0' => 
+             array('type'=>'filemanager')
+        );
+
+        $this->assertEquals($mform->elements,$expected);
+    }
+
+
+ //    public function test_get_settings(){
+ //        $tester=new assign_feedback_customfeedback;
+ //        $form = new MoodleQuickForm(); 
+ //        $tester->get_settings($form);
+
+ //        $this->assertTrue(true);
+ //    }
+
+ //    public function test_save_settings(){
+ //        $tester=new assign_feedback_customfeedback;
+ //        $data = new stdClass();
+ //        $data->assignfeedback_witsoj_enabled = true;
+
+
+ //        $data->assignfeedback_customfeedback_mode = 0;
+ //        $data->assignfeedback_customfeedback_language = 0;
+ //        $data->assignfeedback_customfeedback_numQ = 0;
+
+ //        $result = $tester->save_settings($data);
+ //        $this->assertTrue(!$result);
+
+ //        $data->assignfeedback_witsoj_enabled = false;
+ //        for($i=0;$i<10;$i++){
+ //            eval('$data->assignfeedback_customfeedback_timelimitQ'.$i.'=1;');
+ //            eval('$data->assignfeedback_customfeedback_memorylimitQ'.$i.'=1;');
+ //            eval('$data->assignfeedback_customfeedback_testcasesQ'.$i.'=1;');
+ //        }
+
+
+
+ //         $result = $tester->save_settings($data);
+ //        $this->assertTrue($result);
+
+ //    }
+
+ //    public function test_is_feedback_modified(){
+ //        $tester = new assign_feedback_customfeedback;
+ //        $data = new stdClass();
+ //        $data->assignfeedbackcomments_editor = array("text"=>'comment');
+ //        $grade = new stdClass();
+ //        $grade->id = 2;
+
+ //        $result = $tester->is_feedback_modified($grade, $data);
+ //        $this->assertTrue(!$result);
+
+ //        $data->assignfeedbackcomments_editor = array("text"=>'comment2');
+ //        $grade->id = 2;
+
+ //         $result = $tester->is_feedback_modified($grade, $data);
+ //        $this->assertTrue($result);
+ //    }
 
 
   
-    public function test_format_for_gradebook(){
-        $this->assertEquals(2, 2,"correct!"); 
-    }
+ //    public function test_format_for_gradebook(){
+ //        $this->assertEquals(2, 2,"correct!"); 
+ //    }
     
-    public function test_supports_quickgrading(){
-            $tester=new assign_feedback_customfeedback;
-            $result = $tester->supports_quickgrading();
-            $expected = false;
-            $this->assertEquals($expected,$result,"correct!"); 
-    }
+ //    public function test_supports_quickgrading(){
+ //            $tester=new assign_feedback_customfeedback;
+ //            $result = $tester->supports_quickgrading();
+ //            $expected = false;
+ //            $this->assertEquals($expected,$result,"correct!"); 
+ //    }
 	
-	public function test_get_grading_actions(){
-		$tester=new assign_feedback_customfeedback;
-		$result = $tester->get_grading_actions();
-        $expected = array();
-        $this->assertEquals($expected,$result,"correct!"); 
-	}
+	// public function test_get_grading_actions(){
+	// 	$tester=new assign_feedback_customfeedback;
+	// 	$result = $tester->get_grading_actions();
+ //        $expected = array();
+ //        $this->assertEquals($expected,$result,"correct!"); 
+	// }
  
-	public function test_get_grading_batch_operations(){
-		$tester=new assign_feedback_customfeedback;
-		$result = $tester-> get_grading_batch_operations();
-        $expected = array();
-        $this->assertEquals($expected,$result,"correct!"); 
-	}
+	// public function test_get_grading_batch_operations(){
+	// 	$tester=new assign_feedback_customfeedback;
+	// 	$result = $tester-> get_grading_batch_operations();
+ //        $expected = array();
+ //        $this->assertEquals($expected,$result,"correct!"); 
+	// }
  
  
 }
