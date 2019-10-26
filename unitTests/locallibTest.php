@@ -283,6 +283,64 @@ class locallibTest extends TestCase{
         $this->assertEquals($mform->elements,$expected);
     }
 
+    public function test_mform_disable_form(){
+        $mform = new MoodleQuickForm;
+        $tester=new assign_feedback_customfeedback;
+        $tester->mform_disable_form($mform, null,null);
+
+        $expected = array (
+         'assignfeedback_customfeedback_mode' => true,
+         'assignfeedback_customfeedback_rerun' => true,
+         'assignfeedback_customfeedback_language' => true,
+         'assignfeedback_customfeedback_numQ' => true,
+         'assignfeedback_customfeedback_order' => true,
+         'assignfeedback_customfeedback_scoreunits' => true,
+         'assignfeedback_customfeedback_default_score' => true,
+         'assignfeedback_customfeedback_autograding_option' => true,
+         'assignfeedback_customfeedback_autograding_cron' => true,
+         'assignfeedback_customfeedback_autograde_script' => true,
+         'assignfeedback_customfeedback_rejudge' => true,
+         'assignfeedback_customfeedback_judge_nochange' => true,
+         'assignfeedback_customfeedback_timelimitQ0' => true,
+         'assignfeedback_customfeedback_memorylimitQ0' => true,
+         'assignfeedback_customfeedback_testcasesQ0' => true,
+         'assignfeedback_customfeedback_timelimitQ1' => true,
+         'assignfeedback_customfeedback_memorylimitQ1' => true,
+         'assignfeedback_customfeedback_testcasesQ1' => true,
+         'assignfeedback_customfeedback_timelimitQ2' => true,
+         'assignfeedback_customfeedback_memorylimitQ2' => true,
+         'assignfeedback_customfeedback_testcasesQ2' => true,
+         'assignfeedback_customfeedback_timelimitQ3' => true,
+         'assignfeedback_customfeedback_memorylimitQ3' => true,
+         'assignfeedback_customfeedback_testcasesQ3' => true,
+         'assignfeedback_customfeedback_timelimitQ4' => true,
+         'assignfeedback_customfeedback_memorylimitQ4' => true,
+         'assignfeedback_customfeedback_testcasesQ4' => true,
+         'assignfeedback_customfeedback_timelimitQ5' => true,
+         'assignfeedback_customfeedback_memorylimitQ5' => true,
+         'assignfeedback_customfeedback_testcasesQ5' => true,
+         'assignfeedback_customfeedback_timelimitQ6' => true,
+         'assignfeedback_customfeedback_memorylimitQ6' => true,
+         'assignfeedback_customfeedback_testcasesQ6' => true,
+         'assignfeedback_customfeedback_timelimitQ7' => true,
+         'assignfeedback_customfeedback_memorylimitQ7' => true,
+         'assignfeedback_customfeedback_testcasesQ7' => true,
+         'assignfeedback_customfeedback_timelimitQ8' => true,
+         'assignfeedback_customfeedback_memorylimitQ8' => true,
+         'assignfeedback_customfeedback_testcasesQ8' => true,
+         'assignfeedback_customfeedback_timelimitQ9' => true,
+         'assignfeedback_customfeedback_memorylimitQ9' => true,
+         'assignfeedback_customfeedback_testcasesQ9' => true
+    );
+
+        foreach ($expected as $key => $value) {
+            $this->assertEquals($mform->disabled[$key],$value);
+        }
+        
+    }
+
+
+
 
  //    public function test_get_settings(){
  //        $tester=new assign_feedback_customfeedback;

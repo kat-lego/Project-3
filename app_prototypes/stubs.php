@@ -60,6 +60,7 @@ class assign_feedback_plugin{
 class MoodleQuickForm {
 
 	public $elements = array();
+	public $disabled = array();
 
 
 	public function addElement($type, $name, $string=null,$values= null,$attributes=null){
@@ -83,8 +84,8 @@ class MoodleQuickForm {
 
 	}
 
-	public function disabledIf(){
-		
+	public function disabledIf($form, $dependent,$condition ){
+		$this->disabled[$form] = true;
 	}
 
 	public function addRule(){
