@@ -52,6 +52,9 @@ $string['assign_mode_help'] = 'The competition mode recognised by the backend ma
 $string['language'] = 'Programming Language';
 $string['language_help'] = 'Programming Language recognised by the marking backend.';
 
+$string['eval_language'] = 'Evaluator Language';
+$string['eval_language_help'] = 'Evaluator Language recognised by the marking backend.';
+
 $string['numQuestions'] = 'Number of Questions';
 $string['numQuestions_help'] = 'The number of questions this assignment has.';
 
@@ -88,7 +91,7 @@ $string['autograde_script'] = 'Autograding Script';
 $string['autograde_script_help'] = 'Python script for autograding';
 
 $string['rejudge_option'] = 'Rejudge Option';
-$string['rejudge_option_help'] = 'Toggle Rejudge on saving settings on and off';
+$string['rejudge_option_help'] = 'Toggle Rejudge on saving settings on and off. This rejudges all submissions that have been made for the assignment';
 
 $string['jugde_nochange'] = 'Judge Unchanged Submissions';
 $string['jugde_nochange_help'] = 'Choose whether to judge Unchanged submissions or not';

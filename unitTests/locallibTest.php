@@ -333,22 +333,67 @@ class locallibTest extends TestCase{
          'assignfeedback_customfeedback_testcasesQ9' => true
     );
 
-        foreach ($expected as $key => $value) {
-            $this->assertEquals($mform->disabled[$key],$value);
-        }
+        $this->assertEquals($mform->disabled,$expected);
         
     }
 
+    public function test_get_settings(){
+        $mform = new MoodleQuickForm;
+        $tester=new assign_feedback_customfeedback;
+        $tester->get_settings($mform);
 
+        $expected = array(
+            '<h2 id = "assignfeedback_customfeedback_tittle">Competitive Assignment Form</h2> <hr>' => array ('type'=>"html"),
+            'assignfeedback_customfeedback_mode' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_order' => array('type'=>"select"),
+            'assignfeedback_customfeedback_rerun' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_default_score' => array ('type'=>"text"),
+            'assignfeedback_customfeedback_scoreunits' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_language' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_numQ' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_timelimitQ0' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_memorylimitQ0' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ0' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_timelimitQ1' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_memorylimitQ1' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ1' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_timelimitQ2' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_memorylimitQ2' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ2' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_timelimitQ3' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_memorylimitQ3' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ3' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_timelimitQ4' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_memorylimitQ4' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ4' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_timelimitQ5' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_memorylimitQ5' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ5' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_timelimitQ6' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_memorylimitQ6' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ6' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_timelimitQ7' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_memorylimitQ7' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ7' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_timelimitQ8' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_memorylimitQ8' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ8' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_timelimitQ9' =>array ('type'=>"select"),
+            'assignfeedback_customfeedback_memorylimitQ9' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ9' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_rejudge' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_judge_nochange' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_autograding_option' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_autograding_cron' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_autograde_script' => array ('type'=>"select")
 
+        );
 
- //    public function test_get_settings(){
- //        $tester=new assign_feedback_customfeedback;
- //        $form = new MoodleQuickForm(); 
- //        $tester->get_settings($form);
+        $this->assertEquals($mform->elements,$expected);
+    }
 
- //        $this->assertTrue(true);
- //    }
+    
+
 
  //    public function test_save_settings(){
  //        $tester=new assign_feedback_customfeedback;
@@ -377,22 +422,22 @@ class locallibTest extends TestCase{
 
  //    }
 
- //    public function test_is_feedback_modified(){
- //        $tester = new assign_feedback_customfeedback;
- //        $data = new stdClass();
- //        $data->assignfeedbackcomments_editor = array("text"=>'comment');
- //        $grade = new stdClass();
- //        $grade->id = 2;
+    // public function test_is_feedback_modified(){
+    //     $tester = new assign_feedback_customfeedback;
+    //     $data = new stdClass();
+    //     $data->assignfeedbackcomments_editor = array("text"=>'comment');
+    //     $grade = new stdClass();
+    //     $grade->id = 2;
 
- //        $result = $tester->is_feedback_modified($grade, $data);
- //        $this->assertTrue(!$result);
+    //     $result = $tester->is_feedback_modified($grade, $data);
+    //     $this->assertTrue(!$result);
 
- //        $data->assignfeedbackcomments_editor = array("text"=>'comment2');
- //        $grade->id = 2;
+    //     $data->assignfeedbackcomments_editor = array("text"=>'comment2');
+    //     $grade->id = 2;
 
- //         $result = $tester->is_feedback_modified($grade, $data);
- //        $this->assertTrue($result);
- //    }
+    //      $result = $tester->is_feedback_modified($grade, $data);
+    //     $this->assertTrue($result);
+    // }
 
 
   

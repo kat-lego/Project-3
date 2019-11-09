@@ -235,6 +235,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         //setting up lanuage selection
         $this->mform_language_selection($mform);
 
+        //setting up evaluator lanuage selection
+        $this->mform_eval_language_selection($mform);
+
 
         //Number of questions
         $this->mform_num_question_options($mform);
@@ -372,6 +375,24 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $mform->addElement('select', 'assignfeedback_customfeedback_language', get_string('language', 'assignfeedback_customfeedback'), $languages, null);
         $mform->addHelpButton('assignfeedback_customfeedback_language', 'language', 'assignfeedback_customfeedback');
         $mform->setDefault('assignfeedback_customfeedback_language', $default_lang);
+    }
+
+    /**
+    * TESTABLE
+    *
+    * Adds langauge selection to mform
+    *
+    * @return void
+    */
+    private function mform_eval_language_selection(MoodleQuickForm $mform){
+        $languages = $this->get_languages();
+        $default_lang = array_search($this->get_config('eval_language'), $languages);
+        $mform->addElement('select', 'assignfeedback_customfeedback_eval_language', get_string('eval_language', 'assignfeedback_customfeedback'), $languages, null);
+        $mform->addHelpButton('assignfeedback_customfeedback_eval_language', 'eval_language', 'assignfeedback_customfeedback');
+        $mform->setDefault('assignfeedback_customfeedback_eval_language', $default_lang);
+
+        $modes = $this->get_modes();
+        $mform->hideIf('assignfeedback_customfeedback_eval_language', 'assignfeedback_customfeedback_mode', 'neq', array_search(OPTIMODE, $modes) ); 
     }
 
     /**
@@ -533,6 +554,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             'assignfeedback_customfeedback_autograde_script',
             'assignfeedback_customfeedback_rejudge',
             'assignfeedback_customfeedback_judge_nochange',
+            'assignfeedback_customfeedback_eval_language',
         );
 
         $n = get_config('assignfeedback_customfeedback','maxquestions');
@@ -588,6 +610,11 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         
         $assignData['language'] = $this->get_languages()[$data->assignfeedback_customfeedback_language];
         $this->set_config('language', $assignData['language']);
+
+        $this->set_config(
+        	'eval_language',
+        	$this->get_languages()[$data->assignfeedback_customfeedback_eval_language]
+        );
         
         $assignData['number_of_questions'] = $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ];
         $this->set_config('numQ', $assignData['number_of_questions']);
@@ -761,6 +788,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     */
     public function set_initial_grade($userid){
         $grade = $this->assignment->get_user_grade($userid, true);
+        if($grade->grade)return; //return if already set
         $grade->grade = 42.42;
         $this->assignment->update_grade($grade, false);
     }
@@ -769,7 +797,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     * Sends out a judgement request to the marker whenever a student adds a submission
     */
     public function judge($userid){
-        
+
+    	$this->set_initial_grade($userid);
         
         $isteams = $this->assignment->get_instance()->teamsubmission;
         if($isteams){
@@ -782,51 +811,77 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     }
 
+    /**
+    * This function is for non-group assingment.
+    * This function tries to gather the source code for each question, given that a submission for
+    * said question was made.Then it gathers all the relavant marking data to be sent to the marker.
+    * The function post_to_handler() is then called with the array data, containing all the relavant marking data 
+    * including the source code.
+    */
     private function individual_submission($userid){
-        global $DB;
 
         $n = $this->get_config('numQ');
         for($i=0;$i<$n;$i++){
             $source = $this->get_question_submission($userid, $i);
             
             if($source != null){
-                $this->set_initial_grade($userid);
-                $mode = $this->get_config("mode");
-                if($mode == FASTEST_MODE){
-                    $data = $this->FastestModeMarkingData($userid,$i);
-                }else if($mode == OPTIMODE){
-                    $data = $this->OptiModeMarkingData($userid,$i);
-                    // die(var_dump($data));
-                }else if($mode == AI_MODE){
-                    $data = AIModeMarkingData($userid,$i);
-                    die($data);
-                }else{
-                    die("Error in Judge Function");
-                }
-
-
-                if(!$data){
-                    //some error
-                    die("Its in the judge function");
-                }
-
-                //basic marking data
-                $data["userid"]    = $userid;
-                $userObj = $DB->get_record("user", array("id" => $userid));
-                $data["firstname"] = $userObj->firstname;
-                $data["lastname"]  = $userObj->lastname;
-                $data["language"]  = $this->get_language_code($this->get_config('language'));
-                $data["mode"] = $this->get_mode_code($this->get_config('mode'));
-                $data["cpu_limit"] = $this->get_config("timelimit".$i);
-                $data["mem_limit"] = $this->get_config("memorylimit".$i);
-                $data["callback"]  = $this->get_callback_url($this->assignment->get_instance()->id, $i);
-                $data['source'] = $source;
-                //die(var_dump($data));
-                $this->post_to_handler($data);
-
-
+				$this->gather_marking_data($userid,$i,$source);
             }
         }
+    }
+
+   /**
+    * This function is for group assingments.
+    * This function tries to gather the source code for each question, given that a submission for
+    * said question was made.Then it gathers all the relavant marking data to be sent to the marker.
+    * The function post_to_handler() is then called with the array data, containing all the relavant marking data 
+    * including the source code.
+    */
+    private function group_submission($userid,$groupid){
+        $n = $this->get_config('numQ');
+        for($i=0;$i<$n;$i++){
+            
+            $source = $this->get_group_submission($userid, $groupid,$i);
+
+            if($source != null){
+				$this->gather_marking_data($userid,$i,$source);
+            }
+        }
+    }
+
+    private function gather_marking_data($userid,$i,$source){
+    	global $DB;
+        $mode = $this->get_config("mode");
+        if($mode == FASTEST_MODE){
+            $data = $this->FastestModeMarkingData($userid,$i);
+        }else if($mode == OPTIMODE){
+            $data = $this->OptiModeMarkingData($userid,$i);
+        }else if($mode == AI_MODE){
+            $data = AIModeMarkingData($userid,$i);
+            die($data);
+        }else{
+            die("Error in Judge Function");
+        }
+
+        if(!$data){
+            //some error
+            die("Its in the judge function");
+        }
+
+        //basic marking data
+        $data["userid"]    = $userid;
+        $userObj = $DB->get_record("user", array("id" => $userid));
+        $data["firstname"] = $userObj->firstname;
+        $data["lastname"]  = $userObj->lastname;
+        $data["language"]  = $this->get_language_code($this->get_config('language'));
+        $data["mode"] = $this->get_mode_code($this->get_config('mode'));
+        $data["cpu_limit"] = $this->get_config("timelimit".$i);
+        $data["mem_limit"] = $this->get_config("memorylimit".$i);
+        $data["callback"]  = $this->get_callback_url($this->assignment->get_instance()->id, $i);
+        $data['source'] = $source;
+        //die(var_dump($data));
+        $this->post_to_handler($data);
+
     }
 
     /**
@@ -1038,7 +1093,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $data = array();
         $data["n"] = $this->get_config('reruns');
 
-
         $fs = get_file_storage();
         $testcase_filearea = $this->get_testcase_filearea($question_number);
         $context = $this->assignment->get_context()->id;
@@ -1094,7 +1148,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         global $DB;
         $data = array();
         $data["n"] = $this->get_config('reruns');
-
+        $data["eval_lang"]  = $this->get_language_code($this->get_config('eval_language'));
 
         $fs = get_file_storage();
         $testcase_filearea = $this->get_testcase_filearea($question_number);
@@ -1202,52 +1256,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     //                                                                                              //
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private function group_submission($userid,$groupid){
-        global $DB;
-        
-        $n = $this->get_config('numQ');
-        for($i=0;$i<$n;$i++){
-            
-            $source = $this->get_group_submission($userid, $groupid,$i);
-            if($source != null){
-                $this->set_initial_grade($userid);
-                $mode = $this->get_config("mode");
-                if($mode == FASTEST_MODE){
-                    $data = $this->FastestModeMarkingData($userid,$i);
-                }else if($mode == OPTIMODE){
-                    $data = $this->OptiModeMarkingData($userid,$i);
-                    // die(var_dump($data));
-                }else if($mode == AI_MODE){
-                    $data = AIModeMarkingData($userid,$i);
-                    die($data);
-                }else{
-                    die("Error in Judge Function");
-                }
 
-
-                if(!$data){
-                    //some error
-                    die("Its in the judge function");
-                }
-
-                //basic marking data
-                $data["userid"]    = $userid;
-                $userObj = $DB->get_record("user", array("id" => $userid));
-                $data["firstname"] = $userObj->firstname;
-                $data["lastname"]  = $userObj->lastname;
-                $data["language"]  = $this->get_language_code($this->get_config('language'));
-                $data["mode"] = $this->get_mode_code($this->get_config('mode'));
-                $data["cpu_limit"] = $this->get_config("timelimit".$i);
-                $data["mem_limit"] = $this->get_config("memorylimit".$i);
-                $data["callback"]  = $this->get_callback_url($this->assignment->get_instance()->id, $i);
-                $data['source'] = $source;
-                //die(var_dump($data));
-                $this->post_to_handler($data);
-
-
-            }
-        }
-    }
 
     private function get_group_submission($userid,$groupid,$question_number){
         global $DB;
@@ -1571,9 +1580,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
         return $records;
     }
-
-
-
 
     public function getGroupLeaderBoardSnippet($userid){
         global $DB;
