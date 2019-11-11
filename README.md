@@ -2,7 +2,6 @@
 **We are the Pipers**
 
 [![Build Status](https://travis-ci.org/maniac22/Project-3.svg?branch=sprint3_dev)](https://travis-ci.org/maniac22/Project-3)
-
 [![Coverage Status](https://coveralls.io/repos/github/maniac22/Project-3/badge.svg?branch=master)](https://coveralls.io/github/maniac22/Project-3?branch=master)
 
 
