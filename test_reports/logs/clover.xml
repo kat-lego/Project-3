@@ -1,147 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="Unit tests" tests="38" assertions="52" errors="0" failures="1" skipped="0" time="0.014558">
-    <testsuite name="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" tests="11" assertions="18" errors="0" failures="0" skipped="0" time="0.003135">
-      <testcase name="test_create_htmlelement" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="9" assertions="1" time="0.001105"/>
-      <testcase name="test_add_attribute" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="14" assertions="3" time="0.000709"/>
-      <testcase name="test_add_attributes" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="30" assertions="2" time="0.000095"/>
-      <testcase name="test_add_sub_element_for_compounds" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="42" assertions="2" time="0.000285"/>
-      <testcase name="test_add_sub_element_for_noncompounds" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="57" assertions="1" time="0.000106"/>
-      <testcase name="test_add_sub_elements_for_compounds" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="65" assertions="3" time="0.000261"/>
-      <testcase name="test_add_sub_elements_for_noncompounds" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="85" assertions="1" time="0.000077"/>
-      <testcase name="test_str_for_noncompounds" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="94" assertions="1" time="0.000064"/>
-      <testcase name="test_str_for_compounds" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="99" assertions="2" time="0.000264"/>
-      <testcase name="test_create_html_tableheader" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="112" assertions="1" time="0.000074"/>
-      <testcase name="test_add_tabledata" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="128" assertions="1" time="0.000095"/>
+  <testsuite name="Unit tests" tests="45" assertions="61" errors="0" failures="0" skipped="0" time="0.012463">
+    <testsuite name="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" tests="11" assertions="18" errors="0" failures="0" skipped="0" time="0.003764">
+      <testcase name="test_create_htmlelement" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="9" assertions="1" time="0.001972"/>
+      <testcase name="test_add_attribute" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="14" assertions="3" time="0.000922"/>
+      <testcase name="test_add_attributes" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="30" assertions="2" time="0.000098"/>
+      <testcase name="test_add_sub_element_for_compounds" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="42" assertions="2" time="0.000137"/>
+      <testcase name="test_add_sub_element_for_noncompounds" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="57" assertions="1" time="0.000074"/>
+      <testcase name="test_add_sub_elements_for_compounds" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="65" assertions="3" time="0.000203"/>
+      <testcase name="test_add_sub_elements_for_noncompounds" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="85" assertions="1" time="0.000073"/>
+      <testcase name="test_str_for_noncompounds" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="94" assertions="1" time="0.000058"/>
+      <testcase name="test_str_for_compounds" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="99" assertions="2" time="0.000070"/>
+      <testcase name="test_create_html_tableheader" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="112" assertions="1" time="0.000071"/>
+      <testcase name="test_add_tabledata" class="HtmlAPITest" classname="HtmlAPITest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/HtmlElementTest.php" line="128" assertions="1" time="0.000086"/>
     </testsuite>
-    <testsuite name="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" tests="27" assertions="34" errors="0" failures="1" skipped="0" time="0.011423">
-      <testcase name="test_get_name" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="9" assertions="1" time="0.005766"/>
-      <testcase name="test_get_modes" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="16" assertions="1" time="0.000061"/>
-      <testcase name="test_get_languages" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="23" assertions="1" time="0.000449"/>
-      <testcase name="test_get_language_code" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="30" assertions="4" time="0.000057"/>
-      <testcase name="test_get_order_options" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="40" assertions="1" time="0.000443"/>
-      <testcase name="test_get_mode_code" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="47" assertions="5" time="0.000062"/>
-      <testcase name="test_get_rerun_options" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="58" assertions="1" time="0.000053"/>
-      <testcase name="test_get_question_numbers" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="65" assertions="1" time="0.000160"/>
-      <testcase name="test_get_time_limits" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="73" assertions="1" time="0.000213"/>
-      <testcase name="test_get_memory_limits" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="80" assertions="1" time="0.000213"/>
-      <testcase name="test_get_cron_option" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="87" assertions="1" time="0.000052"/>
-      <testcase name="test_get_testcase_filearea" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="94" assertions="1" time="0.000213"/>
-      <testcase name="test_get_callback_url" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="103" assertions="1" time="0.000054"/>
-      <testcase name="test_mform_title" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="115" assertions="1" time="0.000220"/>
-      <testcase name="test_mform_type_selection" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="127" assertions="1" time="0.000071"/>
-      <testcase name="test_mform_ordering_selection" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="140" assertions="1" time="0.000212"/>
-      <testcase name="test_mform_rerun_selection" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="155" assertions="1" time="0.000068"/>
-      <testcase name="test_mform_default_score_inputbox" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="169" assertions="1" time="0.000071"/>
-      <testcase name="test_mform_unit_inputbox" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="183" assertions="1" time="0.000067"/>
-      <testcase name="test_mform_language_selection" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="197" assertions="1" time="0.000221"/>
-      <testcase name="test_mform_grading_options" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="212" assertions="1" time="0.000085"/>
-      <testcase name="test_mform_rejudge_checkbox" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="229" assertions="1" time="0.000066"/>
-      <testcase name="test_mform_judge_nochange" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="242" assertions="1" time="0.000062"/>
-      <testcase name="test_mform_num_question_options" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="256" assertions="1" time="0.000071"/>
-      <testcase name="test_mform_add_question" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="269" assertions="1" time="0.000562"/>
-      <testcase name="test_mform_disable_form" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="286" assertions="1" time="0.000084"/>
-      <testcase name="test_get_settings" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="340" assertions="1" time="0.001767">
-        <failure type="PHPUnit\Framework\ExpectationFailedException">locallibTest::test_get_settings
-Failed asserting that two arrays are equal.
---- Expected
-+++ Actual
-@@ @@
-     'assignfeedback_customfeedback_order' =&gt; Array (...)
-     'assignfeedback_customfeedback_rerun' =&gt; Array (...)
-     'assignfeedback_customfeedback_default_score' =&gt; Array (
--        'type' =&gt; 'text'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_scoreunits' =&gt; Array (
--        'type' =&gt; 'text'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_language' =&gt; Array (...)
-     'assignfeedback_customfeedback_numQ' =&gt; Array (...)
-@@ @@
-     'assignfeedback_customfeedback_timelimitQ0' =&gt; Array (...)
-     'assignfeedback_customfeedback_memorylimitQ0' =&gt; Array (...)
-     'assignfeedback_customfeedback_testcasesQ0' =&gt; Array (
--        'type' =&gt; 'filemanager'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_timelimitQ1' =&gt; Array (...)
-     'assignfeedback_customfeedback_memorylimitQ1' =&gt; Array (...)
-     'assignfeedback_customfeedback_testcasesQ1' =&gt; Array (
--        'type' =&gt; 'filemanager'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_timelimitQ2' =&gt; Array (...)
-     'assignfeedback_customfeedback_memorylimitQ2' =&gt; Array (...)
-     'assignfeedback_customfeedback_testcasesQ2' =&gt; Array (
--        'type' =&gt; 'filemanager'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_timelimitQ3' =&gt; Array (...)
-     'assignfeedback_customfeedback_memorylimitQ3' =&gt; Array (...)
-     'assignfeedback_customfeedback_testcasesQ3' =&gt; Array (
--        'type' =&gt; 'filemanager'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_timelimitQ4' =&gt; Array (...)
-     'assignfeedback_customfeedback_memorylimitQ4' =&gt; Array (...)
-     'assignfeedback_customfeedback_testcasesQ4' =&gt; Array (
--        'type' =&gt; 'filemanager'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_timelimitQ5' =&gt; Array (...)
-     'assignfeedback_customfeedback_memorylimitQ5' =&gt; Array (...)
-     'assignfeedback_customfeedback_testcasesQ5' =&gt; Array (
--        'type' =&gt; 'filemanager'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_timelimitQ6' =&gt; Array (...)
-     'assignfeedback_customfeedback_memorylimitQ6' =&gt; Array (...)
-     'assignfeedback_customfeedback_testcasesQ6' =&gt; Array (
--        'type' =&gt; 'filemanager'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_timelimitQ7' =&gt; Array (...)
-     'assignfeedback_customfeedback_memorylimitQ7' =&gt; Array (...)
-     'assignfeedback_customfeedback_testcasesQ7' =&gt; Array (
--        'type' =&gt; 'filemanager'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_timelimitQ8' =&gt; Array (...)
-     'assignfeedback_customfeedback_memorylimitQ8' =&gt; Array (...)
-     'assignfeedback_customfeedback_testcasesQ8' =&gt; Array (
--        'type' =&gt; 'filemanager'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_timelimitQ9' =&gt; Array (...)
-     'assignfeedback_customfeedback_memorylimitQ9' =&gt; Array (...)
-     'assignfeedback_customfeedback_testcasesQ9' =&gt; Array (
--        'type' =&gt; 'filemanager'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_rejudge' =&gt; Array (
--        'type' =&gt; 'checkbox'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_judge_nochange' =&gt; Array (
--        'type' =&gt; 'checkbox'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_autograding_option' =&gt; Array (
--        'type' =&gt; 'checkbox'
-+        'type' =&gt; 'select'
-     )
-     'assignfeedback_customfeedback_autograding_cron' =&gt; Array (...)
-     'assignfeedback_customfeedback_autograde_script' =&gt; Array (
--        'type' =&gt; 'filemanager'
-+        'type' =&gt; 'select'
-     )
- )
-
-/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php:392
-</failure>
-      </testcase>
+    <testsuite name="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" tests="34" assertions="43" errors="0" failures="0" skipped="0" time="0.008699">
+      <testcase name="test_get_name" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="9" assertions="1" time="0.004952"/>
+      <testcase name="test_get_modes" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="16" assertions="1" time="0.000067"/>
+      <testcase name="test_get_languages" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="23" assertions="1" time="0.000059"/>
+      <testcase name="test_get_language_code" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="30" assertions="4" time="0.000062"/>
+      <testcase name="test_get_order_options" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="40" assertions="1" time="0.000057"/>
+      <testcase name="test_get_mode_code" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="47" assertions="5" time="0.000066"/>
+      <testcase name="test_get_rerun_options" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="58" assertions="1" time="0.000058"/>
+      <testcase name="test_get_question_numbers" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="65" assertions="1" time="0.000063"/>
+      <testcase name="test_get_time_limits" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="73" assertions="1" time="0.000078"/>
+      <testcase name="test_get_memory_limits" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="80" assertions="1" time="0.000085"/>
+      <testcase name="test_get_cron_option" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="87" assertions="1" time="0.000060"/>
+      <testcase name="test_get_testcase_filearea" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="94" assertions="1" time="0.000369"/>
+      <testcase name="test_get_callback_url" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="103" assertions="1" time="0.000060"/>
+      <testcase name="test_mform_title" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="115" assertions="1" time="0.000068"/>
+      <testcase name="test_mform_type_selection" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="127" assertions="1" time="0.000076"/>
+      <testcase name="test_mform_ordering_selection" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="140" assertions="1" time="0.000075"/>
+      <testcase name="test_mform_rerun_selection" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="155" assertions="1" time="0.000073"/>
+      <testcase name="test_mform_default_score_inputbox" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="169" assertions="1" time="0.000077"/>
+      <testcase name="test_mform_unit_inputbox" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="183" assertions="1" time="0.000072"/>
+      <testcase name="test_mform_language_selection" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="197" assertions="1" time="0.000074"/>
+      <testcase name="test_mform_grading_options" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="212" assertions="1" time="0.000121"/>
+      <testcase name="test_mform_rejudge_checkbox" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="229" assertions="1" time="0.000070"/>
+      <testcase name="test_mform_judge_nochange" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="242" assertions="1" time="0.000067"/>
+      <testcase name="test_mform_num_question_options" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="256" assertions="1" time="0.000077"/>
+      <testcase name="test_mform_add_question" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="269" assertions="1" time="0.000178"/>
+      <testcase name="test_mform_disable_form" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="286" assertions="1" time="0.000104"/>
+      <testcase name="test_get_settings" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="340" assertions="1" time="0.000849"/>
+      <testcase name="test_ss_set_ranking_order" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="409" assertions="1" time="0.000076"/>
+      <testcase name="test_data_preprocessing" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="422" assertions="1" time="0.000088"/>
+      <testcase name="test_is_feedback_modified" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="465" assertions="2" time="0.000253"/>
+      <testcase name="test_can_upgrade" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="483" assertions="2" time="0.000071"/>
+      <testcase name="test_supports_quickgrading" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="498" assertions="1" time="0.000062"/>
+      <testcase name="test_get_grading_actions" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="505" assertions="1" time="0.000068"/>
+      <testcase name="test_get_grading_batch_operations" class="locallibTest" classname="locallibTest" file="/var/www/html/moodleDev/mod/assign/feedback/customfeedback/unitTests/locallibTest.php" line="512" assertions="1" time="0.000064"/>
     </testsuite>
   </testsuite>
 </testsuites>

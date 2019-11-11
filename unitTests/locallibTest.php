@@ -331,7 +331,7 @@ class locallibTest extends TestCase{
          'assignfeedback_customfeedback_timelimitQ9' => true,
          'assignfeedback_customfeedback_memorylimitQ9' => true,
          'assignfeedback_customfeedback_testcasesQ9' => true
-    );
+        );
 
         $this->assertEquals($mform->disabled,$expected);
         
@@ -348,123 +348,173 @@ class locallibTest extends TestCase{
             'assignfeedback_customfeedback_order' => array('type'=>"select"),
             'assignfeedback_customfeedback_rerun' => array ('type'=>"select"),
             'assignfeedback_customfeedback_default_score' => array ('type'=>"text"),
-            'assignfeedback_customfeedback_scoreunits' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_scoreunits' => array ('type'=>"text"),
             'assignfeedback_customfeedback_language' => array ('type'=>"select"),
             'assignfeedback_customfeedback_numQ' => array ('type'=>"select"),
             'assignfeedback_customfeedback_timelimitQ0' => array ('type'=>"select"),
             'assignfeedback_customfeedback_memorylimitQ0' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_testcasesQ0' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ0' => array ('type' => "filemanager"),
+
             'assignfeedback_customfeedback_timelimitQ1' => array ('type'=>"select"),
             'assignfeedback_customfeedback_memorylimitQ1' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_testcasesQ1' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ1' => array ('type' => "filemanager"),
+
             'assignfeedback_customfeedback_timelimitQ2' => array ('type'=>"select"),
             'assignfeedback_customfeedback_memorylimitQ2' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_testcasesQ2' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ2' => array ('type' => "filemanager"),
+
             'assignfeedback_customfeedback_timelimitQ3' => array ('type'=>"select"),
             'assignfeedback_customfeedback_memorylimitQ3' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_testcasesQ3' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ3' => array ('type' => "filemanager"),
+
             'assignfeedback_customfeedback_timelimitQ4' => array ('type'=>"select"),
             'assignfeedback_customfeedback_memorylimitQ4' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_testcasesQ4' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ4' => array ('type' => "filemanager"),
+
             'assignfeedback_customfeedback_timelimitQ5' => array ('type'=>"select"),
             'assignfeedback_customfeedback_memorylimitQ5' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_testcasesQ5' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ5' => array ('type' => "filemanager"),
+
             'assignfeedback_customfeedback_timelimitQ6' => array ('type'=>"select"),
             'assignfeedback_customfeedback_memorylimitQ6' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_testcasesQ6' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ6' => array ('type' => "filemanager"),
+
+
             'assignfeedback_customfeedback_timelimitQ7' => array ('type'=>"select"),
             'assignfeedback_customfeedback_memorylimitQ7' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_testcasesQ7' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ7' => array ('type' => "filemanager"),
+
             'assignfeedback_customfeedback_timelimitQ8' => array ('type'=>"select"),
             'assignfeedback_customfeedback_memorylimitQ8' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_testcasesQ8' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_timelimitQ9' =>array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ8' => array ('type' => "filemanager"),
+
+            'assignfeedback_customfeedback_timelimitQ9' => array ('type'=>"select"),
             'assignfeedback_customfeedback_memorylimitQ9' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_testcasesQ9' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_rejudge' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_judge_nochange' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_autograding_option' => array ('type'=>"select"),
+            'assignfeedback_customfeedback_testcasesQ9' => array ('type' => "filemanager"),
+
+            'assignfeedback_customfeedback_rejudge' => array ('type'=>"checkbox"),
+            'assignfeedback_customfeedback_judge_nochange' => array ('type'=>"checkbox"),
+            'assignfeedback_customfeedback_autograding_option' => array ('type'=>"checkbox"),
             'assignfeedback_customfeedback_autograding_cron' => array ('type'=>"select"),
-            'assignfeedback_customfeedback_autograde_script' => array ('type'=>"select")
+            'assignfeedback_customfeedback_autograde_script' => array ('type'=>"filemanager"),
+
+
 
         );
 
         $this->assertEquals($mform->elements,$expected);
     }
 
+
+    public function test_ss_set_ranking_order(){
+        $mform = new MoodleQuickForm;
+        $tester=new assign_feedback_customfeedback;
+        $data = new stdClass();
+        $data->assignfeedback_customfeedback_mode = OPTIMODE;
+        $data->assignfeedback_customfeedback_order = "0";
+        $result = $tester->ss_set_ranking_order($data);
+
+        $expected =0;
+
+        $this->assertEquals($result,$expected);
+    }
+
+    public function test_data_preprocessing(){
+        $mform = new MoodleQuickForm;
+        $tester=new assign_feedback_customfeedback;
+        $defaults = array('assignfeedback_customfeedback_autograde_script' =>  10);
+        for($i=0;$i<10;++$i){
+            $defaultvalues['assignfeedback_customfeedback_testcasesQ'.$i] = $i;
+        }
+        $result = $tester->data_preprocessing($defaultvalues);
+
+        // $expected =t;
+
+        $this->assertTrue($result);
+    }
     
 
 
- //    public function test_save_settings(){
- //        $tester=new assign_feedback_customfeedback;
- //        $data = new stdClass();
- //        $data->assignfeedback_witsoj_enabled = true;
-
-
- //        $data->assignfeedback_customfeedback_mode = 0;
- //        $data->assignfeedback_customfeedback_language = 0;
- //        $data->assignfeedback_customfeedback_numQ = 0;
-
- //        $result = $tester->save_settings($data);
- //        $this->assertTrue(!$result);
-
- //        $data->assignfeedback_witsoj_enabled = false;
- //        for($i=0;$i<10;$i++){
- //            eval('$data->assignfeedback_customfeedback_timelimitQ'.$i.'=1;');
- //            eval('$data->assignfeedback_customfeedback_memorylimitQ'.$i.'=1;');
- //            eval('$data->assignfeedback_customfeedback_testcasesQ'.$i.'=1;');
- //        }
-
-
-
- //         $result = $tester->save_settings($data);
- //        $this->assertTrue($result);
-
- //    }
-
-    // public function test_is_feedback_modified(){
-    //     $tester = new assign_feedback_customfeedback;
+    // public function test_save_settings(){
+    //     $tester=new assign_feedback_customfeedback;
     //     $data = new stdClass();
-    //     $data->assignfeedbackcomments_editor = array("text"=>'comment');
-    //     $grade = new stdClass();
-    //     $grade->id = 2;
+    //     $data->assignfeedback_witsoj_enabled = true;
 
-    //     $result = $tester->is_feedback_modified($grade, $data);
+
+    //     $data->assignfeedback_customfeedback_mode = 0;
+    //     $data->assignfeedback_customfeedback_language = 0;
+    //     $data->assignfeedback_customfeedback_numQ = 0;
+
+    //     $result = $tester->save_settings($data);
     //     $this->assertTrue(!$result);
 
-    //     $data->assignfeedbackcomments_editor = array("text"=>'comment2');
-    //     $grade->id = 2;
+    //     $data->assignfeedback_witsoj_enabled = false;
+    //     for($i=0;$i<10;$i++){
+    //         eval('$data->assignfeedback_customfeedback_timelimitQ'.$i.'=1;');
+    //         eval('$data->assignfeedback_customfeedback_memorylimitQ'.$i.'=1;');
+    //         eval('$data->assignfeedback_customfeedback_testcasesQ'.$i.'=1;');
+    //     }
 
-    //      $result = $tester->is_feedback_modified($grade, $data);
+
+
+    //      $result = $tester->save_settings($data);
     //     $this->assertTrue($result);
+
     // }
 
+    public function test_is_feedback_modified(){
+        $tester = new assign_feedback_customfeedback;
+        $data = new stdClass();
+        $data->assignfeedbackcomments_editor = array("text"=>'comment');
+        $grade = new stdClass();
+        $grade->id = 2;
 
+        $result = $tester->is_feedback_modified($grade, $data);
+        $this->assertTrue(!$result);
+
+        $data->assignfeedbackcomments_editor = array("text"=>'comment2');
+        $grade->id = 2;
+
+         $result = $tester->is_feedback_modified($grade, $data);
+        $this->assertTrue($result);
+    }
+
+
+    public function test_can_upgrade(){
+            $tester=new assign_feedback_customfeedback;
+            $result = $tester->can_upgrade("upload", 2011112900);
+            $expected = true;
+            $this->assertEquals($expected,$result,"correct!"); 
+
+            $result = $tester->can_upgrade("none", 2011112900);
+            $expected = false;
+            $this->assertEquals($expected,$result,"correct!"); 
+    }
   
- //    public function test_format_for_gradebook(){
- //        $this->assertEquals(2, 2,"correct!"); 
- //    }
+    // public function test_format_for_gradebook(){
+    //     $this->assertEquals(2, 2,"correct!"); 
+    // }
     
- //    public function test_supports_quickgrading(){
- //            $tester=new assign_feedback_customfeedback;
- //            $result = $tester->supports_quickgrading();
- //            $expected = false;
- //            $this->assertEquals($expected,$result,"correct!"); 
- //    }
+    public function test_supports_quickgrading(){
+            $tester=new assign_feedback_customfeedback;
+            $result = $tester->supports_quickgrading();
+            $expected = false;
+            $this->assertEquals($expected,$result,"correct!"); 
+    }
 	
-	// public function test_get_grading_actions(){
-	// 	$tester=new assign_feedback_customfeedback;
-	// 	$result = $tester->get_grading_actions();
- //        $expected = array();
- //        $this->assertEquals($expected,$result,"correct!"); 
-	// }
+	public function test_get_grading_actions(){
+		$tester=new assign_feedback_customfeedback;
+		$result = $tester->get_grading_actions();
+        $expected = array();
+        $this->assertEquals($expected,$result,"correct!"); 
+	}
  
-	// public function test_get_grading_batch_operations(){
-	// 	$tester=new assign_feedback_customfeedback;
-	// 	$result = $tester-> get_grading_batch_operations();
- //        $expected = array();
- //        $this->assertEquals($expected,$result,"correct!"); 
-	// }
+	public function test_get_grading_batch_operations(){
+		$tester=new assign_feedback_customfeedback;
+		$result = $tester-> get_grading_batch_operations();
+        $expected = array();
+        $this->assertEquals($expected,$result,"correct!"); 
+	}
  
  
 }

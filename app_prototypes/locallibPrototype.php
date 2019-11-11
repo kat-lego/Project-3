@@ -568,7 +568,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     /**
     * NOT TESTABLE
     * Save settings when creating or updating an assignment
-    *
+    * @codeCoverageIgnore
     * @return false if the witsoj plugin was enabled
     */
     public function save_settings(stdClass $data) {
@@ -692,7 +692,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     * @param $assignData: set rankordering to key of 'ordering'
     * @return boolean 
     */
-    public function ss_set_ranking_order(){
+    public function ss_set_ranking_order($data){
         $mode = $this->get_modes($data->assignfeedback_customfeedback_mode);
         $ordering = 0;
         if($mode == FASTEST_MODE){
@@ -710,17 +710,21 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $n = get_config('assignfeedback_customfeedback','maxquestions');
         for($i=0;$i<$n;++$i){
             $draftitemid = file_get_submitted_draft_itemid('assignfeedback_customfeedback_testcasesQ'.$i);
-            file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, 'assignfeedback_customfeedback', $this->get_testcase_filearea($i),
+            file_prepare_draft_area($draftitemid, 0, 'assignfeedback_customfeedback', $this->get_testcase_filearea($i),
                                     0, array('subdirs' => 0));
             $defaultvalues['assignfeedback_customfeedback_testcasesQ'.$i] = $draftitemid;
         }
 
         $draftitemid = file_get_submitted_draft_itemid('assignfeedback_customfeedback_autograde_script');
-            file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, 'assignfeedback_customfeedback', ASSIGNFEEDBACK_CUSTOMFEEDBACK_AUTOGRADE_FILEAREA,0, array('subdirs' => 0));
+            file_prepare_draft_area($draftitemid, 0, 'assignfeedback_customfeedback', ASSIGNFEEDBACK_CUSTOMFEEDBACK_AUTOGRADE_FILEAREA,0, array('subdirs' => 0));
             $defaultvalues['assignfeedback_customfeedback_autograde_script'] = $draftitemid;
 
-    }
+        return true;
 
+    }
+    /**
+    * @codeCoverageIgnore
+    */
     public function rejudge_submissions(){
         global $DB;
         $sql="
@@ -756,8 +760,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     
 
     /**
-    * TESTABLE
+    * NTO TESTABLE
     * Sets grade to 42.42
+    * @codeCoverageIgnore
     */
     public function set_initial_grade($userid){
         $grade = $this->assignment->get_user_grade($userid, true);
@@ -765,8 +770,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $this->assignment->update_grade($grade, false);
     }
 
-    /*
+    /**
     * Sends out a judgement request to the marker whenever a student adds a submission
+    *
+    * @codeCoverageIgnore
     */
     public function judge($userid){
         
@@ -782,6 +789,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     }
 
+    /**
+    *
+    * @codeCoverageIgnore
+    */
     private function individual_submission($userid){
         global $DB;
 
@@ -830,7 +841,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
     /**
-    *
+    * @codeCoverageIgnore
     */
     private function get_question_submission($userid,$question_number){
         global $DB;
@@ -916,6 +927,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     * @param $userid - the id of the user who's submission we are trying to get
     * @param $question_number - the question number of the question relating to the submission file
     * @return string, null if there is no pathnamehash
+    * @codeCoverageIgnore
     */
     private function get_submission_hashes($userid, $question_number){
        global $DB;
@@ -955,6 +967,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     private function get_submission_record($userid,$question_number){
         global $DB;
 
@@ -981,7 +996,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
     /**
-    * 
+    * @codeCoverageIgnore
     */
     private function create_submission_record($userid,$question_number,$contenthash){
         global $DB;
@@ -997,6 +1012,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $DB->execute($sql,$params);
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     public function FastestModeMarkingData($userid,$question_number){
         global $DB;
         $data = array();
@@ -1033,6 +1051,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     public function AIModeMarkingData($userid,$question_number){
         global $DB;
         $data = array();
@@ -1090,6 +1111,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     public function OptiModeMarkingData($userid,$question_number){
         global $DB;
         $data = array();
@@ -1147,6 +1171,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     public function post_to_handler($data){
         // Setup cURL
         // die(var_dump($data));
@@ -1202,6 +1229,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     //                                                                                              //
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+    * @codeCoverageIgnore
+    */
     private function group_submission($userid,$groupid){
         global $DB;
         
@@ -1249,6 +1279,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         }
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     private function get_group_submission($userid,$groupid,$question_number){
         global $DB;
         $pathnamehash = null;
@@ -1330,6 +1363,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     private function get_group_submission_record($groupid,$question_number){
         global $DB;
 
@@ -1350,6 +1386,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     private function create_group_submission_record($groupid,$question_number,$contenthash){
         global $DB;
 
@@ -1365,7 +1404,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $DB->execute($sql,$params);
     }
 
-
+    /**
+    * @codeCoverageIgnore
+    */
     private function get_group_id($userid, $groupingid){
         global $DB;
 
@@ -1817,7 +1858,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
 
 
-    //called once marker finishes marking
+    /**
+    * called once marker finishes marking
+    * @codeCoverageIgnore
+    */
     public function update_record($question_number,$assign_id,$user_id,$memory,$runtime,$status,$grade,$score,$inputJson){
         global $DB;
 
@@ -1904,9 +1948,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return $this->assignment->render_area_files('assignfeedback_file', ASSIGNFEEDBACK_FILE_FILEAREA, $grade->id);
     }
 
-
     public function is_feedback_modified(stdClass $grade, stdClass $data) {
-        return false;
+        
         $commenttext = '';
         if ($grade) {
             $feedbackcomments = $this->get_feedback_comments($grade->id);
@@ -1924,7 +1967,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     /**
     * Figure out what this does
-    *
+    * @codeCoverageIgnore
     */
     public function save(stdClass $grade, stdClass $data) {
         global $DB;
@@ -1950,9 +1993,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             return $DB->insert_record('assignfeedback_file', $filefeedback) > 0;
         }
     }
-        /**
-    *@codeCoverageIgnore
-    */  
+ 
     public function can_upgrade($type, $version) {
 
         if (($type == 'upload' || $type == 'uploadsingle') && $version >= 2011112900) {
@@ -1961,16 +2002,13 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return false;
     }
 
-    /**
-    *@codeCoverageIgnore
-    */
     public function upgrade_settings(context $oldcontext, stdClass $oldassignment, & $log) {
         // first upgrade settings (nothing to do)
         return true;
     }
 
     /**
-    *@codeCoverageIgnore
+    * @codeCoverageIgnore
     */  
     public function upgrade(context $oldcontext, stdClass $oldassignment, stdClass $oldsubmission, stdClass $grade, & $log) {
         global $DB;
@@ -1998,12 +2036,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return true;
     }
 
-
-
-
-    
-
-
+    /**
+    * @codeCoverageIgnore
+    */
     public function view_page($pluginaction){
         
     }

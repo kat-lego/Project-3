@@ -199,6 +199,14 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return $url;
     }
 
+
+    private function get_autograder_callback_url(){
+        global $CFG;
+        $cmid = $this->assignment->get_context()->instanceid;
+        $url = $CFG->wwwroot . "/mod/assign/feedback/customfeedback/autograder_callback.php?cmid=$cmid";
+        return $url;
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                              //
     //                                 START OF GET SETTING STUFF                                   //
@@ -301,10 +309,11 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     */
     private function mform_ordering_selection(MoodleQuickForm $mform){
         $options = $this->get_order_options();
-        $default_option = array_search($this->get_config('ordering'), $options);
+        $default_option = $this->get_config('ordering');
         $mform->addElement('select', 'assignfeedback_customfeedback_order', get_string('ordering', 'assignfeedback_customfeedback'),$options, null);
         $mform->addHelpButton('assignfeedback_customfeedback_order','ordering','assignfeedback_customfeedback');
         $mform->setDefault('assignfeedback_customfeedback_order', $default_option);
+
 
         //hide form if order
         $modes = $this->get_modes();
@@ -410,12 +419,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $default_opt = $this->get_config('autograding_option');
         $mform->setDefault('assignfeedback_customfeedback_autograding_option', $default_opt);
 
-        $cron_options = $this->get_cron_option();
-        $default_cron = array_search($this->get_config('autograding_cron'), $cron_options);
-        $mform->addElement('select', 'assignfeedback_customfeedback_autograding_cron', get_string('autograding_cron', 'assignfeedback_customfeedback'), $cron_options, null);
-        $mform->addHelpButton('assignfeedback_customfeedback_autograding_cron', 'autograding_cron', 'assignfeedback_customfeedback');
-        $mform->setDefault('assignfeedback_customfeedback_autograding_cron', $default_cron);
-        $mform->hideIf('assignfeedback_customfeedback_autograding_cron', 'assignfeedback_customfeedback_autograding_option', 'notchecked' );
+        // $cron_options = $this->get_cron_option();
+        // $default_cron = array_search($this->get_config('autograding_cron'), $cron_options);
+        // $mform->addElement('select', 'assignfeedback_customfeedback_autograding_cron', get_string('autograding_cron', 'assignfeedback_customfeedback'), $cron_options, null);
+        // $mform->addHelpButton('assignfeedback_customfeedback_autograding_cron', 'autograding_cron', 'assignfeedback_customfeedback');
+        // $mform->setDefault('assignfeedback_customfeedback_autograding_cron', $default_cron);
+        // $mform->hideIf('assignfeedback_customfeedback_autograding_cron', 'assignfeedback_customfeedback_autograding_option', 'notchecked' );
 
         //file manager for grading script
         $max_bytes = get_config('assignfeedback_customfeedback', 'maxbytes');
@@ -619,7 +628,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $assignData['number_of_questions'] = $this->get_question_numbers()[$data->assignfeedback_customfeedback_numQ];
         $this->set_config('numQ', $assignData['number_of_questions']);
         
-        $assignData['ordering'] = $this->ss_set_ranking_order();
+        $assignData['ordering'] = $this->ss_set_ranking_order($data);
         $this->set_config('ordering', $assignData['ordering']);
 
         $assignData['default_score'] = floatval($data->assignfeedback_customfeedback_default_score);
@@ -701,11 +710,27 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         if($data->assignfeedback_customfeedback_autograding_option){
             $this->set_config('autograding_option', 1);
-            $this->set_config('autograding_cron', $this->get_cron_option()[$data->assignfeedback_customfeedback_autograding_cron]);
-            file_save_draft_area_files($data->assignfeedback_customfeedback_autograde_script, $this->assignment->get_context()->id,
-                                       'assignfeedback_customfeedback',ASSIGNFEEDBACK_CUSTOMFEEDBACK_AUTOGRADE_FILEAREA , 0);
+            // $this->set_config('autograding_cron', $this->get_cron_option()[$data->assignfeedback_customfeedback_autograding_cron]);
+
+            //create or update record in customfeedback_cron_cmid
+            $cmid = $this->assignment->get_context()->instanceid;
+            $this->add_autograding_cron($cmid);
+
+
+            //save the file
+            file_save_draft_area_files(
+                $data->assignfeedback_customfeedback_autograde_script,
+                $this->assignment->get_context()->id,
+                'assignfeedback_customfeedback',
+                ASSIGNFEEDBACK_CUSTOMFEEDBACK_AUTOGRADE_FILEAREA ,
+                0
+            );
+
+
         }else{
             $this->set_config('autograding_option', 0);
+            $cmid = $this->assignment->get_context()->instanceid;
+            $this->deactivate_autograding_cron($cmid);
         }
         
         return true;
@@ -716,10 +741,10 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     * 
     * set ranking order
     * if assigment mode is fastest mode, set it to 0 (Ascending) 
-    * @param $assignData: set rankordering to key of 'ordering'
+    * @param $data: set rankordering to key of 'ordering'
     * @return boolean 
     */
-    public function ss_set_ranking_order(){
+    public function ss_set_ranking_order($data){
         $mode = $this->get_modes($data->assignfeedback_customfeedback_mode);
         $ordering = 0;
         if($mode == FASTEST_MODE){
@@ -981,7 +1006,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                         'filearea'=>ASSIGNSUBMISSION_FILE_FILEAREA,
                         'userid'=>$userid);
         
-        $prefix = get_config('assignfeedback_customfeedback','prefix').$q;
+        $prefix = get_config('assignfeedback_customfeedback','prefix').($q+1);
         
         if(count($prefix)>3){
             die("Please make sure the prefix set is less than or equals 3");
@@ -1071,7 +1096,8 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                     $file->get_filearea(), 
                     $file->get_itemid(), 
                     $file->get_filepath(), 
-                    $file->get_filename());
+                    $file->get_filename()
+            );
             $download_url = $fileurl->get_port() ? 
                                 $fileurl->get_scheme() . '://' . $fileurl->get_host() . $fileurl->get_path() . ':' . $fileurl->get_port()
                                 : $fileurl->get_scheme() . '://' . $fileurl->get_host() . $fileurl->get_path();
@@ -1409,7 +1435,6 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
     public function view_summary(stdClass $grade, & $showviewlink) {
-
         $n = $this->get_config('numQ');
 
         //TODO: add these stuff the language strings
@@ -1894,6 +1919,239 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return $DB->record_exists('customfeedback_submission', $param);
     }
 
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                                                                              //
+    //                                        AUTOGRADE STUFF                                       //
+    //                                                                                              //
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public function add_autograding_cron($cmid){
+        global $DB;
+        $table = "customfeedback_cron_cmid";
+ 
+        $id = $DB->get_record($table, array("cmid"=>$cmid), $fields='id', $strictness=IGNORE_MISSING)->id;
+        if($id){
+            $dataobject = new stdClass();
+            $dataobject->id = $id;
+            $dataobject->active = 1;
+            $DB->update_record($table, $dataobject, $bulk=false);
+        
+        }else{
+            $dataobjects = new stdClass();
+            $dataobjects->cmid = $cmid;
+            $dataobjects->active = 1;
+            $DB->insert_record($table, $dataobjects);
+        }
+    }
+
+    public function deactivate_autograding_cron($cmid){
+        global $DB;
+        $table = "customfeedback_cron_cmid";
+ 
+        $id = $DB->get_record($table, array("cmid"=>$cmid), $fields='id', $strictness=IGNORE_MISSING)->id;
+        if($id){
+            $dataobject = new stdClass();
+            $dataobject->id = $id;
+            $dataobject->active = 0;
+            $DB->update_record($table, $dataobject, $bulk=false);
+        }
+    }
+
+
+    public static function get_autograde_tasks(){
+        global $DB;
+        $table = "customfeedback_cron_cmid";
+
+        $records =$DB->get_records(
+            $table,
+            array("active"=>1),
+            $sort='',
+            $fields='*',
+            $limitfrom=0,
+            $limitnum=0
+        );
+
+        return $records;
+    }
+
+    public static function execute(){
+        $records = \assign_feedback_customfeedback::get_autograde_tasks();
+        foreach ($records as $key => $value) {
+            $cmid = $value->cmid;
+            list ($course, $cm) = get_course_and_cm_from_cmid($cmid, 'assign');
+            $context = context_module::instance($cm->id);
+            $assign = new assign($context, $cm, $course);
+            $plugin = $assign->get_feedback_plugin_by_type("customfeedback");
+            if(!$plugin->is_enabled()){
+                return;
+            }
+
+            $in = $plugin->get_autograde_input();
+            $code = $plugin->get_autograde_script();
+
+            //figure out running this thing
+            $data = $plugin->get_dummy_testcases();
+            $data["source"] = $code;
+            $data["input"] = $in;
+            $data["userid"] = -1;
+            $data["firstname"] = -1;
+            $data["lastname"]  = -1;
+            $data["language"]  = $plugin->get_language_code("Python");
+            $data["mode"] = 5;
+            $data["cpu_limit"] = $plugin->get_config("timelimit0");
+            $data["mem_limit"] = $plugin->get_config("memorylimit0");
+            $data["callback"]  = $plugin->get_autograder_callback_url();
+        // die(var_dump($in));
+            // die(var_dump($data));
+            $plugin->post_to_handler($data);
+        }
+        // die(var_dump($records));
+    }
+
+    public function get_dummy_testcases(){
+        global $DB;
+        $data = array();
+        $data["n"] = 1;
+
+        $fs = get_file_storage();
+        $testcase_filearea = $this->get_testcase_filearea(0);
+        $context = $this->assignment->get_context()->id;
+        $files = $fs->get_area_files($context, 'assignfeedback_customfeedback',$testcase_filearea , '0','sortorder', false);
+        if ($files) {            
+            foreach ($files as $key => $file) {
+                if (strpos($file->get_filename(), 'testcase') !== false) {
+                    
+                    $fileurl = \moodle_url::make_pluginfile_url(
+                            $file->get_contextid(), 
+                            $file->get_component(), 
+                            $file->get_filearea(), 
+                            $file->get_itemid(), 
+                            $file->get_filepath(), 
+                            $file->get_filename());
+                    $download_url = $fileurl->get_port() ? 
+                                        $fileurl->get_scheme() . '://' . $fileurl->get_host() . $fileurl->get_path() . ':' . $fileurl->get_port()
+                                        : $fileurl->get_scheme() . '://' . $fileurl->get_host() . $fileurl->get_path();
+                    $testcase = array();
+                    $testcase["url"] = $download_url;
+                    $testcase["contenthash"] = $file->get_contenthash();
+                    $testcase["pathnamehash"] = $file->get_pathnamehash();
+                    
+                    $data["testcase"] = $testcase;
+                }
+
+            }
+
+            return $data;
+        }else{
+            die("No testcase uploaded for question $question_number");
+            error_log("E1"); //TODO get rid of this
+            return null;
+        }
+    }
+
+    public function get_autograde_script(){
+        $fs = get_file_storage();
+        $context = $this->assignment->get_context()->id;
+        $files = $fs->get_area_files(
+            $context,
+            'assignfeedback_customfeedback',
+            ASSIGNFEEDBACK_CUSTOMFEEDBACK_AUTOGRADE_FILEAREA,
+            '0',
+            'sortorder',
+            false
+        );
+
+        if ($files) {
+
+            $file = reset($files);
+            
+            $source = array();
+            $source["content"] = base64_encode($file->get_content());
+            $source["ext"] = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
+
+            return $source;
+        }else{
+            die("error in get_autograde_script: No autograder script found");
+            error_log("E1"); //TODO get rid of this
+            return null;
+        }
+    }
+
+    public function get_autograde_input(){
+        $isteams = $this->assignment->get_instance()->teamsubmission;
+        if($isteams){
+            $userdata = $this->getGroupLeaderBoardData();
+        }else{
+            $userdata = $this->getLeaderBoardData();
+        }
+
+        
+        $mode = $this->get_config('mode');
+
+        $n = $this->get_config('numQ');
+        foreach ($userdata as $uid => $user) {
+            $total_score = 0;
+            for($i=0;$i<$n;$i++){
+                if($user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_ACCEPTED || $user->question_list[$i]->status == ASSIGNFEEDBACK_CUSTOMFEEDBACK_STATUS_PRESENTATIONERROR ){
+                    $total_score+= $user->question_list[$i]->score;
+                }else{
+                    $total_score+= intval($this->get_config("default_score"));
+                }
+            }
+             
+            $user->total_score = $total_score;
+        }
+
+
+        if($order == ASCENDING){
+            usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
+        }else{
+            usort($userdata, function($a, $b) { return $b->total_score - $a->total_score; });
+        }
+        // die(var_dump($userdata));
+
+        $len = count($userdata);
+        $data = array();
+        $pos = 0;
+        $prev = $userdata[0]->total_score;
+        for($i=0; $i< $len ;$i++) {
+            $curr = $userdata[$i]->total_score;
+            if($prev!=$curr){
+                $pos++;
+                $prev = $curr;
+            }
+
+            $data[$i] = new stdClass();
+            $data[$i]->userid = $userdata[$i]->id;
+            $data[$i]->pos = $pos;
+            $data[$i]->score = $curr;
+        }
+        $data = json_encode($data);
+
+        return $data;
+    }
+
+    public function update_grades($data){
+        
+        foreach ($data as $key => $value) {
+            $userid = intval($key);
+            $grade = $this->assignment->get_user_grade($userid, true);
+            $grade->grade = floatval($value);
+            $this->assignment->update_grade($grade, false);
+            // die(var_dump($value));
+        }
+
+        return true;
+    }
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                                                                              //
+    //                                     END OF AUTOGRADE STUFF                                   //
+    //                                                                                              //
+    //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
