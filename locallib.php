@@ -310,6 +310,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     private function mform_ordering_selection(MoodleQuickForm $mform){
         $options = $this->get_order_options();
         $default_option = $this->get_config('ordering');
+        // die(var_dump($default_option));
         $mform->addElement('select', 'assignfeedback_customfeedback_order', get_string('ordering', 'assignfeedback_customfeedback'),$options, null);
         $mform->addHelpButton('assignfeedback_customfeedback_order','ordering','assignfeedback_customfeedback');
         $mform->setDefault('assignfeedback_customfeedback_order', $default_option);
@@ -630,6 +631,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         
         $assignData['ordering'] = $this->ss_set_ranking_order($data);
         $this->set_config('ordering', $assignData['ordering']);
+        // die(var_dump($this->get_config('ordering')));
 
         $assignData['default_score'] = floatval($data->assignfeedback_customfeedback_default_score);
         $this->set_config('default_score',$assignData['default_score']);
@@ -1006,7 +1008,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
                         'filearea'=>ASSIGNSUBMISSION_FILE_FILEAREA,
                         'userid'=>$userid);
         
-        $prefix = get_config('assignfeedback_customfeedback','prefix').($q+1);
+        $prefix = get_config('assignfeedback_customfeedback','prefix').($q);
         
         if(count($prefix)>3){
             die("Please make sure the prefix set is less than or equals 3");
@@ -1497,7 +1499,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
              
             $user->total_score = $total_score;
         }
-
+        $order = $this->get_config("ordering");
 
         if($order == ASCENDING){
             usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
@@ -1633,7 +1635,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             $user->total_score = $total_score;
         }
 
-
+        $order = $this->get_config("ordering");
         if($order == ASCENDING){
             usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
         }else{
@@ -1977,6 +1979,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
     public static function execute(){
         $records = \assign_feedback_customfeedback::get_autograde_tasks();
+        // die(var_dump($records));
         foreach ($records as $key => $value) {
             $cmid = $value->cmid;
             list ($course, $cm) = get_course_and_cm_from_cmid($cmid, 'assign');
@@ -2133,13 +2136,12 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
     public function update_grades($data){
-        
+        // die(var_dump($data));
         foreach ($data as $key => $value) {
             $userid = intval($key);
             $grade = $this->assignment->get_user_grade($userid, true);
             $grade->grade = floatval($value);
-            $this->assignment->update_grade($grade, false);
-            // die(var_dump($value));
+            $this->assignment->update_grade($grade, true);
         }
 
         return true;

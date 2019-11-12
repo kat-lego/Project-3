@@ -1440,6 +1440,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     //                                                                                              //
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+    * @codeCoverageIgnore
+    */
     public function view_summary(stdClass $grade, & $showviewlink) {
 
         $n = $this->get_config('numQ');
@@ -1481,6 +1484,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return $string.$link;
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     public function getLeaderBoardSnippet($userid){
         global $DB;
         $lbheader = ['POS', 'USERNAME', 'TOTAL SCORE'];
@@ -1563,7 +1569,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         return $leaderboard;
     }
-
+    /**
+    * @codeCoverageIgnore
+    */
     public function getLeaderBoardData(){
         global $DB;
 
@@ -1583,7 +1591,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
        return $userdata;
     }
-
+    /**
+    * @codeCoverageIgnore
+    */
     public function get_participants(){
         global $DB;
         $sql = "SELECT user_id FROM {customfeedback_submission} 
@@ -1597,7 +1607,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         return $records;
     }
-
+    /**
+    * @codeCoverageIgnore
+    */
     public function get_all_submissions2($userid){
         global $DB;
         $sql = "SELECT question_number, memory, runtime, no_of_submittions, status, score FROM {customfeedback_submission} 
@@ -1615,7 +1627,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
 
 
-
+    /**
+    * @codeCoverageIgnore
+    */
     public function getGroupLeaderBoardSnippet($userid){
         global $DB;
         $lbheader = ['POS', 'TEAM NAME', 'TOTAL SCORE'];
@@ -1701,7 +1715,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         return $leaderboard;
     }
-
+    /**
+    * @codeCoverageIgnore
+    */
     public function getGroupLeaderBoardData(){
         global $DB;
 
@@ -1721,7 +1737,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
        return $groupdata;
     }
-
+    /**
+    * @codeCoverageIgnore
+    */
     public function get_all_group_submissions2($groupid){
         global $DB;
         $sql = "SELECT question_number, memory, runtime, status, score FROM {customfeedback_group_subs} 
@@ -1736,7 +1754,9 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
         return $records;
     }
-
+    /**
+    * @codeCoverageIgnore
+    */
     public function get_groups(){
         global $DB;
         $sql = "SELECT group_id FROM {customfeedback_group_subs} 
@@ -1752,7 +1772,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
     }
 
     /**
-    * 
+    * @codeCoverageIgnore
     */
     function get_question_verdict(stdClass $grade,$question){
         global $DB;
