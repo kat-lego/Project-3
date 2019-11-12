@@ -1771,9 +1771,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         return $records;
     }
 
-    /**
-    * @codeCoverageIgnore
-    */
+
     function get_question_verdict(stdClass $grade,$question){
         global $DB;
 

@@ -2106,7 +2106,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
             $user->total_score = $total_score;
         }
 
-
+        $order = $this->get_config("ordering");
         if($order == ASCENDING){
             usort($userdata, function($a, $b) { return $a->total_score - $b->total_score; });
         }else{
