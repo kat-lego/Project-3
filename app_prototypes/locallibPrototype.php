@@ -1591,9 +1591,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
        return $userdata;
     }
-    /**
-    * @codeCoverageIgnore
-    */
+
     public function get_participants(){
         global $DB;
         $sql = "SELECT user_id FROM {customfeedback_submission} 
@@ -1607,9 +1605,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         return $records;
     }
-    /**
-    * @codeCoverageIgnore
-    */
+
     public function get_all_submissions2($userid){
         global $DB;
         $sql = "SELECT question_number, memory, runtime, no_of_submittions, status, score FROM {customfeedback_submission} 
