@@ -1715,9 +1715,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
         return $leaderboard;
     }
-    /**
-    * @codeCoverageIgnore
-    */
+
     public function getGroupLeaderBoardData(){
         global $DB;
 
@@ -1737,9 +1735,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
 
        return $groupdata;
     }
-    /**
-    * @codeCoverageIgnore
-    */
+
     public function get_all_group_submissions2($groupid){
         global $DB;
         $sql = "SELECT question_number, memory, runtime, status, score FROM {customfeedback_group_subs} 
@@ -1754,9 +1750,7 @@ class assign_feedback_customfeedback extends assign_feedback_plugin {
         $records = $DB->get_records_sql($sql,$params, $sort='', $fields='*', $limitfrom=0, $limitnum=0);
         return $records;
     }
-    /**
-    * @codeCoverageIgnore
-    */
+
     public function get_groups(){
         global $DB;
         $sql = "SELECT group_id FROM {customfeedback_group_subs} 
